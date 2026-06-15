@@ -1,0 +1,64 @@
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import DialogBox from '../ui/DialogBox'
+import ChoiceQuestion from '../ui/ChoiceQuestion'
+import AnimalSort from '../challenges/AnimalSort'
+import { animalSort } from '../../data/day1Story'
+
+// ============================================================
+// مشهد 2 — تصنيف الحيوانات (منطق).
+// مقدمة → لوحة السحب والإفلات → سؤال متابعة.
+// ============================================================
+export default function AnimalSortScene({ onComplete, addScore, awardBadge }) {
+  const [phase, setPhase] = useState('intro') // intro | sort | success | followup
+
+  const handleSorted = () => {
+    addScore('logic', 3)
+    setPhase('success')
+  }
+
+  return (
+    <div className="flex flex-1 flex-col justify-center">
+      {phase === 'intro' && (
+        <DialogBox
+          speaker="captain"
+          expression="explaining"
+          text={animalSort.intro}
+          onContinue={() => setPhase('sort')}
+          continueLabel="يلا نصنّف! 🐾"
+        />
+      )}
+
+      {phase === 'sort' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <AnimalSort onSolved={handleSorted} />
+        </motion.div>
+      )}
+
+      {phase === 'success' && (
+        <DialogBox
+          speaker="captain"
+          expression="proud"
+          text={animalSort.successReply}
+          onContinue={() => setPhase('followup')}
+          continueLabel="فيه سؤال كمان 🤔"
+        />
+      )}
+
+      {phase === 'followup' && (
+        <ChoiceQuestion
+          prompt={animalSort.followUp.question}
+          choices={animalSort.followUp.choices}
+          correctReply={animalSort.followUp.correctReply}
+          wrongReply={animalSort.followUp.wrongReply}
+          dsContext="In a learning game, Yousef sorted animals and answered why water animals are similar."
+          onCorrect={() => {
+            addScore('logic', 1)
+            awardBadge('animals')
+            onComplete()
+          }}
+        />
+      )}
+    </div>
+  )
+}

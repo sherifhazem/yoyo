@@ -1,0 +1,50 @@
+@import './styles/animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+  background: #0f172a;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+/* كتل الإنجليزي تفضل LTR جوه واجهة عربية RTL */
+.ltr {
+  direction: ltr;
+  text-align: center;
+}
+
+/* اخفاء scrollbar مع إبقاء التمرير */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* السماح بتحديد النص في حقول الإدخال */
+input {
+  -webkit-user-select: text;
+  user-select: text;
+}

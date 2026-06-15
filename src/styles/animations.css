@@ -1,0 +1,71 @@
+/* أنيميشن إضافية مخصصة للعبة */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes sun-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 40px 12px rgba(255, 221, 87, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 60px 20px rgba(255, 221, 87, 0.8);
+  }
+}
+
+@keyframes tablet-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 24px 4px rgba(126, 200, 227, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px 10px rgba(126, 200, 227, 0.85);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-sun-glow {
+  animation: sun-glow 4s ease-in-out infinite;
+}
+
+.animate-tablet-glow {
+  animation: tablet-glow 2.5s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
