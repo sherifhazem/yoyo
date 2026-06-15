@@ -30,26 +30,25 @@ export default function MathChallenge({ challenge, onSolved }) {
   const fail = () => {
     setFeedback('wrong')
     playWrong()
-    setTimeout(() => setFeedback(null), 1200)
+  }
+
+  const resetWrong = () => {
+    setSelected(null)
+    setTyped('')
+    setFeedback(null)
   }
 
   const checkTyped = () => {
     if (solved || !typed) return
     if (typed.trim() === String(challenge.answer)) succeed()
-    else {
-      fail()
-      setTyped('')
-    }
+    else fail()
   }
 
   const checkChoice = (choice) => {
     if (solved) return
     setSelected(choice.id)
     if (choice.correct) succeed()
-    else {
-      fail()
-      setTimeout(() => setSelected(null), 1200)
-    }
+    else fail()
   }
 
   return (
@@ -104,14 +103,23 @@ export default function MathChallenge({ challenge, onSolved }) {
       </div>
 
       {feedback && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mt-3 rounded-2xl p-3 text-center font-bold shadow-md ${
-            feedback === 'correct' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-          }`}
-        >
-          👩 {feedback === 'correct' ? challenge.correctReply : challenge.wrongReply}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 space-y-2">
+          <div
+            className={`rounded-2xl p-3 text-center font-bold shadow-md ${
+              feedback === 'correct' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            👩 {feedback === 'correct' ? challenge.correctReply : challenge.wrongReply}
+          </div>
+          {feedback === 'wrong' && (
+            <button
+              type="button"
+              onClick={resetWrong}
+              className="w-full rounded-2xl bg-explorer-brown/90 py-2 text-base font-bold text-white shadow-md active:scale-95"
+            >
+              Try Again 🔄
+            </button>
+          )}
         </motion.div>
       )}
 

@@ -28,10 +28,6 @@ export default function EnglishRiddle({ riddle, index, total, onSolved }) {
     } else {
       setFeedback('wrong')
       playWrong()
-      setTimeout(() => {
-        setSelected(null)
-        setFeedback(null)
-      }, 1200)
     }
   }
 
@@ -74,12 +70,17 @@ export default function EnglishRiddle({ riddle, index, total, onSolved }) {
       </div>
 
       {feedback === 'wrong' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="ltr mt-3 rounded-2xl bg-amber-100 p-3 text-center font-bold text-amber-800 shadow"
-        >
-          {riddle.wrongReply}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2">
+          <div className="ltr rounded-2xl bg-amber-100 p-3 text-center font-bold text-amber-800 shadow">
+            {riddle.wrongReply}
+          </div>
+          <button
+            type="button"
+            onClick={() => { setSelected(null); setFeedback(null) }}
+            className="w-full rounded-2xl bg-explorer-brown/90 py-2 text-base font-bold text-white shadow-md active:scale-95"
+          >
+            Try Again 🔄
+          </button>
         </motion.div>
       )}
 

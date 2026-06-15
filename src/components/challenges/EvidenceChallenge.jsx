@@ -33,10 +33,6 @@ export default function EvidenceChallenge({ onSolved }) {
     } else {
       setFeedback('wrong')
       playWrong()
-      setTimeout(() => {
-        setPicked([])
-        setFeedback(null)
-      }, 1600)
     }
   }
 
@@ -88,12 +84,17 @@ export default function EvidenceChallenge({ onSolved }) {
       </div>
 
       {feedback === 'wrong' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-3 rounded-2xl bg-amber-100 p-3 text-center font-bold text-amber-800 shadow"
-        >
-          🧭 {wrongReply}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2">
+          <div className="rounded-2xl bg-amber-100 p-3 text-center font-bold text-amber-800 shadow">
+            🧭 {wrongReply}
+          </div>
+          <button
+            type="button"
+            onClick={() => { setPicked([]); setFeedback(null) }}
+            className="w-full rounded-2xl bg-explorer-brown/90 py-2 text-base font-bold text-white shadow-md active:scale-95"
+          >
+            Try Again 🔄
+          </button>
         </motion.div>
       )}
 

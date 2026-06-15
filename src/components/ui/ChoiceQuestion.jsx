@@ -43,11 +43,6 @@ export default function ChoiceQuestion({
     } else {
       setFeedback('wrong')
       playWrong()
-      // بعد لحظة، نسمحله يجرب تاني
-      setTimeout(() => {
-        setSelected(null)
-        setFeedback(null)
-      }, 1100)
     }
   }
 
@@ -73,14 +68,23 @@ export default function ChoiceQuestion({
       </div>
 
       {feedback && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mt-4 rounded-2xl p-3 text-center font-bold shadow-md ${
-            feedback === 'correct' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-          }`}
-        >
-          🧭 {reply}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 space-y-2">
+          <div
+            className={`rounded-2xl p-3 text-center font-bold shadow-md ${
+              feedback === 'correct' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            🧭 {reply}
+          </div>
+          {feedback === 'wrong' && (
+            <button
+              type="button"
+              onClick={() => { setSelected(null); setFeedback(null) }}
+              className="w-full rounded-2xl bg-explorer-brown/90 py-2 text-base font-bold text-white shadow-md active:scale-95"
+            >
+              Try Again 🔄
+            </button>
+          )}
         </motion.div>
       )}
 
