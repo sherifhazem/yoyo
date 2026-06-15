@@ -19,7 +19,7 @@ export default function GardenScienceScene({ onComplete, addScore, awardBadge })
           expression="explaining"
           text={floatingSink.intro}
           onContinue={() => setPhase('experiment')}
-          continueLabel="يلا نجرّب! 🔬"
+          continueLabel="Let's try! 🔬"
         />
       )}
 

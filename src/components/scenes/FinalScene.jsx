@@ -25,7 +25,7 @@ export default function FinalScene({ onComplete, onRestart }) {
           speaker="captain"
           expression="proud"
           onDone={() => setPhase('notebook')}
-          lastLabel="افتح الدفتر! 📒"
+          lastLabel="Open the notebook! 📒"
         />
       )}
 
@@ -41,7 +41,7 @@ export default function FinalScene({ onComplete, onRestart }) {
             onClick={() => setPhase('reflection')}
             className="mt-4 w-full rounded-2xl bg-explorer-sky py-3 text-lg font-bold text-white shadow-md active:scale-95"
           >
-            سؤال أخير 🤔
+            Last question 🤔
           </motion.button>
         </>
       )}
@@ -69,14 +69,14 @@ export default function FinalScene({ onComplete, onRestart }) {
         >
           <Confetti />
           <div className="mb-2 text-6xl">🏆</div>
-          <h2 className="mb-1 text-2xl font-black text-explorer-brown">مبروك يا يوسف!</h2>
-          <p className="mb-4 font-bold text-slate-700">خلصت اليوم الأول من المغامرة. أنت مستكشف رسمي! 🧭</p>
+          <h2 className="mb-1 text-2xl font-black text-explorer-brown">Congrats, Yousef!</h2>
+          <p className="mb-4 font-bold text-slate-700">You finished Day 1 of the adventure. You are a real explorer! 🧭</p>
           <button
             type="button"
             onClick={onRestart}
             className="w-full rounded-2xl bg-explorer-forest py-3 text-lg font-bold text-white shadow-md active:scale-95"
           >
-            العب من الأول 🔄
+            Play again 🔄
           </button>
         </motion.div>
       )}

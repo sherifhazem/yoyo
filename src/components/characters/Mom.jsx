@@ -11,7 +11,7 @@ export default function Mom({ size = 120 }) {
       animate={{ y: [0, -4, 0] }}
       transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <svg viewBox="0 0 120 130" width="100%" height="100%" aria-label="أم يوسف">
+      <svg viewBox="0 0 120 130" width="100%" height="100%" aria-label="Yousef's Mom">
         {/* الرقبة */}
         <rect x="50" y="92" width="20" height="14" fill="#E8B98A" />
         {/* المريول */}

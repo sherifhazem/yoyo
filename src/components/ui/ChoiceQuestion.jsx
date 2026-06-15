@@ -16,8 +16,8 @@ export default function ChoiceQuestion({
   wrongReply,
   onCorrect,
   columns = 1,
-  dsContext, // وصف للموقف عشان DeepSeek (اختياري)
-  continueLabel = 'كمّل 👍',
+  dsContext, // situation description for DeepSeek (optional)
+  continueLabel = 'Next 👍',
 }) {
   const [selected, setSelected] = useState(null)
   const [solved, setSolved] = useState(false)

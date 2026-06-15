@@ -14,7 +14,7 @@ export default function DialogBox({
   expression = 'normal',
   text = '',
   onContinue,
-  continueLabel = 'تمام 👍',
+  continueLabel = 'OK 👍',
   loading = false,
 }) {
   const displayed = useTypewriter(text)
@@ -35,7 +35,7 @@ export default function DialogBox({
         <div className="absolute -top-3 left-1/2 h-5 w-5 -translate-x-1/2 rotate-45 bg-white/95" />
 
         <div className="mb-1 text-sm font-extrabold text-explorer-brown">
-          {speaker === 'mom' ? '👩 ماما' : '🧭 كابتن شريف'}
+          {speaker === 'mom' ? '👩 Mom' : '🧭 Captain Shareef'}
           {loading && <span className="mr-2 inline-block animate-pulse text-explorer-sky">…</span>}
         </div>
 

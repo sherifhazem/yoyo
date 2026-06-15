@@ -29,7 +29,7 @@ export default function BreakfastScene({ onComplete, addScore }) {
           speaker="mom"
           text={breakfast.intro}
           onContinue={() => setPhase('challenge')}
-          continueLabel="يلا نطبخ! 🍳"
+          continueLabel="Let's cook! 🍳"
         />
       </div>
     )

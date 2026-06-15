@@ -12,7 +12,7 @@ export default function RewardScreen({ badges }) {
       style={{ transformOrigin: 'top' }}
       className="rounded-3xl border-4 border-amber-700 bg-amber-50 p-4 shadow-2xl"
     >
-      <h2 className="mb-3 text-center text-xl font-black text-amber-800">📒 دفتر المستكشف</h2>
+      <h2 className="mb-3 text-center text-xl font-black text-amber-800">📒 Explorer Notebook</h2>
       <ul className="space-y-2">
         {badges.map((badge, i) => (
           <motion.li

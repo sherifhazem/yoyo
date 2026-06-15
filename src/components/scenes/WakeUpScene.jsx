@@ -35,7 +35,7 @@ export default function WakeUpScene({ onComplete }) {
           expression={step === 0 ? 'excited' : 'normal'}
           text={wakeUp.intro[step]}
           onContinue={handleIntroContinue}
-          continueLabel={isLastIntro ? 'اسمعني 👂' : 'كمّل 👍'}
+          continueLabel={isLastIntro ? 'Listen 👂' : 'Next 👍'}
         />
       )}
 
@@ -62,7 +62,7 @@ export default function WakeUpScene({ onComplete }) {
           expression="normal"
           text={wakeUp.waitReply}
           onContinue={() => setPhase('choice')}
-          continueLabel="أنا جاهز دلوقتي! ✓"
+          continueLabel="I am ready now! ✓"
         />
       )}
 
@@ -72,7 +72,7 @@ export default function WakeUpScene({ onComplete }) {
           expression="excited"
           text={wakeUp.startReply}
           onContinue={onComplete}
-          continueLabel="يلا بينا! 🚀"
+          continueLabel="Let's go! 🚀"
         />
       )}
     </div>

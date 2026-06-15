@@ -22,15 +22,14 @@ body,
 }
 
 body {
-  font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+  font-family: 'Fredoka', system-ui, sans-serif;
   background: #0f172a;
   overscroll-behavior: none;
   touch-action: manipulation;
 }
 
-/* كتل الإنجليزي تفضل LTR جوه واجهة عربية RTL */
+/* Centered text helper for riddle papers */
 .ltr {
-  direction: ltr;
   text-align: center;
 }
 

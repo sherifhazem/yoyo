@@ -34,7 +34,7 @@ function ShareefFace({ expression }) {
   const mouthPath = proud || excited ? 'M 42 78 Q 60 96 78 78' : 'M 44 80 Q 60 90 76 80'
 
   return (
-    <svg viewBox="0 0 120 130" width="100%" height="100%" aria-label="كابتن شريف">
+    <svg viewBox="0 0 120 130" width="100%" height="100%" aria-label="Captain Shareef">
       {/* الرقبة */}
       <rect x="48" y="92" width="24" height="16" fill="#D9A066" />
       {/* جاكيت المستكشف البني */}

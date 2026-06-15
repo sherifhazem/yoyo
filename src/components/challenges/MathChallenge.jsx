@@ -72,7 +72,7 @@ export default function MathChallenge({ challenge, onSolved }) {
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
             disabled={solved}
-            placeholder="اكتب الإجابة"
+            placeholder="Type the answer"
             className="h-14 flex-1 rounded-2xl bg-white px-4 text-center text-2xl font-black text-slate-800 shadow-inner ring-2 ring-slate-200 focus:ring-explorer-sky focus:outline-none"
           />
           <button
@@ -81,14 +81,14 @@ export default function MathChallenge({ challenge, onSolved }) {
             disabled={solved || !typed}
             className="rounded-2xl bg-explorer-forest px-5 text-lg font-bold text-white shadow-md active:scale-95 disabled:opacity-50"
           >
-            تأكيد
+            Check
           </button>
         </div>
       )}
 
       {/* الاختيارات */}
       {challenge.inputMode === 'both' && (
-        <p className="mb-2 text-center text-sm font-bold text-slate-600">أو اختار من دول:</p>
+        <p className="mb-2 text-center text-sm font-bold text-slate-600">Or pick one of these:</p>
       )}
       <div className="grid grid-cols-3 gap-2">
         {challenge.choices.map((c) => {
@@ -124,7 +124,7 @@ export default function MathChallenge({ challenge, onSolved }) {
           onClick={onSolved}
           className="mt-3 w-full rounded-2xl bg-explorer-sky py-3 text-lg font-bold text-white shadow-md active:scale-95"
         >
-          كمّل 👍
+          Next 👍
         </motion.button>
       )}
     </div>
@@ -171,9 +171,9 @@ function MathVisual({ visual }) {
   if (visual.type === 'cup') {
     return (
       <div className="mb-3 flex items-center justify-center gap-3 rounded-2xl bg-white/60 p-3">
-        <CupGlass fill={50} label="نص كوب" />
+        <CupGlass fill={50} label="half a cup" />
         <span className="text-2xl font-black text-slate-600">+</span>
-        <CupGlass fill={50} label="نص كوب" />
+        <CupGlass fill={50} label="half a cup" />
         <span className="text-2xl font-black text-slate-600">=</span>
         <span className="text-3xl">❓</span>
       </div>

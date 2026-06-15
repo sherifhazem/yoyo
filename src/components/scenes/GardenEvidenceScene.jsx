@@ -19,7 +19,7 @@ export default function GardenEvidenceScene({ onComplete, addScore, awardBadge }
           expression="explaining"
           text={evidence.intro}
           onContinue={() => setPhase('evidence')}
-          continueLabel="نحلل الأدلة! 🔍"
+          continueLabel="Let's check the clues! 🔍"
         />
       )}
 

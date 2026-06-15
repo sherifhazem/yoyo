@@ -38,7 +38,7 @@ export default function EnglishRiddle({ riddle, index, total, onSolved }) {
   return (
     <div className="w-full">
       <p className="mb-2 text-center text-sm font-bold text-explorer-brown">
-        📜 ورقة {index + 1} من {total}
+        📜 Paper {index + 1} of {total}
       </p>
 
       {/* الورقة الملصوقة على الشجرة */}
@@ -46,7 +46,7 @@ export default function EnglishRiddle({ riddle, index, total, onSolved }) {
         initial={{ rotate: -2, scale: 0.95, opacity: 0 }}
         animate={{ rotate: -1.5, scale: 1, opacity: 1 }}
         className="ltr relative mx-auto mb-4 max-w-xs rounded-md bg-amber-50 p-4 shadow-lg ring-1 ring-amber-200"
-        style={{ fontFamily: 'Tajawal, system-ui' }}
+        style={{ fontFamily: 'Fredoka, system-ui' }}
       >
         {/* دبوس الورقة */}
         <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-rose-400 shadow" />
@@ -114,7 +114,7 @@ export default function EnglishRiddle({ riddle, index, total, onSolved }) {
             onClick={onSolved}
             className="mt-4 w-full rounded-2xl bg-explorer-sky py-3 text-lg font-bold text-white shadow-md active:scale-95"
           >
-            {index < total - 1 ? 'الورقة اللي بعدها 📜' : 'خلصنا الألغاز! ✓'}
+            {index < total - 1 ? 'Next paper 📜' : 'Riddles done! ✓'}
           </motion.button>
         </motion.div>
       )}

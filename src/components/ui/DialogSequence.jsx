@@ -10,7 +10,7 @@ export default function DialogSequence({
   speaker = 'captain',
   expression = 'normal',
   onDone,
-  lastLabel = 'يلا نبدأ! 🚀',
+  lastLabel = "Let's go! 🚀",
 }) {
   const [index, setIndex] = useState(0)
   const isLast = index >= lines.length - 1
@@ -31,7 +31,7 @@ export default function DialogSequence({
         expression={expression}
         text={lines[index]}
         onContinue={handleContinue}
-        continueLabel={isLast ? lastLabel : 'كمّل 👍'}
+        continueLabel={isLast ? lastLabel : 'Next 👍'}
       />
     </div>
   )

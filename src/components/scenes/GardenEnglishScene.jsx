@@ -31,7 +31,7 @@ export default function GardenEnglishScene({ onComplete, addScore, awardBadge })
           expression="excited"
           text={englishRiddles.intro}
           onContinue={() => setPhase('riddles')}
-          continueLabel="نقرا الألغاز! 📜"
+          continueLabel="Let's read the riddles! 📜"
         />
       </div>
     )

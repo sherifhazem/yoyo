@@ -33,7 +33,7 @@ export default function AnimalSort({ onSolved }) {
       }
     } else {
       playWrong()
-      setHint(wrongHints[habitatId] || 'جرب تاني! 😊')
+      setHint(wrongHints[habitatId] || 'Try again! 😊')
       setShakeHabitat(habitatId)
       setTimeout(() => setShakeHabitat(null), 500)
     }
@@ -65,7 +65,7 @@ export default function AnimalSort({ onSolved }) {
     <div className="w-full">
       {/* تلميح أو تعليمات */}
       <div className="mb-3 min-h-[2.5rem] rounded-2xl bg-white/85 p-2 text-center text-sm font-bold text-explorer-brown shadow">
-        {hint ? `🧭 ${hint}` : selected ? '👆 دلوقتي اضغط على البيئة الصح!' : '🤚 اسحب الحيوان لبيئته، أو اضغط عليه الأول.'}
+        {hint ? `🧭 ${hint}` : selected ? '👆 Now tap the right home!' : '🤚 Drag the animal to its home, or tap it first.'}
       </div>
 
       {/* صينية الحيوانات الباقية */}
@@ -88,7 +88,7 @@ export default function AnimalSort({ onSolved }) {
             <span className="text-[10px] font-bold text-slate-600">{animal.label}</span>
           </motion.button>
         ))}
-        {allDone && <span className="py-4 text-lg font-bold text-green-700">تمام! كله في مكانه 🎉</span>}
+        {allDone && <span className="py-4 text-lg font-bold text-green-700">Done! Everything is home 🎉</span>}
       </div>
 
       {/* البيئات */}

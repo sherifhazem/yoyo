@@ -25,7 +25,7 @@ export default function AnimalSortScene({ onComplete, addScore, awardBadge }) {
           expression="explaining"
           text={animalSort.intro}
           onContinue={() => setPhase('sort')}
-          continueLabel="يلا نصنّف! 🐾"
+          continueLabel="Let's sort! 🐾"
         />
       )}
 
@@ -41,7 +41,7 @@ export default function AnimalSortScene({ onComplete, addScore, awardBadge }) {
           expression="proud"
           text={animalSort.successReply}
           onContinue={() => setPhase('followup')}
-          continueLabel="فيه سؤال كمان 🤔"
+          continueLabel="One more question 🤔"
         />
       )}
 

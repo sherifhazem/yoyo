@@ -1,11 +1,12 @@
 // ============================================================
-// يوسف المستكشف — اليوم الأول
-// مصدر واحد لكل النصوص والتحديات والإجابات الصح.
+// Yousef the Explorer — Day 1
+// One single source for all the text, challenges, and answers.
+// Simple English for an 8-year-old learning the language.
 // ============================================================
 
-export const PLAYER_NAME = 'يوسف'
+export const PLAYER_NAME = 'Yousef'
 
-// ترتيب المشاهد. كل عنصر بيحدد المكوّن + البيئة + فئة النقاط.
+// Scene order. Each item maps currentScene to a component + environment.
 export const SCENE_SEQUENCE = [
   { id: 'wakeup', component: 'WakeUpScene', environment: 'room' },
   { id: 'animalSort', component: 'AnimalSortScene', environment: 'room', category: 'logic' },
@@ -19,84 +20,84 @@ export const SCENE_SEQUENCE = [
 export const TOTAL_SCENES = SCENE_SEQUENCE.length
 
 // ------------------------------------------------------------
-// مشهد 1 — الاستيقاظ
+// Scene 1 — Wake Up
 // ------------------------------------------------------------
 export const wakeUp = {
   intro: [
-    'يوسف! أخيراً صحيت. 🌞',
-    'أنا كابتن شريف — مستكشف محترف.',
-    'عندنا مشكلة كبيرة. 3 حيوانات اختفوا من حديقة المدينة الليلة!',
-    'محتاج مستكشف ذكي يساعدني. إنت جاهز؟',
+    'Yousef! You are awake. 🌞',
+    'I am Captain Shareef — a real explorer.',
+    'We have a big problem. 3 animals are missing from the city park!',
+    'I need a smart explorer to help me. Are you ready?',
   ],
   choices: [
-    { id: 'yes', label: 'نعم، أنا جاهز! ✓', correct: true },
-    { id: 'wait', label: 'محتاج دقيقة', correct: false },
+    { id: 'yes', label: 'Yes, I am ready! ✓', correct: true },
+    { id: 'wait', label: 'I need a minute', correct: false },
   ],
-  waitReply: 'خد وقتك يا يوسف 😊 لما تكون جاهز، اضغط "نعم".',
-  startReply: 'عظيم يا بطل! يلا نبدأ المغامرة. 🧭',
+  waitReply: 'Take your time, Yousef. 😊 Tap "Yes" when you are ready.',
+  startReply: "Great job, champion! Let's start the adventure. 🧭",
 }
 
 // ------------------------------------------------------------
-// مشهد 2 — التصنيف (سحب وإفلات)
+// Scene 2 — Sorting (drag and drop)
 // ------------------------------------------------------------
 export const animalSort = {
-  intro: 'قبل ما نبدأ، لازم تثبتلي إنك تعرف الحيوانات. كل حيوان بيعيش في بيئة معينة. رتب الحيوانات في بيئتها الصح. 🐾',
+  intro: 'First, show me you know the animals. Every animal lives in a special place. Put each animal in the right home. 🐾',
   habitats: [
-    { id: 'forest', label: 'غابة', emoji: '🌳', color: '#4CAF50' },
-    { id: 'water', label: 'ماء', emoji: '💧', color: '#4FC3F7' },
-    { id: 'desert', label: 'صحراء', emoji: '🏜️', color: '#E3C575' },
+    { id: 'forest', label: 'Forest', emoji: '🌳', color: '#4CAF50' },
+    { id: 'water', label: 'Water', emoji: '💧', color: '#4FC3F7' },
+    { id: 'desert', label: 'Desert', emoji: '🏜️', color: '#E3C575' },
   ],
   animals: [
-    { id: 'croc', label: 'تمساح', emoji: '🐊', habitat: 'water' },
-    { id: 'fox', label: 'ثعلب', emoji: '🦊', habitat: 'forest' },
-    { id: 'camel', label: 'جمل', emoji: '🐪', habitat: 'desert' },
-    { id: 'duck', label: 'بطة', emoji: '🦆', habitat: 'water' },
-    { id: 'wolf', label: 'ذئب', emoji: '🐺', habitat: 'forest' },
-    { id: 'lizard', label: 'سحلية', emoji: '🦎', habitat: 'desert' },
+    { id: 'croc', label: 'Crocodile', emoji: '🐊', habitat: 'water' },
+    { id: 'fox', label: 'Fox', emoji: '🦊', habitat: 'forest' },
+    { id: 'camel', label: 'Camel', emoji: '🐪', habitat: 'desert' },
+    { id: 'duck', label: 'Duck', emoji: '🦆', habitat: 'water' },
+    { id: 'wolf', label: 'Wolf', emoji: '🐺', habitat: 'forest' },
+    { id: 'lizard', label: 'Lizard', emoji: '🦎', habitat: 'desert' },
   ],
   wrongHints: {
-    water: 'الحيوان ده بيحب الميه! 💧 جرب تاني.',
-    forest: 'ده مكانه بين الشجر في الغابة! 🌳 جرب تاني.',
-    desert: 'ده بيعيش في الرمل الحامي في الصحرا! 🏜️ جرب تاني.',
+    water: 'This animal loves the water! 💧 Try again.',
+    forest: 'This one lives in the trees in the forest! 🌳 Try again.',
+    desert: 'This one lives in the hot sand in the desert! 🏜️ Try again.',
   },
-  successReply: 'برافو يا يوسف! 🎉 صنّفت كل الحيوانات صح.',
+  successReply: 'Well done, Yousef! 🎉 You put every animal in the right home.',
   followUp: {
-    question: 'الحيوانات اللي في الماء — إيه اللي بيجمعهم؟',
+    question: 'The animals in the water — what is the same about them?',
     choices: [
-      { id: 'swim', label: 'بيسبحوا 🏊', correct: true },
-      { id: 'fish', label: 'بياكلوا سمك 🐟', correct: false },
-      { id: 'feathers', label: 'عندهم ريش 🪶', correct: false },
+      { id: 'swim', label: 'They swim 🏊', correct: true },
+      { id: 'fish', label: 'They eat fish 🐟', correct: false },
+      { id: 'feathers', label: 'They have feathers 🪶', correct: false },
     ],
-    correctReply: 'بالظبط! كلهم بيسبحوا في الميه. مستكشف شاطر! 🌟',
-    wrongReply: 'تفكير حلو! بس فكّر تاني — إيه اللي بيعملوه كلهم في الميه؟',
+    correctReply: "That's right! They all swim in the water. Smart explorer! 🌟",
+    wrongReply: 'Nice thinking! But think again — what do they all do in the water?',
   },
 }
 
 // ------------------------------------------------------------
-// مشهد 3 — الإفطار والرياضيات
+// Scene 3 — Breakfast and Math
 // ------------------------------------------------------------
 export const breakfast = {
-  intro: 'صباح الخير يا حبيبي يوسف ❤️ تعالى ساعدني في الفطار، وفي شوية حسابات لطيفة.',
+  intro: 'Good morning, my dear Yousef. ❤️ Come help me make breakfast, and a little math too.',
   challenges: [
     {
       id: 'subtraction',
       speaker: 'mom',
-      prompt: 'يوسف، عندنا 12 بيضة، هنستخدم 4. كام بيضة هتفضل؟',
+      prompt: 'Yousef, we have 12 eggs. We will use 4. How many eggs are left?',
       visual: { type: 'eggs', total: 12, removed: 4 },
-      inputMode: 'both', // يقدر يكتب أو يختار
+      inputMode: 'both', // can type or pick
       choices: [
         { id: '6', label: '6', correct: false },
         { id: '8', label: '8', correct: true },
         { id: '10', label: '10', correct: false },
       ],
       answer: '8',
-      correctReply: 'صح! 12 ناقص 4 يساوي 8 بيضات. 🥚',
-      wrongReply: 'جرب تاني يا بطل — لو شلنا 4 من 12، نعدّ الباقي. 😊',
+      correctReply: 'Yes! 12 minus 4 is 8 eggs. 🥚',
+      wrongReply: 'Try again, champion — if we take 4 from 12, count what is left. 😊',
     },
     {
       id: 'multiplication',
       speaker: 'mom',
-      prompt: 'هنعمل pancakes. كل pancake محتاج 2 ملعقة دقيق. عايزين 6 pancakes — كام ملعقة هنحتاج؟',
+      prompt: 'We will make pancakes. Each pancake needs 2 spoons of flour. We want 6 pancakes — how many spoons do we need?',
       visual: { type: 'pancakes', count: 6, perItem: 2 },
       inputMode: 'choices',
       choices: [
@@ -105,75 +106,75 @@ export const breakfast = {
         { id: '12', label: '12', correct: true },
       ],
       answer: '12',
-      correctReply: 'ممتاز! 6 في 2 يساوي 12 ملعقة. 🥞',
-      wrongReply: 'فكّر معايا — 2 ملعقة لكل واحدة، و عندنا 6. اعدّهم! 😊',
+      correctReply: 'Great! 6 times 2 is 12 spoons. 🥞',
+      wrongReply: 'Think with me — 2 spoons for each one, and we have 6. Count them! 😊',
     },
     {
       id: 'fraction',
       speaker: 'mom',
-      prompt: 'الوصفة محتاجة نص كوب حليب. لو عايزين ضعف الكمية — كام هنحتاج؟',
+      prompt: 'The recipe needs half a cup of milk. If we want double — how much do we need?',
       visual: { type: 'cup' },
       inputMode: 'choices',
       choices: [
-        { id: 'half', label: 'نص كوب 🥛', correct: false },
-        { id: 'full', label: 'كوب كامل 🥛', correct: true },
-        { id: 'two', label: 'كوبين 🥛🥛', correct: false },
+        { id: 'half', label: 'Half a cup 🥛', correct: false },
+        { id: 'full', label: 'A full cup 🥛', correct: true },
+        { id: 'two', label: 'Two cups 🥛🥛', correct: false },
       ],
       answer: 'full',
-      correctReply: 'برافو! نص + نص = كوب كامل. ده ضعف الكمية. 🌟',
-      wrongReply: 'قريّب! نص الكوب مرتين بيساوي كام؟ 😊',
+      correctReply: 'Well done! Half + half = one full cup. That is double. 🌟',
+      wrongReply: 'Almost! Half a cup two times is how much? 😊',
     },
   ],
 }
 
 // ------------------------------------------------------------
-// مشهد 4 — العلوم (الطفو والغرق)
+// Scene 4 — Science (Floating and Sinking)
 // ------------------------------------------------------------
 export const floatingSink = {
-  intro: 'مستكشف جيد لازم يعرف العلوم. شايف البركة دي؟ هنعمل تجربة مهمة. 🔬',
-  predictPrompt: 'قبل ما نجرب — إيه رأيك في كل حاجة؟ هتطفى ولا هتغرق؟',
+  intro: 'A good explorer knows science. See this pond? We will do an important test. 🔬',
+  predictPrompt: 'Before we try — what do you think for each thing? Will it float or sink?',
   items: [
-    { id: 'leaf', label: 'ورقة شجر', emoji: '🍃', floats: true },
-    { id: 'stone', label: 'حجر صغير', emoji: '🪨', floats: false },
-    { id: 'stick', label: 'عصاية خشب', emoji: '🪵', floats: true },
-    { id: 'coin', label: 'عملة معدنية', emoji: '🪙', floats: false },
-    { id: 'feather', label: 'ريشة', emoji: '🪶', floats: true },
+    { id: 'leaf', label: 'Leaf', emoji: '🍃', floats: true },
+    { id: 'stone', label: 'Small stone', emoji: '🪨', floats: false },
+    { id: 'stick', label: 'Wooden stick', emoji: '🪵', floats: true },
+    { id: 'coin', label: 'Coin', emoji: '🪙', floats: false },
+    { id: 'feather', label: 'Feather', emoji: '🪶', floats: true },
   ],
-  floatLabel: 'هتطفى',
-  sinkLabel: 'هتغرق',
-  resultIntro: 'يلا نشوف! بنحط كل حاجة في الميه. 💦',
+  floatLabel: 'Float',
+  sinkLabel: 'Sink',
+  resultIntro: "Let's see! We put each thing in the water. 💦",
   conclusion: {
-    question: 'لاحظت إيه؟ الحاجات الخفيفة —',
+    question: 'What did you notice? The light things —',
     choices: [
-      { id: 'float', label: 'بتطفى', correct: true },
-      { id: 'sink', label: 'بتغرق', correct: false },
-      { id: 'move', label: 'بتتحرك', correct: false },
+      { id: 'float', label: 'They float', correct: true },
+      { id: 'sink', label: 'They sink', correct: false },
+      { id: 'move', label: 'They move', correct: false },
     ],
-    correctReply: 'صح! الحاجات الخفيفة بتطفى فوق الميه. 🌟',
-    wrongReply: 'بُص تاني للريشة والورقة — هما خفاف، عملوا إيه؟',
+    correctReply: 'Yes! Light things float on top of the water. 🌟',
+    wrongReply: 'Look again at the feather and the leaf — they are light, what did they do?',
   },
   thinking: {
-    question: 'ليه الخشبة طافت والحجر غرق؟',
+    question: 'Why did the wood float and the stone sink?',
     choices: [
-      { id: 'lighter', label: 'الخشبة أخف من المية', correct: true },
-      { id: 'bigger', label: 'الخشبة أكبر من الحجر', correct: false },
-      { id: 'black', label: 'الحجر أسود', correct: false },
+      { id: 'lighter', label: 'The wood is lighter than water', correct: true },
+      { id: 'bigger', label: 'The wood is bigger than the stone', correct: false },
+      { id: 'black', label: 'The stone is black', correct: false },
     ],
-    correctReply: 'عبقري! 🧠 الخشبة أخف من الميه، عشان كده بتطفى.',
-    wrongReply: 'فكّر في الوزن — أنهي أخف، الخشبة ولا الحجر؟',
+    correctReply: 'Genius! 🧠 The wood is lighter than water, so it floats.',
+    wrongReply: 'Think about weight — which is lighter, the wood or the stone?',
   },
 }
 
 // ------------------------------------------------------------
-// مشهد 5 — ألغاز الإنجليزي
+// Scene 5 — English Riddles
 // ------------------------------------------------------------
 export const englishRiddles = {
-  intro: 'لقيت 3 أوراق ملصوقة على الأشجار! كل ورقة فيها لغز بالإنجليزي. تقدر تحلهم؟ 📜',
+  intro: 'I found 3 papers on the trees! Each paper has a riddle. Can you solve them? 📜',
   riddles: [
     {
       id: 'bat',
       lines: ['I sleep during the day.', 'I fly at night.', 'I use sound to find my way.', 'What am I?'],
-      vocab: [{ word: 'sound', meaning: 'الصوت' }],
+      vocab: [{ word: 'sound', meaning: 'what we hear' }],
       choices: [
         { id: 'bat', label: 'Bat', emoji: '🦇', correct: true },
         { id: 'owl', label: 'Owl', emoji: '🦉', correct: false },
@@ -185,7 +186,7 @@ export const englishRiddles = {
     {
       id: 'zebra',
       lines: ['I have black and white stripes.', 'I live in Africa.', 'I look like a horse but I am not.', 'What am I?'],
-      vocab: [{ word: 'stripes', meaning: 'خطوط' }],
+      vocab: [{ word: 'stripes', meaning: 'long lines' }],
       choices: [
         { id: 'zebra', label: 'Zebra', emoji: '🦓', correct: true },
         { id: 'tiger', label: 'Tiger', emoji: '🐯', correct: false },
@@ -203,8 +204,8 @@ export const englishRiddles = {
         'What am I?',
       ],
       vocab: [
-        { word: 'largest', meaning: 'الأكبر' },
-        { word: 'forget', meaning: 'ينسى' },
+        { word: 'largest', meaning: 'the biggest' },
+        { word: 'forget', meaning: 'to not remember' },
       ],
       choices: [
         { id: 'rhino', label: 'Rhino', emoji: '🦏', correct: false },
@@ -218,68 +219,68 @@ export const englishRiddles = {
 }
 
 // ------------------------------------------------------------
-// مشهد 6 — تحليل الأدلة
+// Scene 6 — Clue Analysis
 // ------------------------------------------------------------
 export const evidence = {
-  intro: 'دلوقتي عندنا كل الأدلة. لازم نعرف مين الحيوانات التلاتة اللي اختفت. 🔍',
+  intro: 'Now we have all the clues. We must find the 3 animals that are missing. 🔍',
   clues: [
-    { id: 'tracks', label: 'آثار أقدام كبيرة جداً', emoji: '👣' },
-    { id: 'hair', label: 'شعر أبيض وأسود على السياج', emoji: '🦓' },
-    { id: 'feathers', label: 'ريش بني كبير على الأرض', emoji: '🪶' },
-    { id: 'drag', label: 'أثر سحب ثقيل على الرمل', emoji: '〰️' },
+    { id: 'tracks', label: 'Very big footprints', emoji: '👣' },
+    { id: 'hair', label: 'Black and white hair on the fence', emoji: '🦓' },
+    { id: 'feathers', label: 'Big brown feathers on the ground', emoji: '🪶' },
+    { id: 'drag', label: 'A heavy drag mark on the sand', emoji: '〰️' },
   ],
-  question: 'من الحيوانات دي — اختار الـ 3 اللي اختفوا',
+  question: 'From these animals — pick the 3 that are missing',
   suspects: [
-    { id: 'elephant', label: 'فيل', emoji: '🐘', guilty: true },
-    { id: 'zebra', label: 'حمار وحشي', emoji: '🦓', guilty: true },
-    { id: 'eagle', label: 'نسر', emoji: '🦅', guilty: true },
-    { id: 'lion', label: 'أسد', emoji: '🦁', guilty: false },
-    { id: 'bear', label: 'دب', emoji: '🐻', guilty: false },
+    { id: 'elephant', label: 'Elephant', emoji: '🐘', guilty: true },
+    { id: 'zebra', label: 'Zebra', emoji: '🦓', guilty: true },
+    { id: 'eagle', label: 'Eagle', emoji: '🦅', guilty: true },
+    { id: 'lion', label: 'Lion', emoji: '🦁', guilty: false },
+    { id: 'bear', label: 'Bear', emoji: '🐻', guilty: false },
   ],
-  wrongReply: 'فكّر في الأدلة كويس يا يوسف. الآثار الكبيرة، الشعر الأبيض والأسود، والريش البني. 🔍',
+  wrongReply: 'Look at the clues carefully, Yousef. The big footprints, the black and white hair, and the brown feathers. 🔍',
   verification: [
-    'الآثار الكبيرة = الفيل ✓ 🐘',
-    'الشعر الأبيض والأسود = الحمار الوحشي ✓ 🦓',
-    'الريش البني = النسر ✓ 🦅',
+    'Big footprints = the Elephant ✓ 🐘',
+    'Black and white hair = the Zebra ✓ 🦓',
+    'Big brown feathers = the Eagle ✓ 🦅',
   ],
-  successReply: 'حللت القضية يا يوسف! 🎉 إنت مستكشف حقيقي!',
+  successReply: 'You solved the case, Yousef! 🎉 You are a real explorer!',
   finalQuestion: {
-    question: 'ليه الأسد والدب مش من الحيوانات اللي اختفت؟',
+    question: 'Why are the Lion and the Bear not the missing animals?',
     choices: [
-      { id: 'noevidence', label: 'معندهمش أدلة تخصهم', correct: true },
-      { id: 'nogarden', label: 'مش بيعيشوا في الحديقة', correct: false },
-      { id: 'sleeping', label: 'نايمين', correct: false },
+      { id: 'noevidence', label: 'There are no clues about them', correct: true },
+      { id: 'nogarden', label: 'They do not live in the park', correct: false },
+      { id: 'sleeping', label: 'They are sleeping', correct: false },
     ],
-    correctReply: 'بالظبط! مفيش أي دليل بيشاور عليهم. تفكير منطقي ممتاز! 🧠',
-    wrongReply: 'فكّر تاني — هل لقينا أي دليل يخص الأسد أو الدب؟',
+    correctReply: 'Exactly! There is no clue about them. Great thinking! 🧠',
+    wrongReply: 'Think again — did we find any clue about the Lion or the Bear?',
   },
 }
 
 // ------------------------------------------------------------
-// مشهد 7 — المكافأة ودفتر المستكشف
+// Scene 7 — Reward and Explorer Notebook
 // ------------------------------------------------------------
 export const final = {
   intro: [
-    'يوسف — عملت حاجة مش أي حد يعملها! 🏆',
-    'صنفت الحيوانات، اتعلمت العلوم، حللت الأدلة، وقرأت الألغاز بنفسك.',
-    'أنت دلوقتي مستكشف رسمي من الدرجة الأولى! 🧭',
+    'Yousef — you did something not everyone can do! 🏆',
+    'You sorted the animals, learned science, solved the clues, and read the riddles by yourself.',
+    'You are now a real first-class explorer! 🧭',
   ],
   badges: [
-    { id: 'animals', label: 'مستكشف الحيوانات — المستوى 1', emoji: '🐾' },
-    { id: 'float', label: 'عالم الطفو', emoji: '💧' },
-    { id: 'riddles', label: 'قارئ الألغاز', emoji: '📜' },
-    { id: 'detective', label: 'محلل الأدلة', emoji: '🔍' },
+    { id: 'animals', label: 'Animal Explorer — Level 1', emoji: '🐾' },
+    { id: 'float', label: 'Floating Scientist', emoji: '💧' },
+    { id: 'riddles', label: 'Riddle Reader', emoji: '📜' },
+    { id: 'detective', label: 'Clue Detective', emoji: '🔍' },
   ],
   reflection: {
-    question: 'إيه أكتر حاجة اكتشفتها النهارده؟',
+    question: 'What is the best thing you learned today?',
     choices: [
-      { id: 'wood', label: 'إن الخشب بيطفى', correct: false },
-      { id: 'bat', label: 'إن الخفاش بيستخدم الصوت', correct: false },
-      { id: 'elephant', label: 'إن الفيل أكبر حيوان على الأرض', correct: false },
-      { id: 'all', label: 'كل ده', correct: true },
+      { id: 'wood', label: 'That wood floats', correct: false },
+      { id: 'bat', label: 'That a bat uses sound', correct: false },
+      { id: 'elephant', label: 'That an elephant is the biggest animal on land', correct: false },
+      { id: 'all', label: 'All of it', correct: true },
     ],
-    correctReply: 'بالظبط يا يوسف! اتعلمت حاجات كتير النهارده. أنا فخور بيك جداً! 🌟',
-    wrongReply: 'صح! بس مش ده بس... اتعلمت ده وأكتر كمان النهارده! 😊',
+    correctReply: 'Exactly, Yousef! You learned so much today. I am so proud of you! 🌟',
+    wrongReply: 'Yes! But not only that... you learned this and much more today! 😊',
   },
-  finishLabel: 'خلصت اليوم الأول! 🎉',
+  finishLabel: 'I finished Day 1! 🎉',
 }

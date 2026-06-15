@@ -37,7 +37,7 @@ export default function FloatingSink({ onDone }) {
           onClick={onDone}
           className="mt-4 w-full rounded-2xl bg-explorer-sky py-3 text-lg font-bold text-white shadow-md active:scale-95"
         >
-          إيه اللي لاحظناه؟ 🤔
+          What did we notice? 🤔
         </motion.button>
       </div>
     )
@@ -84,7 +84,7 @@ export default function FloatingSink({ onDone }) {
           onClick={runExperiment}
           className="mt-4 w-full rounded-2xl bg-explorer-forest py-3 text-lg font-bold text-white shadow-md active:scale-95"
         >
-          نجرّب دلوقتي! 💦
+          Let's try now! 💦
         </motion.button>
       )}
     </div>
@@ -118,7 +118,7 @@ function Pond({ items, predictions }) {
                 transition={{ delay: 1 + i * 0.18 }}
                 className="mt-1 text-[10px] font-bold text-slate-700"
               >
-                {it.floats ? 'طافي ⬆️' : 'غارق ⬇️'} {correctPred ? '✅' : ''}
+                {it.floats ? 'Float ⬆️' : 'Sink ⬇️'} {correctPred ? '✅' : ''}
               </motion.span>
             </motion.div>
           )

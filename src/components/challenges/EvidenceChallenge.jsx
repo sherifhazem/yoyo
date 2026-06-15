@@ -44,7 +44,7 @@ export default function EvidenceChallenge({ onSolved }) {
     <div className="w-full">
       {/* الأدلة */}
       <div className="mb-3 rounded-2xl bg-white/85 p-3 shadow">
-        <h3 className="mb-2 text-center text-sm font-black text-explorer-brown">🔍 الأدلة اللي لقيناها</h3>
+        <h3 className="mb-2 text-center text-sm font-black text-explorer-brown">🔍 The clues we found</h3>
         <ul className="grid grid-cols-2 gap-2">
           {clues.map((c) => (
             <li key={c.id} className="flex items-center gap-2 rounded-xl bg-slate-50 p-2 text-xs font-bold text-slate-700">
@@ -104,7 +104,7 @@ export default function EvidenceChallenge({ onSolved }) {
           disabled={picked.length !== 3}
           className="mt-4 w-full rounded-2xl bg-explorer-forest py-3 text-lg font-bold text-white shadow-md active:scale-95 disabled:opacity-50"
         >
-          أكّد اختياري 🔍
+          Check my answer 🔍
         </button>
       )}
 
@@ -133,7 +133,7 @@ export default function EvidenceChallenge({ onSolved }) {
             onClick={onSolved}
             className="mt-4 w-full rounded-2xl bg-explorer-sky py-3 text-lg font-bold text-white shadow-md active:scale-95"
           >
-            سؤال أخير 🤔
+            Last question 🤔
           </motion.button>
         </motion.div>
       )}
