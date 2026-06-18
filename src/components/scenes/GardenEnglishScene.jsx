@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import DialogBox from '../ui/DialogBox'
 import EnglishRiddle from '../challenges/EnglishRiddle'
-import { englishRiddles } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 
 // ============================================================
 // مشهد 5 — ألغاز الإنجليزي (إنجليزي).
 // مقدمة → 3 ألغاز ورا بعض.
 // ============================================================
 export default function GardenEnglishScene({ onComplete, addScore, awardBadge }) {
+  const { englishRiddles } = useStory()
   const [phase, setPhase] = useState('intro') // intro | riddles
   const [index, setIndex] = useState(0)
   const riddles = englishRiddles.riddles

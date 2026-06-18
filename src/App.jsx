@@ -1,8 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGameState } from './hooks/useGameState'
 import GameLayout from './components/layout/GameLayout'
-import { SCENE_SEQUENCE, TOTAL_SCENES } from './data/day1Story'
+import { DAYS, getDay } from './data/days'
+import { StoryProvider } from './story/StoryContext'
 import { playTransition } from './utils/sound'
+
+// خريطة الأيام
+import DayMap from './components/scenes/DayMap'
 
 // المشاهد
 import WakeUpScene from './components/scenes/WakeUpScene'
@@ -24,15 +28,37 @@ const SCENE_COMPONENTS = {
 }
 
 export default function App() {
-  const { state, nextScene, addScore, awardBadge, completeDay, resetGame } = useGameState()
+  const { state, startDay, goToMap, nextScene, addScore, awardBadge, completeDay, resetGame } = useGameState()
+
+  // ----- شاشة خريطة الأيام -----
+  if (state.view === 'map') {
+    return (
+      <GameLayout environment="map" showProgress={false}>
+        <DayMap
+          days={DAYS}
+          completedDays={state.completedDays}
+          onSelectDay={(id) => {
+            playTransition()
+            startDay(id)
+          }}
+          onReset={resetGame}
+        />
+      </GameLayout>
+    )
+  }
+
+  // ----- شاشة اليوم النشط -----
+  const day = getDay(state.activeDay)
+  const sequence = day.sceneSequence
+  const total = sequence.length
 
   // حماية من تجاوز الحدود لو الحفظ فيه رقم غريب
-  const index = Math.min(state.currentScene, TOTAL_SCENES - 1)
-  const scene = SCENE_SEQUENCE[index]
+  const index = Math.min(state.currentScene, total - 1)
+  const scene = sequence[index]
   const SceneComponent = SCENE_COMPONENTS[scene.component]
 
   const handleComplete = () => {
-    if (index < TOTAL_SCENES - 1) {
+    if (index < total - 1) {
       playTransition()
       nextScene()
     }
@@ -40,25 +66,32 @@ export default function App() {
 
   const isFinal = scene.component === 'FinalScene'
 
+  const handleBackToMap = () => {
+    playTransition()
+    goToMap()
+  }
+
   return (
-    <GameLayout environment={scene.environment} current={index} total={TOTAL_SCENES} showProgress={!isFinal}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={scene.id}
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
-          transition={{ duration: 0.28, ease: 'easeOut' }}
-          className="flex flex-1 flex-col"
-        >
-          <SceneComponent
-            onComplete={isFinal ? () => completeDay(state.currentDay) : handleComplete}
-            onRestart={resetGame}
-            addScore={addScore}
-            awardBadge={awardBadge}
-          />
-        </motion.div>
-      </AnimatePresence>
-    </GameLayout>
+    <StoryProvider day={day}>
+      <GameLayout environment={scene.environment} current={index} total={total} showProgress={!isFinal}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${day.id}-${scene.id}`}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+            className="flex flex-1 flex-col"
+          >
+            <SceneComponent
+              onComplete={isFinal ? () => completeDay(day.id) : handleComplete}
+              onBackToMap={handleBackToMap}
+              addScore={addScore}
+              awardBadge={awardBadge}
+            />
+          </motion.div>
+        </AnimatePresence>
+      </GameLayout>
+    </StoryProvider>
   )
 }

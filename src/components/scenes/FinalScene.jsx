@@ -3,14 +3,15 @@ import { motion } from 'framer-motion'
 import DialogSequence from '../ui/DialogSequence'
 import ChoiceQuestion from '../ui/ChoiceQuestion'
 import RewardScreen from '../ui/RewardScreen'
-import { final } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 import { playCelebrate } from '../../utils/sound'
 
 // ============================================================
 // مشهد 7 — المكافأة ودفتر المستكشف.
 // حوار الفخر → الشارات → سؤال التأمل → إنهاء اليوم.
 // ============================================================
-export default function FinalScene({ onComplete, onRestart }) {
+export default function FinalScene({ onComplete, onBackToMap }) {
+  const { final, id: dayId } = useStory()
   const [phase, setPhase] = useState('praise') // praise | notebook | reflection | done
 
   useEffect(() => {
@@ -70,13 +71,13 @@ export default function FinalScene({ onComplete, onRestart }) {
           <Confetti />
           <div className="mb-2 text-6xl">🏆</div>
           <h2 className="mb-1 text-2xl font-black text-explorer-brown">Congrats, Yousef!</h2>
-          <p className="mb-4 font-bold text-slate-700">You finished Day 1 of the adventure. You are a real explorer! 🧭</p>
+          <p className="mb-4 font-bold text-slate-700">You finished Day {dayId} of the adventure. You are a real explorer! 🧭</p>
           <button
             type="button"
-            onClick={onRestart}
+            onClick={onBackToMap}
             className="w-full rounded-2xl bg-explorer-forest py-3 text-lg font-bold text-white shadow-md active:scale-95"
           >
-            Play again 🔄
+            Back to the map 🗺️
           </button>
         </motion.div>
       )}

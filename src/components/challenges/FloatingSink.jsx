@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { floatingSink } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 import { playClick, playCorrect, playCelebrate } from '../../utils/sound'
 
 // ============================================================
@@ -8,6 +8,7 @@ import { playClick, playCorrect, playCelebrate } from '../../utils/sound'
 // بينادي onDone() بعد ما يشوف النتايج.
 // ============================================================
 export default function FloatingSink({ onDone }) {
+  const { floatingSink } = useStory()
   const { items, predictPrompt, floatLabel, sinkLabel, resultIntro } = floatingSink
   const [predictions, setPredictions] = useState({}) // itemId -> true(float)/false(sink)
   const [phase, setPhase] = useState('predict') // predict | result

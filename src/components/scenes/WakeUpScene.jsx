@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import DialogBox from '../ui/DialogBox'
 import ChoiceButton from '../ui/ChoiceButton'
-import { wakeUp } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 import { playCelebrate } from '../../utils/sound'
 
 // ============================================================
 // مشهد 1 — الاستيقاظ. حوار تعريفي + اختيار البدء.
 // ============================================================
 export default function WakeUpScene({ onComplete }) {
+  const { wakeUp } = useStory()
   const [step, setStep] = useState(0) // فهرس جُملة المقدمة
   const [phase, setPhase] = useState('intro') // intro | choice | waiting | starting
   const isLastIntro = step >= wakeUp.intro.length - 1

@@ -143,6 +143,41 @@ export default function MathChallenge({ challenge, onSolved }) {
 function MathVisual({ visual }) {
   if (!visual) return null
 
+  // طرح عام — عدّاد من أي إيموجي، آخر "removed" عناصر تتشال
+  if (visual.type === 'items') {
+    return (
+      <div className="mb-3 flex flex-wrap justify-center gap-1 rounded-2xl bg-white/60 p-3">
+        {Array.from({ length: visual.total }).map((_, i) => {
+          const removed = i >= visual.total - visual.removed
+          return (
+            <motion.span
+              key={i}
+              animate={removed ? { opacity: 0.25, scale: 0.85 } : { opacity: 1 }}
+              className="relative text-2xl"
+            >
+              {visual.emoji}
+              {removed && <span className="absolute inset-0 flex items-center justify-center text-rose-500">✖️</span>}
+            </motion.span>
+          )
+        })}
+      </div>
+    )
+  }
+
+  // ضرب عام — مجموعات، كل مجموعة فيها "perItem" عنصر
+  if (visual.type === 'groups') {
+    return (
+      <div className="mb-3 flex flex-wrap justify-center gap-2 rounded-2xl bg-white/60 p-3">
+        {Array.from({ length: visual.count }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <span className="text-2xl">{visual.groupEmoji}</span>
+            <span className="text-xs">{(visual.itemEmoji || '🔹').repeat(visual.perItem)}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   if (visual.type === 'eggs') {
     return (
       <div className="mb-3 flex flex-wrap justify-center gap-1 rounded-2xl bg-white/60 p-3">

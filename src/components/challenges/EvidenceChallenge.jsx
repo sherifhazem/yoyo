@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { evidence } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 import { playWrong, playCelebrate } from '../../utils/sound'
 
 // ============================================================
@@ -8,6 +8,7 @@ import { playWrong, playCelebrate } from '../../utils/sound'
 // بينادي onSolved() بعد التحقق الصح.
 // ============================================================
 export default function EvidenceChallenge({ onSolved }) {
+  const { evidence } = useStory()
   const { clues, question, suspects, wrongReply, verification, successReply } = evidence
   const [picked, setPicked] = useState([]) // ids
   const [feedback, setFeedback] = useState(null) // 'wrong' | null

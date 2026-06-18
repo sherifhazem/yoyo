@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react'
-import { PLAYER_NAME } from '../data/day1Story'
+import { PLAYER_NAME } from '../data/days'
 
 const STORAGE_KEY = 'yousef-explorer-save'
 
 const defaultState = {
   playerName: PLAYER_NAME,
-  currentDay: 1,
+  view: 'map', // map | day
+  activeDay: null, // اليوم اللي بنلعبه دلوقتي
   currentScene: 0,
   scores: { logic: 0, math: 0, science: 0, english: 0 },
   badges: [],
@@ -22,6 +23,9 @@ function loadState() {
     return {
       ...defaultState,
       ...parsed,
+      // نبدأ دايماً من الخريطة عند فتح اللعبة
+      view: 'map',
+      activeDay: null,
       scores: { ...defaultState.scores, ...(parsed.scores || {}) },
       badges: parsed.badges || [],
       completedDays: parsed.completedDays || [],
@@ -45,6 +49,16 @@ export function useGameState() {
       // تجاهل لو localStorage مش متاح
     }
   }, [state])
+
+  // فتح يوم معيّن والبدء من أول مشهد فيه
+  const startDay = useCallback((dayId) => {
+    setState((s) => ({ ...s, view: 'day', activeDay: dayId, currentScene: 0 }))
+  }, [])
+
+  // الرجوع لخريطة الأيام
+  const goToMap = useCallback(() => {
+    setState((s) => ({ ...s, view: 'map', activeDay: null, currentScene: 0 }))
+  }, [])
 
   const nextScene = useCallback(() => {
     setState((s) => ({ ...s, currentScene: s.currentScene + 1 }))
@@ -78,5 +92,5 @@ export function useGameState() {
     }
   }, [])
 
-  return { state, nextScene, goToScene, addScore, awardBadge, completeDay, resetGame }
+  return { state, startDay, goToMap, nextScene, goToScene, addScore, awardBadge, completeDay, resetGame }
 }

@@ -2,13 +2,14 @@ import { useState } from 'react'
 import DialogBox from '../ui/DialogBox'
 import ChoiceQuestion from '../ui/ChoiceQuestion'
 import FloatingSink from '../challenges/FloatingSink'
-import { floatingSink } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 
 // ============================================================
 // مشهد 4 — العلوم (الطفو والغرق).
 // مقدمة → تجربة → استنتاج → سؤال تفكير.
 // ============================================================
 export default function GardenScienceScene({ onComplete, addScore, awardBadge }) {
+  const { floatingSink } = useStory()
   const [phase, setPhase] = useState('intro') // intro | experiment | conclusion | thinking
 
   return (

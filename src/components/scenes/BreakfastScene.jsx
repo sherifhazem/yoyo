@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import DialogBox from '../ui/DialogBox'
 import MathChallenge from '../challenges/MathChallenge'
-import { breakfast } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 
 // ============================================================
 // مشهد 3 — الإفطار والرياضيات (رياضيات).
 // مقدمة من ماما → 3 تحديات (طرح، ضرب، كسور).
 // ============================================================
 export default function BreakfastScene({ onComplete, addScore }) {
+  const { breakfast } = useStory()
   const [phase, setPhase] = useState('intro') // intro | challenge
   const [index, setIndex] = useState(0)
   const challenge = breakfast.challenges[index]

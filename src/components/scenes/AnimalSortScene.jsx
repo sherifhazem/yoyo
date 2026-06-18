@@ -3,13 +3,14 @@ import { motion } from 'framer-motion'
 import DialogBox from '../ui/DialogBox'
 import ChoiceQuestion from '../ui/ChoiceQuestion'
 import AnimalSort from '../challenges/AnimalSort'
-import { animalSort } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 
 // ============================================================
 // مشهد 2 — تصنيف الحيوانات (منطق).
 // مقدمة → لوحة السحب والإفلات → سؤال متابعة.
 // ============================================================
 export default function AnimalSortScene({ onComplete, addScore, awardBadge }) {
+  const { animalSort } = useStory()
   const [phase, setPhase] = useState('intro') // intro | sort | success | followup
 
   const handleSorted = () => {

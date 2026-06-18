@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { animalSort } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 import { playCorrect, playWrong, playCelebrate } from '../../utils/sound'
 
 // ============================================================
@@ -8,6 +8,7 @@ import { playCorrect, playWrong, playCelebrate } from '../../utils/sound'
 // بينادي onSolved() لما كل الحيوانات تتصنّف صح.
 // ============================================================
 export default function AnimalSort({ onSolved }) {
+  const { animalSort } = useStory()
   const { habitats, animals, wrongHints } = animalSort
   const [placed, setPlaced] = useState({}) // animalId -> habitatId
   const [selected, setSelected] = useState(null) // للبديل باللمس

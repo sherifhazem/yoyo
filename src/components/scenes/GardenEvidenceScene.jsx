@@ -2,13 +2,14 @@ import { useState } from 'react'
 import DialogBox from '../ui/DialogBox'
 import ChoiceQuestion from '../ui/ChoiceQuestion'
 import EvidenceChallenge from '../challenges/EvidenceChallenge'
-import { evidence } from '../../data/day1Story'
+import { useStory } from '../../story/StoryContext'
 
 // ============================================================
 // مشهد 6 — تحليل الأدلة (منطق).
 // مقدمة → اختيار المشتبهين والتحقق → سؤال ختامي.
 // ============================================================
 export default function GardenEvidenceScene({ onComplete, addScore, awardBadge }) {
+  const { evidence } = useStory()
   const [phase, setPhase] = useState('intro') // intro | evidence | final
 
   return (
