@@ -46,34 +46,44 @@ npm run preview  # معاينة نسخة الإنتاج
 6. **تحليل الأدلة** — استنتاج منطقي من الأدلة لحل القضية — *منطق*.
 7. **المكافأة** — دفتر المستكشف والشارات وسؤال التأمل.
 
-## DeepSeek (اختياري)
+## حفظ التقدم على السيرفر + تسجيل الدخول (اختياري)
 
-كابتن شريف بيشتغل بحوار ثابت من السيناريو افتراضياً. لو عايزه تفاعلي/ذكي:
+اللعبة شغّالة كاملة محلياً بالـ Local Storage من غير أي إعداد — التقدم بيتحفظ في المتصفح والحوار ثابت من السيناريو، بالظبط زي الأول. لو عايز حفظ التقدم على سيرفر (يقدر يكمل من جهاز تاني) ومفتاح DeepSeek يبقى مؤمّن على السيرفر بدل المتصفح:
 
-```bash
-cp .env.example .env
-# حط المفتاح بتاعك في .env
-VITE_DEEPSEEK_API_KEY=sk-...
-```
+1. انشر المشروع على **Vercel** (استيراد الـ repo مباشرة من لوحة تحكم Vercel).
+2. فعّل تكامل **Postgres** (Vercel Postgres / Neon) من إعدادات المشروع، وشغّل `migrations/001_init.sql` مرة واحدة على القاعدة.
+3. في Environment Variables بتاعة مشروع Vercel، حط:
+   - `SESSION_SECRET` — أي نص عشوائي طويل (مثلاً `openssl rand -hex 32`).
+   - `DEEPSEEK_API_KEY` (اختياري) — عشان كابتن شريف يرد بردود ذكية عبر `/api/captain-reply`.
+4. بعد النشر، هتظهر شاشة دخول بسيطة (اسم + رقم سري من 4 أرقام) أول ما تفتح اللعبة.
 
-من غير مفتاح، اللعبة شغّالة كاملة بالحوار الثابت.
+لو مش عايز تعمل أي حاجة من ده، سيب كل حاجة زي ما هي — اللعبة تكمل تلعب أوفلاين من غير ما تحس بفرق.
 
 ## التقنيات
 
-React + Vite · Tailwind CSS · Framer Motion · Web Audio API (أصوات مولّدة) · Local Storage (حفظ التقدم).
+**الفرونت إند:** React + Vite · Tailwind CSS · Framer Motion · Web Audio API (أصوات مولّدة) · Local Storage (حفظ التقدم أوفلاين).
+**الباك إند (اختياري):** Vercel Serverless Functions · Postgres (Neon) · bcryptjs · JWT.
 
 ## الهيكل
 
 ```
 src/
-├── components/  (characters · scenes · challenges · ui · layout)
+├── components/  (characters · scenes · challenges · ui · layout · auth)
 ├── data/days/          ← كل الأيام (day1..day5) + سجلّ الأيام (index.js)
 ├── data/day1Story.js   ← نصوص وتحديات اليوم الأول
 ├── story/StoryContext  ← بيمرّر بيانات اليوم النشط لكل المكوّنات
-├── hooks/              ← useGameState · useDeepSeek
-├── services/           ← deepseekService
+├── hooks/              ← useGameState (محلي + مزامنة سيرفر) · useDeepSeek
+├── services/           ← deepseekService (بينادي /api/captain-reply)
+├── assets/characters/  ← صور الشخصيات (مولّدة بالذكاء الاصطناعي)
 ├── utils/sound.js      ← أصوات Web Audio
 └── styles/animations.css
+
+api/                     ← Vercel Serverless Functions (اختياري)
+├── auth/login.js, logout.js
+├── progress.js          ← GET/PUT تقدم اللاعب
+└── captain-reply.js     ← proxy آمن لـ DeepSeek
+
+migrations/001_init.sql  ← Schema قاعدة البيانات
 ```
 
-> التقدم بيتحفظ تلقائياً في المتصفح (Local Storage). مفيش backend ولا تسجيل دخول.
+> التقدم بيتحفظ فوراً في المتصفح (Local Storage) دايماً، وبيتزامن في الخلفية مع السيرفر لو فيه جلسة دخول أونلاين. لو الباك إند مش منشور، اللعبة تكمل تشتغل محلياً 100% من غير أي تغيير محسوس.

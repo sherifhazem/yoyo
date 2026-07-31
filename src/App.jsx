@@ -5,6 +5,9 @@ import { DAYS, getDay } from './data/days'
 import { StoryProvider } from './story/StoryContext'
 import { playTransition } from './utils/sound'
 
+// تسجيل الدخول
+import LoginScreen from './components/auth/LoginScreen'
+
 // خريطة الأيام
 import DayMap from './components/scenes/DayMap'
 
@@ -28,7 +31,26 @@ const SCENE_COMPONENTS = {
 }
 
 export default function App() {
-  const { state, startDay, goToMap, nextScene, addScore, awardBadge, completeDay, resetGame } = useGameState()
+  const { state, login, logout, startDay, goToMap, nextScene, addScore, awardBadge, completeDay, resetGame } =
+    useGameState()
+
+  // ----- بنتأكد الأول لو فيه جلسة دخول محفوظة -----
+  if (state.authStatus === 'checking') {
+    return (
+      <GameLayout environment="map" showProgress={false}>
+        <div className="flex flex-1 items-center justify-center text-5xl">🧭</div>
+      </GameLayout>
+    )
+  }
+
+  // ----- شاشة الدخول (اسم + رقم سري) -----
+  if (state.authStatus === 'login') {
+    return (
+      <GameLayout environment="map" showProgress={false}>
+        <LoginScreen onLogin={login} />
+      </GameLayout>
+    )
+  }
 
   // ----- شاشة خريطة الأيام -----
   if (state.view === 'map') {
@@ -37,11 +59,13 @@ export default function App() {
         <DayMap
           days={DAYS}
           completedDays={state.completedDays}
+          playerName={state.playerName}
           onSelectDay={(id) => {
             playTransition()
             startDay(id)
           }}
           onReset={resetGame}
+          onLogout={logout}
         />
       </GameLayout>
     )
