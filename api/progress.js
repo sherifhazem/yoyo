@@ -1,4 +1,4 @@
-import { sql } from './_db.js'
+import { getSql } from './_db.js'
 import { verifySession } from './_auth.js'
 
 const DEFAULT_PROGRESS = {
@@ -30,24 +30,31 @@ export default async function handler(req, res) {
     return
   }
 
-  if (req.method === 'GET') {
-    const { rows } = await sql`SELECT progress FROM players WHERE id = ${session.playerId} LIMIT 1`
-    res.status(200).json({ name: session.name, progress: rows[0]?.progress || DEFAULT_PROGRESS })
-    return
-  }
+  try {
+    const sql = getSql()
 
-  if (req.method === 'PUT') {
-    if (!isValidProgress(req.body)) {
-      res.status(400).json({ error: 'invalid_body' })
+    if (req.method === 'GET') {
+      const { rows } = await sql`SELECT progress FROM players WHERE id = ${session.playerId} LIMIT 1`
+      res.status(200).json({ name: session.name, progress: rows[0]?.progress || DEFAULT_PROGRESS })
       return
     }
-    await sql`
-      UPDATE players SET progress = ${JSON.stringify(req.body)}::jsonb, updated_at = now()
-      WHERE id = ${session.playerId}
-    `
-    res.status(200).json({ ok: true, updatedAt: new Date().toISOString() })
-    return
-  }
 
-  res.status(405).json({ error: 'method_not_allowed' })
+    if (req.method === 'PUT') {
+      if (!isValidProgress(req.body)) {
+        res.status(400).json({ error: 'invalid_body' })
+        return
+      }
+      await sql`
+        UPDATE players SET progress = ${JSON.stringify(req.body)}::jsonb, updated_at = now()
+        WHERE id = ${session.playerId}
+      `
+      res.status(200).json({ ok: true, updatedAt: new Date().toISOString() })
+      return
+    }
+
+    res.status(405).json({ error: 'method_not_allowed' })
+  } catch (err) {
+    console.error('progress handler error:', err)
+    res.status(500).json({ error: 'server_error', message: err.message })
+  }
 }
