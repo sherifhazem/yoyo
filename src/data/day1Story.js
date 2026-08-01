@@ -4,8 +4,6 @@
 // Simple English for an 8-year-old learning the language.
 // ============================================================
 
-export const PLAYER_NAME = 'Yousef'
-
 // Scene order. Each item maps currentScene to a component + environment.
 export const SCENE_SEQUENCE = [
   { id: 'wakeup', component: 'WakeUpScene', environment: 'room' },

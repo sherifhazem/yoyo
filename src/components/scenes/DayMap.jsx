@@ -7,13 +7,21 @@ import { playClick } from '../../utils/sound'
 // المستخدم يشوف كل الأيام من الأول. اليوم اللي خلص جنبه ✅،
 // اليوم الجديد المتاح مكتوب جنبه "جديد"، واللي لسه مقفول عليه 🔒.
 // ============================================================
-export default function DayMap({ days, completedDays, onSelectDay, onReset }) {
+export default function DayMap({ days, completedDays, playerName, onSelectDay, onReset, onLogout }) {
   const completedCount = completedDays.length
 
   return (
     <div className="flex flex-1 flex-col" dir="rtl">
       {/* العنوان */}
       <div className="mb-4 text-center">
+        {onLogout && (
+          <div className="mb-1 flex items-center justify-between text-xs font-bold text-slate-600">
+            <span>{playerName ? `أهلاً ${playerName} 👋` : ''}</span>
+            <button type="button" onClick={onLogout} className="underline active:opacity-70">
+              تسجيل خروج
+            </button>
+          </div>
+        )}
         <div className="mb-1 text-5xl">🧭</div>
         <h1 className="text-2xl font-black text-explorer-brown drop-shadow">يوسف المستكشف</h1>
         <p className="text-sm font-bold text-slate-600">اختار يومك ومغامرتك! 🗺️</p>

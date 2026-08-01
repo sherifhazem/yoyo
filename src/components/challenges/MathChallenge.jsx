@@ -2,24 +2,33 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Mom from '../characters/Mom'
 import ChoiceButton from '../ui/ChoiceButton'
+import MathHintSteps from './MathHintSteps'
 import { playCorrect, playWrong } from '../../utils/sound'
+
+const ATTEMPTS_BEFORE_AUTO_HINT = 2
 
 // ============================================================
 // تحدي رياضيات عام — رسمة بصرية + اختيار و/أو كتابة.
 // challenge: { prompt, visual, inputMode, choices, answer, correctReply, wrongReply }
 // inputMode: 'choices' | 'both'
+// بعد محاولتين غلط (أو زرار "Need help?")، بتظهر خطوات شرح تلقائية
+// (MathHintSteps) مبنية على نفس بيانات visual، وبعدها الطفل بيجرب تاني.
 // ============================================================
 export default function MathChallenge({ challenge, onSolved }) {
   const [typed, setTyped] = useState('')
   const [selected, setSelected] = useState(null)
   const [feedback, setFeedback] = useState(null) // 'correct' | 'wrong'
   const [solved, setSolved] = useState(false)
+  const [attempts, setAttempts] = useState(0)
+  const [showHint, setShowHint] = useState(false)
 
   useEffect(() => {
     setTyped('')
     setSelected(null)
     setFeedback(null)
     setSolved(false)
+    setAttempts(0)
+    setShowHint(false)
   }, [challenge])
 
   const succeed = () => {
@@ -30,12 +39,27 @@ export default function MathChallenge({ challenge, onSolved }) {
   const fail = () => {
     setFeedback('wrong')
     playWrong()
+    setAttempts((a) => {
+      const next = a + 1
+      if (next >= ATTEMPTS_BEFORE_AUTO_HINT) setShowHint(true)
+      return next
+    })
   }
 
   const resetWrong = () => {
     setSelected(null)
     setTyped('')
     setFeedback(null)
+  }
+
+  const finishHint = () => {
+    setShowHint(false)
+    setAttempts(0)
+    resetWrong()
+  }
+
+  if (showHint) {
+    return <MathHintSteps challenge={challenge} onDone={finishHint} />
   }
 
   const checkTyped = () => {
@@ -101,6 +125,16 @@ export default function MathChallenge({ challenge, onSolved }) {
           )
         })}
       </div>
+
+      {!solved && (
+        <button
+          type="button"
+          onClick={() => setShowHint(true)}
+          className="mt-3 w-full text-center text-sm font-bold text-explorer-sky underline active:opacity-70"
+        >
+          Need help? 💡
+        </button>
+      )}
 
       {feedback && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 space-y-2">

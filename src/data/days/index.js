@@ -7,8 +7,6 @@ import day3 from './day3'
 import day4 from './day4'
 import day5 from './day5'
 
-export { PLAYER_NAME } from '../day1Story'
-
 // كل أيام المغامرة بالترتيب
 export const DAYS = [day1, day2, day3, day4, day5]
 
