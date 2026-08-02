@@ -11,7 +11,7 @@ export function getSql() {
     if (!connectionString) {
       throw new Error('DATABASE_URL (or POSTGRES_URL) environment variable is not set')
     }
-    cached = neon(connectionString)
+    cached = neon(connectionString, { fullResults: true })
   }
   return cached
 }
