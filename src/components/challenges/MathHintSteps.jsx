@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Mom from '../characters/Mom'
 import { playClick } from '../../utils/sound'
@@ -14,10 +14,14 @@ export default function MathHintSteps({ challenge, onDone }) {
   const [index, setIndex] = useState(0)
 
   const step = steps[index]
-  if (!step) {
-    onDone()
-    return null
-  }
+
+  // لو نوع الـ visual مش معروف (نادر جداً)، مفيش خطوات نبنيها —
+  // نرجع فوراً لسؤال التحدي بدل ما نسيب شاشة فاضية.
+  useEffect(() => {
+    if (!step) onDone()
+  }, [step, onDone])
+
+  if (!step) return null
   const isLast = index === steps.length - 1
 
   const next = () => {
