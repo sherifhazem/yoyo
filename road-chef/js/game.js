@@ -1,15 +1,17 @@
 import { AISLES, ITEMS, BILLS, byId, makeOrder, orderCost } from './data.js';
 import { sfx } from './sound.js';
+import { startDrive } from './drive.js';
+import { drawCar, CAR_COLORS } from './sprites.js';
 
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const defaults = { money: 50, trips: 0, stars: 0 };
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false });
 const S = (() => {
   try {
-    return { ...defaults, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
   } catch {
-    return { ...defaults };
+    return fresh();
   }
 })();
 const save = () => {
@@ -91,6 +93,7 @@ function map() {
   $app.innerHTML = `
 <section class="screen map">
   ${topbar('Pick a shop')}
+  <button class="chip garage-btn" data-act="garage">🔧 Garage</button>
   <div class="mapboard">
     <svg viewBox="0 0 300 420" class="roadsvg" aria-hidden="true">
       <path d="M150 400 C 40 340, 260 300, 150 230 S 60 130, 150 40" fill="none" stroke="#6b6f7a" stroke-width="30" stroke-linecap="round"/>
@@ -105,13 +108,62 @@ function map() {
 }
 
 function drive() {
+  $app.innerHTML = '<section class="screen drive"><canvas id="road"></canvas></section>';
+  const host = $app.firstElementChild;
+  ui.stop = startDrive(host.querySelector('canvas'), {
+    level: level(),
+    theme: ['day', 'sunset', 'rain'][S.trips % 3],
+    color: S.car,
+    magnet: S.magnet,
+    host,
+    onDone: (res) => { ui.stop = null; arrive(res); },
+  });
+}
+
+function arrive(res) {
+  S.money += res.money;
+  save();
+  const row = (icon, label, val) => `<div class="rrow"><span>${icon} ${label}</span><b>${val}</b></div>`;
   $app.innerHTML = `
-<section class="screen drive">
-  ${sceneHtml()}
-  <div class="drive-msg">Driving to Fresh Grocery…<div class="bar"><i></i></div><small>Tap the car to honk! 📣</small></div>
+<section class="screen done">
+  <div class="trophy">🏪</div>
+  <h2>Arrived at the grocery!</h2>
+  <div class="card summary">
+    ${row('🪙', '5 coins = $1', `${res.coins} → ${fmt(Math.floor(res.coins / 5))}`)}
+    ${res.gifts ? row('🎁', 'Gift boxes', `${res.gifts} × $3`) : ''}
+    ${res.gateTotal ? row('🧮', 'Math gates', `${res.gateRight}/${res.gateTotal} × $3`) : ''}
+    ${res.bestCombo >= 3 ? row('🔥', 'Best combo', `x${res.bestCombo}`) : ''}
+    <hr><div class="rrow big"><span>Driving bonus</span><b>+${fmt(res.money)}</b></div>
+  </div>
+  <button class="btn big" data-act="shop-start">Go shopping 🛒</button>
 </section>`;
-  clearTimeout(ui.timer);
-  ui.timer = setTimeout(() => startShop(), 3200);
+  sfx.ok();
+}
+
+function garage() {
+  const swatches = Object.entries(CAR_COLORS)
+    .map(([id, c]) => {
+      const owned = S.owned.includes(id);
+      const on = S.car === id;
+      return `<button class="swatch ${on ? 'on' : ''}" data-act="car-pick" data-v="${id}" style="--c:${c.hex}"><i></i><b>${c.name}</b><small>${on ? '✔ Using' : owned ? 'Use' : fmt(c.price)}</small></button>`;
+    })
+    .join('');
+  $app.innerHTML = `
+<section class="screen garage">
+  ${topbar('Garage')}
+  <div class="card preview"><canvas id="prev" width="300" height="190"></canvas></div>
+  <div class="swatches">${swatches}</div>
+  <button class="card upg" data-act="buy-magnet" ${S.magnet ? 'disabled' : ''}>
+    <span class="e">🧲</span><span><b>Coin magnet</b><small>Grab coins from a wider area</small></span><b class="pr">${S.magnet ? 'Owned ✔' : fmt(25)}</b>
+  </button>
+  <button class="btn" data-act="map">Back to map</button>
+</section>`;
+  const g = document.getElementById('prev').getContext('2d');
+  const grd = g.createLinearGradient(0, 0, 0, 190);
+  grd.addColorStop(0, '#d9f4ff'); grd.addColorStop(1, '#bfe9ff');
+  g.fillStyle = grd; g.fillRect(0, 0, 300, 190);
+  g.fillStyle = '#5d6270'; g.fillRect(0, 140, 300, 50);
+  drawCar(g, 150, 172, 150, CAR_COLORS[S.car].hex, {});
 }
 
 function startShop() {
@@ -259,16 +311,31 @@ function submitNumber(expected, onOk) {
 }
 
 const acts = {
-  home: () => { clearTimeout(ui.timer); ui = { screen: 'home' }; home(); },
+  home: () => { ui.stop?.(); ui = { screen: 'home' }; home(); },
+  'shop-start': () => startShop(),
+  garage: () => { ui = { screen: 'garage' }; garage(); },
+  'car-pick': (v) => {
+    const c = CAR_COLORS[v];
+    if (!S.owned.includes(v)) {
+      if (S.money < c.price) { sfx.bad(); shake('.swatches'); return; }
+      S.money -= c.price; S.owned.push(v); sfx.coin();
+    }
+    S.car = v; save(); garage();
+  },
+  'buy-magnet': () => {
+    if (S.magnet) return;
+    if (S.money < 25) { sfx.bad(); shake('.upg'); return; }
+    S.money -= 25; S.magnet = true; save(); sfx.coin(); garage();
+  },
   map: () => { ui = { screen: 'map' }; map(); },
   reset: () => {
     if (confirm('Erase all progress?')) {
-      Object.assign(S, defaults);
+      Object.assign(S, fresh());
       save();
       home();
     }
   },
-  'go-grocery': () => { ui = { screen: 'drive' }; drive(); sfx.honk(); },
+  'go-grocery': () => { ui = { screen: 'drive' }; drive(); },
   honk: () => sfx.honk(),
   tab: (v) => { ui.tab = v; shop(); },
   plus: (v) => { ui.cart[v] = cartCount(v) + 1; sfx.add(); shop(); bump(v); },

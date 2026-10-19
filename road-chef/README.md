@@ -11,8 +11,15 @@ cd road-chef && python3 -m http.server 8000   # open on a phone-sized viewport
 ```
 
 ## Done (prototype)
-- Home → map → animated drive → Fresh Grocery (4 aisles, list check, cart) → total → pay → change → reward.
+- Home → map → **driving mini-game** → Fresh Grocery (4 aisles, list check, cart) → total → pay → change → reward.
 - Difficulty scales with trips (more lines, larger quantities).
+
+## Driving mini-game (≤ 60 s: 40–55 s depending on level)
+- Canvas pseudo-3D road, drag to steer; grab coins (5 coins = $1), gift boxes (+$3), dodge cones/rocks/crates/cows.
+- 12 coins in a row = TURBO (smash obstacles). A crash only slows the car, money is never lost.
+- Math gates (2–3 per run): drive through the right answer for +$3. Difficulty follows level.
+- Garage: car colours and a coin magnet, bought from the wallet. Day / sunset / rain themes rotate per trip.
+- Vector sprites pre-rendered to offscreen canvases; engine hum and music via Web Audio (mute button).
 
 ## Next
 - Supply Store and Appliance Shop (save up for an oven).

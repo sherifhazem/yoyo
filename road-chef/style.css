@@ -50,11 +50,6 @@ button { font-family: inherit; color: inherit; border: 0; cursor: pointer; touch
 .wheel { animation: spin .5s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes bob { 50% { transform: translateY(-5px); } }
-.drive .car-wrap { animation: bob .3s ease-in-out infinite, arrive 3.2s ease-in forwards; }
-@keyframes arrive { 0% { transform: translateX(-60px); } 85% { transform: translateX(0); } 100% { transform: translateX(240px); } }
-.drive .layer { animation-duration: 3s; }
-.drive .town { animation-duration: 3s; }
-.drive .lane { animation-duration: .25s; }
 
 .home { align-items: center; justify-content: center; gap: 18px; }
 .logo { z-index: 2; font-size: 76px; line-height: .9; font-weight: 900; text-align: center; transform: rotate(-4deg); animation: float 3s ease-in-out infinite; }
@@ -67,11 +62,6 @@ button { font-family: inherit; color: inherit; border: 0; cursor: pointer; touch
 .home .btn.big { margin-top: auto; margin-bottom: 190px; }
 .home .link { position: absolute; bottom: 16px; color: #fff; }
 
-.drive-msg { position: relative; z-index: 3; text-align: center; font-size: 24px; font-weight: 800; background: rgba(255,255,255,.85); border-radius: 20px; padding: 14px; margin-top: 18%; }
-.drive-msg small { display: block; font-size: 15px; opacity: .7; margin-top: 8px; }
-.bar { height: 14px; background: #e5eefb; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-.bar i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 10px; animation: fill 3.2s linear forwards; }
-@keyframes fill { to { width: 100%; } }
 
 /* ---------- map ---------- */
 .map { background: linear-gradient(#b9ee9b, #8fdc7a); }
@@ -153,3 +143,26 @@ button.bill:active { transform: translateY(4px); }
 @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
 
 @media (prefers-reduced-motion: reduce) { * { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
+
+/* ---------- drive ---------- */
+.screen.drive { padding: 0; gap: 0; overflow: hidden; background: #000; touch-action: none; }
+.drive canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.drive-btn { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.9); border-radius: 16px; padding: 8px 14px; font-size: 18px; font-weight: 800; box-shadow: var(--shadow); z-index: 5; }
+.drive-btn.skip { left: 14px; }
+.drive-btn.mute { right: 14px; }
+.summary .rrow { display: flex; justify-content: space-between; font-size: 20px; padding: 4px 0; font-weight: 700; }
+.summary { width: 100%; max-width: 340px; text-align: left; }
+.summary hr { border: 0; border-top: 2px dashed #d5dbe6; margin: 6px 0; }
+.summary .big { font-size: 26px; font-weight: 900; color: #2f9a4d; }
+.garage-btn { position: absolute; left: 14px; top: 70px; z-index: 6; }
+.garage { background: linear-gradient(#e6f4ff, #cfe8ff); }
+.preview { padding: 0; overflow: hidden; }
+.preview canvas { width: 100%; display: block; }
+.swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.swatch { background: #fff; border-radius: 18px; padding: 10px 4px; box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.swatch i { width: 40px; height: 40px; border-radius: 50%; background: var(--c); box-shadow: inset 0 -5px 0 rgba(0,0,0,.2); }
+.swatch b { font-size: 15px; } .swatch small { font-weight: 800; font-size: 14px; }
+.swatch.on { outline: 4px solid var(--green); }
+.upg { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; font-size: 17px; }
+.upg .e { font-size: 38px; } .upg small { display: block; font-size: 13px; opacity: .7; } .upg .pr { margin-left: auto; font-size: 20px; }
+.upg[disabled] { opacity: .75; }
