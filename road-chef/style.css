@@ -224,3 +224,61 @@ button.bill:active { transform: translateY(4px); }
 .sumline { font-size: 26px; font-weight: 900; text-align: center; margin-top: 6px; color: #2467c9; animation: pop .4s; }
 .bhint { text-align: center; font-weight: 800; color: #b85c00; background: #fff0d6; border-radius: 10px; margin-top: 6px; padding: 4px; font-size: 16px; }
 .mathmode { z-index: 2; position: relative; }
+
+/* ---------- cooking mini-steps ---------- */
+.mg { text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.mgdots { display: flex; gap: 6px; justify-content: center; }
+.mgdots i { width: 12px; height: 12px; border-radius: 50%; background: #d5dbe6; }
+.mgdots i.done { background: var(--green); }
+.mgdots i.now { background: var(--yellow); transform: scale(1.35); box-shadow: 0 0 0 3px #fff3b0; }
+.mgrow { display: flex; gap: 10px; }
+.btn.sm { font-size: 18px; padding: 8px 18px; min-height: 44px; }
+.ding { font-size: 84px; animation: pop .8s; }
+.board { position: relative; width: 100%; max-width: 300px; height: 150px; background: linear-gradient(#e3b97b, #c9964f); border-radius: 18px; border: 5px solid #a8742f; box-shadow: inset 0 -6px 0 rgba(0,0,0,.12); display: flex; align-items: center; justify-content: center; touch-action: manipulation; cursor: crosshair; overflow: hidden; }
+.board .food { font-size: 104px; line-height: 1; pointer-events: none; user-select: none; }
+.board .cut { position: absolute; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.4); pointer-events: none; animation: cutin .25s ease-out; }
+@keyframes cutin { from { transform: scaleY(0); } }
+.board .knife { position: absolute; right: 10px; top: 8px; font-size: 30px; pointer-events: none; }
+.board .knife.swing { animation: swing .3s; }
+@keyframes swing { 50% { transform: rotate(-50deg) translateY(10px); } }
+.board.toss { gap: 6px; flex-wrap: wrap; cursor: default; padding: 6px; align-content: center; }
+.piece { background: none; font-size: 44px; line-height: 1; transition: transform .45s ease-in, opacity .45s; }
+.piece:active { transform: scale(1.2); }
+.piece.gone { transform: translateY(150px) scale(.3); opacity: 0; pointer-events: none; }
+.into { font-size: 52px; display: flex; align-items: center; gap: 10px; }
+.into b { font-size: 24px; background: #fff; border-radius: 12px; padding: 0 10px; box-shadow: var(--shadow); }
+.bigtapwrap { position: relative; }
+.bigtap { width: 130px; height: 130px; border-radius: 50%; background: #fff; font-size: 70px; box-shadow: 0 8px 0 rgba(0,0,0,.15); }
+.bigtap.hit { animation: hit .25s; }
+@keyframes hit { 40% { transform: scale(.88) rotate(-8deg); } }
+.tapcount { position: absolute; right: -14px; top: -10px; min-width: 40px; background: var(--red); color: #fff; font-weight: 900; font-size: 24px; border-radius: 20px; padding: 2px 10px; }
+.pips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.pips i { width: 16px; height: 16px; border-radius: 50%; background: #d5dbe6; }
+.pips i.on { background: var(--green); animation: pop .3s; }
+.pourwrap { display: flex; align-items: flex-end; gap: 18px; justify-content: center; }
+.glass { position: relative; width: 110px; height: 190px; border: 5px solid #9fb8d6; border-top: 0; border-radius: 0 0 22px 22px; background: rgba(255,255,255,.55); overflow: visible; }
+.glass .fill { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 0 0 16px 16px; transition: height .08s linear; box-shadow: inset 0 4px 0 rgba(255,255,255,.4); }
+.glass .tick { position: absolute; left: -26px; transform: translateY(50%); font-weight: 900; font-size: 16px; color: #5a6b86; }
+.glass .tick::after { content: ''; position: absolute; left: 22px; top: 50%; width: 12px; height: 2px; background: #5a6b86; }
+.glass .tmark { position: absolute; right: -52px; transform: translateY(50%); font-weight: 900; font-size: 18px; color: var(--red); white-space: nowrap; }
+.holdbtn { width: 130px; height: 130px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 900; font-size: 16px; box-shadow: 0 8px 0 #2467c9; display: flex; flex-direction: column; align-items: center; justify-content: center; touch-action: none; }
+.holdbtn span { font-size: 54px; line-height: 1.1; }
+.holdbtn:active { transform: translateY(5px); box-shadow: 0 3px 0 #2467c9; }
+.stove { position: relative; height: 120px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; background: linear-gradient(#5a6070, #3d4252); border-radius: 18px; overflow: hidden; }
+.flames { position: absolute; bottom: 8px; font-size: 26px; letter-spacing: -4px; animation: flick .4s ease-in-out infinite alternate; }
+@keyframes flick { to { transform: scale(1.12) translateY(-3px); } }
+.appl { position: relative; font-size: 66px; line-height: 1; margin-bottom: 36px; }
+.appl.hot { animation: shakey .25s linear infinite; }
+.thermo { display: flex; align-items: center; gap: 14px; }
+.thermo b { background: #1f2a44; color: #ffb36b; font-size: 40px; border-radius: 14px; padding: 2px 18px; min-width: 120px; }
+.thermo button { width: 56px; height: 56px; border-radius: 16px; background: #fff; font-size: 24px; box-shadow: 0 5px 0 rgba(0,0,0,.15); }
+.thermo button:active { transform: translateY(3px); }
+.bar { width: 100%; height: 14px; background: #e5eefb; border-radius: 10px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffb36b, #ff5a4e); border-radius: 10px; }
+.flipstage { height: 90px; display: flex; align-items: flex-end; }
+.flipfood { font-size: 72px; line-height: 1; }
+.flipfood.jump { animation: jump .8s ease-in-out; }
+@keyframes jump { 40% { transform: translateY(-70px) rotate(180deg); } 80% { transform: translateY(0) rotate(360deg); } }
+.fliptrack { position: relative; width: 100%; height: 30px; background: #e0e6f1; border-radius: 15px; }
+.fliptrack .zone { position: absolute; top: 0; bottom: 0; background: #7bdc6b; border-radius: 15px; opacity: .9; }
+.fliptrack #marker { position: absolute; top: -6px; width: 8px; height: 42px; margin-left: -4px; background: var(--red); border-radius: 4px; box-shadow: 0 0 0 3px #fff; }

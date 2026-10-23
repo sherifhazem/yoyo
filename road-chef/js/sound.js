@@ -163,3 +163,13 @@ sfx.bell = () => {
   tone(1319, 0.5, 'sine', 0, 0.08);
   tone(1760, 0.6, 'sine', 0.12, 0.06);
 };
+sfx.chop = () => {
+  noise(0.08, 3500, 0.14);
+  tone(180, 0.06, 'square', 0, 0.05);
+};
+sfx.tick = () => tone(900, 0.04, 'triangle', 0, 0.05);
+sfx.flip = () => {
+  tone(400, 0.12, 'triangle', 0, 0.07);
+  tone(700, 0.15, 'triangle', 0.08, 0.07);
+};
+sfx.pop = () => tone(600, 0.07, 'sine', 0, 0.08);

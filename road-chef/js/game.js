@@ -412,7 +412,7 @@ $app.addEventListener('click', (e) => {
   const t = e.target.closest('[data-act]');
   if (!t) return;
   const fn = acts[t.dataset.act];
-  if (fn) fn(t.dataset.v);
+  if (fn) fn(t.dataset.v, e);
 });
 
 home();
