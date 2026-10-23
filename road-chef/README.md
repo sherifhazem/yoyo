@@ -21,6 +21,11 @@ cd road-chef && python3 -m http.server 8000   # open on a phone-sized viewport
 - Garage: car colours and a coin magnet, bought from the wallet. Day / sunset / rain themes rotate per trip.
 - Vector sprites pre-rendered to offscreen canvases; engine hum and music via Web Audio (mute button).
 
+## Restaurant (Chef's Café)
+- The shopping list is now the ingredients for a few planned dishes; bought items go to the **pantry** (saved).
+- A shift serves up to 3 customers who only order what the pantry can make: read the order → cook (tap the right ingredients from the fridge) → serve → **compute the bill** → customer pays with a larger bill → **give change**. Tip for accurate answers.
+- Shift report shows Sales − Ingredients = **Profit**. If the pantry runs out the shift ends and prompts a shopping trip.
+- 7 dishes (price always above ingredient cost). Order size and bill size grow with customers served.
+
 ## Next
 - Supply Store and Appliance Shop (save up for an oven).
-- Restaurant: cook simple meals, serve customers, take payment and give change.

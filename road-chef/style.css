@@ -76,7 +76,7 @@ button.pin { animation: bounce 1.2s ease-in-out infinite; outline: 4px solid var
 .pin.p2 { right: 4%; top: 28%; }
 .pin.p3 { left: 8%; top: 4%; }
 .pin.locked { filter: grayscale(.8); opacity: .75; }
-.restaurant { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); background: var(--red); color: #fff; border-radius: 16px; padding: 8px 16px; font-weight: 800; box-shadow: var(--shadow); }
+.restaurant { border: 0; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); background: var(--red); color: #fff; border-radius: 16px; padding: 8px 16px; font-weight: 800; box-shadow: var(--shadow); }
 
 /* ---------- shop ---------- */
 .shop { background: linear-gradient(#fff7e0, #ffe9b8); }
@@ -166,3 +166,50 @@ button.bill:active { transform: translateY(4px); }
 .upg { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; font-size: 17px; }
 .upg .e { font-size: 38px; } .upg small { display: block; font-size: 13px; opacity: .7; } .upg .pr { margin-left: auto; font-size: 20px; }
 .upg[disabled] { opacity: .75; }
+
+/* ---------- restaurant ---------- */
+.rest { background: linear-gradient(#fff3dc, #ffe2b8); }
+.rscene { position: relative; height: 270px; border-radius: 22px; overflow: hidden; flex: none; box-shadow: var(--shadow);
+  background: linear-gradient(#ffeccb 0 66%, transparent 66%), repeating-conic-gradient(#f4c28a 0 25%, #f9d7ac 0 50%) 0 0 / 40px 40px; }
+.rsign { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: var(--red); color: #fff; font-weight: 900; font-size: 20px; padding: 2px 18px; border-radius: 12px; box-shadow: 0 4px 0 #c63a30; }
+.rwin { position: absolute; top: 48px; left: 14px; font-size: 38px; background: #bfe9ff; border: 4px solid #fff; border-radius: 12px; padding: 2px 8px; }
+.rpic { position: absolute; top: 48px; right: 14px; font-size: 40px; }
+.counter { position: absolute; left: 0; right: 0; bottom: 40px; height: 44px; background: linear-gradient(#d99a58, #b9772f); border-top: 6px solid #f0b974; box-shadow: 0 6px 0 rgba(0,0,0,.15); }
+.customer { position: absolute; left: 34%; bottom: 84px; font-size: 76px; line-height: 1; z-index: 2; transform: translateX(-50%); }
+.customer.in { animation: walkin .7s ease-out; }
+.customer.happy { animation: hop .6s ease-in-out 2; }
+.hearts { position: absolute; top: -18px; right: -14px; font-size: 26px; animation: rise 1.2s ease-out infinite; }
+@keyframes walkin { from { transform: translateX(260px); opacity: 0; } }
+@keyframes hop { 50% { transform: translateX(-50%) translateY(-16px); } }
+@keyframes rise { to { transform: translateY(-24px); opacity: 0; } }
+.rb { position: absolute; top: 40px; left: 12px; right: 12px; z-index: 3; font-size: 16px; text-align: center; max-height: 118px; overflow: hidden; }
+.trayrow { position: absolute; left: 0; right: 0; bottom: 72px; display: flex; justify-content: center; gap: 4px; font-size: 32px; z-index: 2; }
+.chef { position: absolute; right: 14px; bottom: 82px; font-size: 62px; z-index: 2; }
+.chef.busy { animation: shakey .25s linear infinite; }
+@keyframes shakey { 50% { transform: rotate(-8deg) translateY(-3px); } }
+.pantry { display: flex; gap: 6px; overflow-x: auto; flex: none; padding: 2px; }
+.pchip { background: #fff; border-radius: 14px; padding: 4px 8px; font-size: 20px; display: flex; gap: 4px; align-items: center; box-shadow: 0 3px 0 rgba(0,0,0,.12); flex: none; }
+.pchip b { font-size: 15px; }
+.center { text-align: center; }
+.menu { list-style: none; margin: 0; padding: 0; }
+.menu li { display: flex; justify-content: space-between; font-weight: 800; padding: 3px 0; font-size: 17px; }
+.menu li.out { opacity: .4; }
+.recipe { text-align: center; }
+.recipe h3 small { opacity: .6; font-size: 14px; }
+.slots { display: flex; justify-content: center; gap: 8px; margin: 6px 0; }
+.slot { width: 46px; height: 46px; border-radius: 14px; border: 3px dashed #c9d2e3; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #aab4c8; font-weight: 900; }
+.slot.full { border: 3px solid var(--green); background: #e6ffe9; animation: pop .3s; }
+.pan { font-size: 64px; line-height: 1.1; position: relative; }
+.pan .steam { position: absolute; font-size: 24px; left: 54%; top: -6px; opacity: 0; }
+.pan.cooking { animation: shakey .2s linear infinite; }
+.pan.cooking .steam { animation: steam 1s ease-out infinite; }
+@keyframes steam { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-26px); } }
+.fridge { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.fcard { background: #fff; border-radius: 18px; padding: 8px 0; box-shadow: 0 5px 0 rgba(0,0,0,.14); display: flex; flex-direction: column; align-items: center; font-size: 34px; line-height: 1.1; }
+.fcard b { font-size: 16px; }
+.fcard:active { transform: translateY(3px); }
+.stars.small span { font-size: 30px; }
+.summary .neg { color: var(--red); }
+.cap { opacity: .7; }
+.b50 { background: #e5707e; } .b100 { background: #4d6bff; }
+.plan { display: block; opacity: .75; font-weight: 700; margin-bottom: 4px; }

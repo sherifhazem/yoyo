@@ -158,3 +158,8 @@ sfx.boost = () => {
   tone(600, 0.4, 'sawtooth', 0.1, 0.04);
 };
 sfx.count = (go) => tone(go ? 880 : 440, go ? 0.35 : 0.15, 'square', 0, 0.06);
+sfx.sizzle = () => noise(0.9, 7000, 0.09);
+sfx.bell = () => {
+  tone(1319, 0.5, 'sine', 0, 0.08);
+  tone(1760, 0.6, 'sine', 0.12, 0.06);
+};

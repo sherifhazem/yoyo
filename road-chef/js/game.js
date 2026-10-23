@@ -1,4 +1,5 @@
-import { AISLES, ITEMS, BILLS, byId, makeOrder, orderCost } from './data.js';
+import { AISLES, ITEMS, BILLS, byId, makePlan, orderCost, recipeById } from './data.js';
+import { createRestaurant } from './restaurant.js';
 import { sfx } from './sound.js';
 import { startDrive } from './drive.js';
 import { drawCar, CAR_COLORS } from './sprites.js';
@@ -6,7 +7,7 @@ import { drawCar, CAR_COLORS } from './sprites.js';
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false });
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0 });
 const S = (() => {
   try {
     return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
@@ -102,7 +103,7 @@ function map() {
     <button class="pin p1" data-act="go-grocery"><span class="pin-ico">🏪</span><b>Fresh Grocery</b><small>Fruit · Veggies · Meat</small></button>
     <div class="pin p2 locked"><span class="pin-ico">🛒</span><b>Supply Store</b><small>🔒 Soon</small></div>
     <div class="pin p3 locked"><span class="pin-ico">🔥</span><b>Appliance Shop</b><small>🔒 Soon</small></div>
-    <div class="restaurant">🍽️ Your restaurant</div>
+    <button class="restaurant" data-act="restaurant">🍽️ Your restaurant</button>
   </div>
 </section>`;
 }
@@ -167,7 +168,7 @@ function garage() {
 }
 
 function startShop() {
-  const order = makeOrder(level());
+  const { order, dishes } = makePlan(level());
   const cost = orderCost(order);
   let topUp = 0;
   if (S.money < cost) {
@@ -175,7 +176,7 @@ function startShop() {
     S.money += topUp;
     save();
   }
-  ui = { screen: 'shop', order, cart: {}, tab: 'fruit', tries: 0, stars: 1, topUp, input: '' };
+  ui = { screen: 'shop', order, dishes, cart: {}, tab: 'fruit', tries: 0, stars: 1, topUp, input: '' };
   shop();
 }
 
@@ -212,7 +213,7 @@ function shop() {
 <section class="screen shop">
   ${topbar('Fresh Grocery')}
   ${ui.topUp ? `<div class="toast">Mom gave you ${fmt(ui.topUp)} for shopping 💝</div>` : ''}
-  <div class="card list"><h3>📝 Chef's list</h3><ul>${list}</ul></div>
+  <div class="card list"><h3>📝 Chef's list</h3><small class="plan">For: ${ui.dishes.map((d) => `${recipeById[d.id].emoji} ${recipeById[d.id].name} ×${d.qty}`).join(' · ')}</small><ul>${list}</ul></div>
   <div class="tabs">${tabs}</div>
   <div class="shelf">${items}</div>
   <div class="cartbar">
@@ -268,16 +269,18 @@ function done() {
   S.money += reward;
   S.trips += 1;
   S.stars += ui.stars;
+  for (const l of ui.order) S.pantry[l.id] = (S.pantry[l.id] || 0) + l.qty;
   save();
   const confetti = Array.from({ length: 28 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * 0.2}s;--c:${['#ff5a4e', '#ffd23f', '#3ec6ff', '#7bdc6b', '#c58bff'][i % 5]}"></i>`).join('');
   $app.innerHTML = `
 <section class="screen done">
   <div class="confetti">${confetti}</div>
-  <div class="trophy">🍽️</div>
+  <div class="trophy">🧺</div>
   <h2>Ingredients delivered!</h2>
   <div class="stars">${[1, 2, 3].map((n) => `<span class="${n <= ui.stars ? 'on' : ''}" style="--i:${n}">⭐</span>`).join('')}</div>
   <div class="card">The restaurant paid you <b>${fmt(reward)}</b> 🎉<br>Wallet: <b>${fmt(S.money)}</b></div>
-  <button class="btn big" data-act="map">Next trip 🚗</button>
+  <button class="btn big" data-act="restaurant">Open the restaurant 🍽️</button>
+  <button class="btn alt" data-act="map">Next trip 🚗</button>
 </section>`;
   sfx.ok();
 }
@@ -310,8 +313,11 @@ function submitNumber(expected, onOk) {
   }
 }
 
+const R = createRestaurant({ S, save, $app, topbar, pad, fmt, shake, getUi: () => ui, setUi: (u) => { ui = u; } });
+
 const acts = {
-  home: () => { ui.stop?.(); ui = { screen: 'home' }; home(); },
+  ...R.acts,
+  home: () => { ui.stop?.(); R.stop(); ui = { screen: 'home' }; home(); },
   'shop-start': () => startShop(),
   garage: () => { ui = { screen: 'garage' }; garage(); },
   'car-pick': (v) => {
@@ -327,7 +333,7 @@ const acts = {
     if (S.money < 25) { sfx.bad(); shake('.upg'); return; }
     S.money -= 25; S.magnet = true; save(); sfx.coin(); garage();
   },
-  map: () => { ui = { screen: 'map' }; map(); },
+  map: () => { R.stop(); ui = { screen: 'map' }; map(); },
   reset: () => {
     if (confirm('Erase all progress?')) {
       Object.assign(S, fresh());
@@ -355,7 +361,8 @@ const acts = {
     document.getElementById('display').textContent = ui.input ? '$' + ui.input : '$ ?';
   },
   ok: () => {
-    if (ui.screen === 'total') {
+    if (ui.screen === 'r-bill' || ui.screen === 'r-change') R.ok();
+    else if (ui.screen === 'total') {
       submitNumber(cartTotal(), () => { ui.screen = 'pay'; ui.paid = 0; ui.paidBills = []; payStep(); });
     } else if (ui.screen === 'change') {
       submitNumber(ui.paid - cartTotal(), () => {
