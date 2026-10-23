@@ -31,14 +31,25 @@ const rand = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
 // Sell price is always above ingredient cost, so a shift shows a real profit.
+const chop = (ing, pieces, into) => ({ t: 'chop', ing, pieces, into });
+const tap = (emoji, label, n) => ({ t: 'tap', emoji, label, n });
+
+// Each dish is a short sequence of hands-on steps: chop, pour, tap, heat, flip.
 export const RECIPES = [
-  { id: 'salad', name: 'Fruit Salad', emoji: '🥗', ing: { apple: 1, banana: 1, orange: 1 }, price: 8 },
-  { id: 'omelette', name: 'Omelette', emoji: '🍳', ing: { egg: 2, cheese: 1 }, price: 12 },
-  { id: 'soup', name: 'Veggie Soup', emoji: '🍲', ing: { carrot: 1, tomato: 1, potato: 1 }, price: 7 },
-  { id: 'shake', name: 'Berry Shake', emoji: '🥤', ing: { milk: 1, berry: 1 }, price: 11 },
-  { id: 'stew', name: 'Chicken Stew', emoji: '🥘', ing: { chicken: 1, potato: 1 }, price: 12 },
-  { id: 'fish', name: 'Fish & Chips', emoji: '🍟', ing: { fish: 1, potato: 1 }, price: 13 },
-  { id: 'steak', name: 'Steak Dinner', emoji: '🍽️', ing: { steak: 1, broccoli: 1 }, price: 18 },
+  { id: 'salad', name: 'Fruit Salad', emoji: '🥗', ing: { apple: 1, banana: 1, orange: 1 }, price: 8,
+    steps: [chop('apple', 4, 'bowl'), chop('banana', 3, 'bowl'), chop('orange', 2, 'bowl'), tap('🥄', 'Mix the salad!', 6)] },
+  { id: 'omelette', name: 'Omelette', emoji: '🍳', ing: { egg: 2, cheese: 1 }, price: 12,
+    steps: [tap('🥚', 'Crack the eggs!', 2), chop('cheese', 3, 'pan'), tap('🥄', 'Whisk it!', 8), { t: 'heat', what: 'pan', target: 160, secs: 3 }, { t: 'flip', food: '🍳' }] },
+  { id: 'soup', name: 'Veggie Soup', emoji: '🍲', ing: { carrot: 1, tomato: 1, potato: 1 }, price: 7,
+    steps: [chop('carrot', 4, 'pot'), chop('tomato', 2, 'pot'), chop('potato', 4, 'pot'), { t: 'pour', liquid: '💧', name: 'water', target: 3, color: '#6ec6ff' }, { t: 'heat', what: 'pot', target: 200, secs: 4 }] },
+  { id: 'shake', name: 'Berry Shake', emoji: '🥤', ing: { milk: 1, berry: 1 }, price: 11,
+    steps: [chop('berry', 2, 'blender'), { t: 'pour', liquid: '🥛', name: 'milk', target: 2, color: '#fffdf5' }, tap('🌀', 'Blend it!', 10)] },
+  { id: 'stew', name: 'Chicken Stew', emoji: '🥘', ing: { chicken: 1, potato: 1 }, price: 12,
+    steps: [chop('chicken', 4, 'pot'), chop('potato', 4, 'pot'), { t: 'pour', liquid: '🍵', name: 'broth', target: 2, color: '#e0b06a' }, { t: 'heat', what: 'pot', target: 180, secs: 4 }, tap('🥄', 'Stir it!', 6)] },
+  { id: 'fish', name: 'Fish & Chips', emoji: '🍟', ing: { fish: 1, potato: 1 }, price: 13,
+    steps: [chop('potato', 6, 'fryer'), { t: 'heat', what: 'fryer', target: 180, secs: 3 }, { t: 'flip', food: '🐟' }] },
+  { id: 'steak', name: 'Steak Dinner', emoji: '🍽️', ing: { steak: 1, broccoli: 1 }, price: 18,
+    steps: [chop('broccoli', 3, 'pan'), { t: 'heat', what: 'grill', target: 220, secs: 3 }, { t: 'flip', food: '🥩' }, { t: 'flip', food: '🥩' }] },
 ];
 export const recipeById = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 export const recipeCost = (r) => Object.entries(r.ing).reduce((s, [id, q]) => s + q * byId[id].price, 0);

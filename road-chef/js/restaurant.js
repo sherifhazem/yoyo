@@ -1,5 +1,6 @@
 import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal, portionsLeft } from './data.js';
 import { sfx } from './sound.js';
+import { createCooking } from './cooking.js';
 import { billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 
 const CUSTOMERS = ['👧', '👦', '👩', '👨', '🧓', '👵', '👩‍🦰', '👨‍🦱', '🧑‍🎤', '👩‍🔬'];
@@ -14,6 +15,7 @@ export function createRestaurant(host) {
   const { S, save, $app, topbar, pad, fmt, shake, getUi, setUi } = host;
   let r;
   let timer = 0;
+  const K = createCooking({ $app, shake });
 
   const level = () => Math.min(1 + Math.floor(S.served / 4), 6);
   const pantryTotal = () => Object.values(S.pantry).reduce((a, b) => a + b, 0);
@@ -25,12 +27,14 @@ export function createRestaurant(host) {
 
   function open() {
     clearTimeout(timer);
+    K.stop();
     setUi({ screen: 'r-idle', input: '', tries: 0 });
     r = newShift();
     render();
   }
   function stop() {
     clearTimeout(timer);
+    K.stop();
   }
 
   /* ---------- pieces ---------- */
@@ -47,7 +51,7 @@ export function createRestaurant(host) {
   ${bubble ? `<div class="bubble rb">${bubble}</div>` : ''}
   <div class="counter"></div>
   <div class="trayrow">${r.tray.map((e) => `<span>${e}</span>`).join('')}</div>
-  <div class="chef ${r.cooking ? 'busy' : ''}">👨‍🍳</div>
+  <div class="chef ${r.step === 'cook' && r.phase === 'make' ? 'busy' : ''}">👨‍🍳</div>
 </div>`;
 
   const bill = (v) => `<i class="bill b${v}">${fmt(v)}</i>`;
@@ -70,7 +74,8 @@ export function createRestaurant(host) {
       bubble = `Hello! I'd like<br>${lines().map((l) => `${recipeById[l.id].emoji} ${recipeById[l.id].name} × ${l.qty}`).join('<br>')}`;
       body = `<button class="btn big" data-act="r-cook">Start cooking 👨‍🍳</button>`;
     } else if (r.step === 'cook') {
-      body = cookBody();
+      bubble = r.phase === 'make' ? K.bubble() : 'Get the ingredients from the fridge! 🧊';
+      body = r.phase === 'make' ? K.html() : cookBody();
     } else if (r.step === 'serve') {
       bubble = 'Yum, that smells great! 😋';
       body = `<button class="btn big" data-act="r-serve">Serve & bill 🧾</button>`;
@@ -82,10 +87,11 @@ export function createRestaurant(host) {
       body = `<div class="card receipt"><div class="sum">${bill(r.cust.pay)} − <b>${fmt(total())}</b> = ?</div>${U.tries >= 2 ? `<small>Count up from ${fmt(total())} to ${fmt(r.cust.pay)} 👆</small>` : ''}</div>${pad(U.input)}`;
     } else if (r.step === 'paid') {
       bubble = 'Thank you! Bye! 👋';
-      body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.tip ? `<p>Tip: ${fmt(r.cust.tip)} 💝</p>` : ''}</div>
+      body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.tip - (r.cust.cookTip || 0) ? `<p>🧮 Accurate bill! +$${r.cust.tip - r.cust.cookTip}</p>` : ''}</div>
       <button class="btn big" data-act="r-next">${r.served >= PER_SHIFT || !canCook() ? 'Close shop 🔒' : 'Next customer ➡️'}</button>`;
     }
     $app.innerHTML = `<section class="screen rest">${topbar("Chef's Café")}${scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
+    if (r.step === 'cook' && r.phase === 'make') K.afterRender();
   }
 
   function cookBody() {
@@ -98,8 +104,7 @@ export function createRestaurant(host) {
 <div class="card recipe">
   <h3>${d.emoji} ${d.name} <small>(${r.pi + 1} of ${r.portions.length})</small></h3>
   <div class="slots">${slots}</div>
-  <div class="pan ${r.cooking ? 'cooking' : ''}">🍳<span class="steam">♨️</span></div>
-  <small>${r.cooking ? 'Sizzling…' : 'Tap the right ingredients from the fridge 👇'}</small>
+  <small>Tap the right ingredients from the fridge 👇</small>
 </div>
 <div class="fridge">${stock.map(([id, q]) => `<button class="fcard" data-act="r-add" data-v="${id}"><span>${byId[id].emoji}</span><b>${q}</b></button>`).join('')}</div>`;
   }
@@ -164,7 +169,8 @@ export function createRestaurant(host) {
 
   function pay() {
     const t = total();
-    const tip = r.cust.stars >= 2 ? 1 : 0;
+    r.cust.cookTip = r.cust.cookMistakes <= 1 ? 1 : 0;
+    const tip = (r.cust.stars >= 2 ? 1 : 0) + r.cust.cookTip;
     r.cust.tip = tip;
     r.cust.earned = t + tip;
     S.money += t + tip;
@@ -180,7 +186,20 @@ export function createRestaurant(host) {
   }
 
   /* ---------- actions ---------- */
+  function portionDone(mistakes) {
+    const d = recipeById[r.portions[r.pi]];
+    r.cust.cookMistakes += mistakes;
+    r.tray.push(d.emoji);
+    r.pi += 1;
+    r.added = {};
+    r.phase = 'gather';
+    save();
+    if (r.pi >= r.portions.length) r.step = 'serve';
+    render();
+  }
+
   const acts = {
+    ...K.acts,
     restaurant: open,
     'r-new': () => { r = newShift(); render(); },
     'r-open': () => {
@@ -190,7 +209,7 @@ export function createRestaurant(host) {
       let pay = CUSTOMER_BILLS.find((b) => b >= t);
       const next = CUSTOMER_BILLS[CUSTOMER_BILLS.indexOf(pay) + 1];
       if (level() >= 2 && next && Math.random() < 0.4) pay = next;
-      r.cust = { face: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)], order, pay, stars: 1 };
+      r.cust = { face: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)], order, pay, stars: 1, cookMistakes: 0 };
       r.tray = [];
       r.step = 'order';
       sfx.bell();
@@ -200,13 +219,13 @@ export function createRestaurant(host) {
       r.portions = lines().flatMap((l) => Array(l.qty).fill(l.id));
       r.pi = 0;
       r.added = {};
-      r.cooking = false;
+      r.phase = 'gather';
       r.step = 'cook';
       render();
     },
     'r-add': (id) => {
-      if (r.cooking) return;
       const d = recipeById[r.portions[r.pi]];
+      if (r.phase !== 'gather') return;
       if (!d.ing[id] || (r.added[id] || 0) >= d.ing[id]) {
         sfx.bad();
         shake('.recipe');
@@ -218,19 +237,9 @@ export function createRestaurant(host) {
       sfx.add();
       const done = Object.entries(d.ing).every(([i, q]) => (r.added[i] || 0) >= q);
       if (!done) { render(); return; }
-      r.cooking = true;
-      sfx.sizzle();
-      render();
-      timer = setTimeout(() => {
-        r.cooking = false;
-        r.tray.push(d.emoji);
-        r.pi += 1;
-        r.added = {};
-        sfx.ok();
-        save();
-        if (r.pi >= r.portions.length) r.step = 'serve';
-        render();
-      }, 1400);
+      save();
+      r.phase = 'make';
+      K.begin(d, { rerender: render, onDone: portionDone });
     },
     'r-serve': () => {
       r.bill = newBill(lines().map((l) => ({ emoji: recipeById[l.id].emoji, qty: l.qty, price: recipeById[l.id].price })), billMode(S));

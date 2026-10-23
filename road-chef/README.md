@@ -27,6 +27,14 @@ cd road-chef && python3 -m http.server 8000   # open on a phone-sized viewport
 - Shift report shows Sales − Ingredients = **Profit**. If the pantry runs out the shift ends and prompts a shopping trip.
 - 7 dishes (price always above ingredient cost). Order size and bill size grow with customers served.
 
+## Hands-on cooking (restaurant)
+Each portion: gather ingredients → a short sequence of mini-steps per dish → "order up". The learning is hidden in the actions:
+- **Chop** (tap the board to cut, then confirm): pieces = cuts + 1 (counting / fractions). Then tap each piece to toss it into the bowl, pot or pan.
+- **Pour** (hold to fill, release at the marked line): measuring and estimating; overshooting resets the glass.
+- **Heat** (dial ±20° to the target, then start): skip-counting by 20 and reading numbers.
+- **Flip** (stop the moving marker inside the green zone): timing; the zone widens after misses.
+- **Tap** steps (crack, whisk, stir, blend): counting. Few mistakes while cooking earns a tip.
+
 ## Guided billing (grocery checkout and restaurant bill)
 - Step 1: multiply each line (qty × price), one highlighted row at a time; results stay on screen.
 - Step 2: add the line results shown in front of the child. Hints appear after 2 wrong tries (repeated addition / running sums).
