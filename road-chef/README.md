@@ -27,5 +27,11 @@ cd road-chef && python3 -m http.server 8000   # open on a phone-sized viewport
 - Shift report shows Sales − Ingredients = **Profit**. If the pantry runs out the shift ends and prompts a shopping trip.
 - 7 dishes (price always above ingredient cost). Order size and bill size grow with customers served.
 
+## Guided billing (grocery checkout and restaurant bill)
+- Step 1: multiply each line (qty × price), one highlighted row at a time; results stay on screen.
+- Step 2: add the line results shown in front of the child. Hints appear after 2 wrong tries (repeated addition / running sums).
+- Lines with qty 1 are filled in automatically; a single 1-item bill is just the total.
+- Auto mode merges both steps into one "total" question after 3 flawless bills in a row (any mistake resets); the home screen button cycles Auto / Guided / Combined for parents.
+
 ## Next
 - Supply Store and Appliance Shop (save up for an oven).

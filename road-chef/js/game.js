@@ -1,5 +1,6 @@
 import { AISLES, ITEMS, BILLS, byId, makePlan, orderCost, recipeById } from './data.js';
 import { createRestaurant } from './restaurant.js';
+import { MODES, billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 import { sfx } from './sound.js';
 import { startDrive } from './drive.js';
 import { drawCar, CAR_COLORS } from './sprites.js';
@@ -7,7 +8,7 @@ import { drawCar, CAR_COLORS } from './sprites.js';
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0 });
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, billPref: 'auto', billStreak: 0 });
 const S = (() => {
   try {
     return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
@@ -86,6 +87,7 @@ function home() {
     <div class="chip">🚗 ${S.trips}</div>
   </div>
   <button class="btn big" data-act="map">Let's Drive! 🚗</button>
+  <button class="chip mathmode" data-act="mathmode">🧮 Math steps: ${{ auto: 'Auto', guided: 'Guided', combined: 'Combined' }[S.billPref]}</button>
   <button class="link" data-act="reset">Start over</button>
 </section>`;
 }
@@ -224,14 +226,11 @@ function shop() {
 }
 
 function totalStep() {
-  const lines = ui.order
-    .map((l) => `<li><span>${byId[l.id].emoji} ${l.qty} × ${fmt(byId[l.id].price)}</span><span class="hintv">${ui.tries >= 2 ? fmt(l.qty * byId[l.id].price) : '?'}</span></li>`)
-    .join('');
   $app.innerHTML = `
 <section class="screen pay">
   ${topbar('Cashier')}
-  <div class="cashier">🧑‍💼 <div class="bubble">What is the total, chef?</div></div>
-  <div class="card receipt"><ul>${lines}</ul>${ui.tries >= 2 ? '<small>Add them all up! ➕</small>' : ''}</div>
+  <div class="cashier">🧑‍💼 <div class="bubble">${billBubble(ui.bill)}</div></div>
+  ${billHtml(ui.bill, fmt)}
   ${pad(ui.input)}
 </section>`;
 }
@@ -333,6 +332,7 @@ const acts = {
     if (S.money < 25) { sfx.bad(); shake('.upg'); return; }
     S.money -= 25; S.magnet = true; save(); sfx.coin(); garage();
   },
+  mathmode: () => { S.billPref = MODES[(MODES.indexOf(S.billPref) + 1) % MODES.length]; save(); home(); },
   map: () => { R.stop(); ui = { screen: 'map' }; map(); },
   reset: () => {
     if (confirm('Erase all progress?')) {
@@ -348,7 +348,9 @@ const acts = {
   minus: (v) => { if (cartCount(v) > 0) { ui.cart[v] -= 1; sfx.remove(); shop(); } },
   checkout: () => {
     if (!listDone()) { sfx.bad(); shake('.list'); return; }
-    ui.screen = 'total'; ui.tries = 0; ui.input = ''; totalStep();
+    ui.screen = 'total'; ui.tries = 0; ui.input = '';
+    ui.bill = newBill(ui.order.map((l) => ({ emoji: byId[l.id].emoji, qty: l.qty, price: byId[l.id].price })), billMode(S));
+    totalStep();
   },
   d: (v) => {
     if (ui.input.length >= 3) return;
@@ -363,7 +365,15 @@ const acts = {
   ok: () => {
     if (ui.screen === 'r-bill' || ui.screen === 'r-change') R.ok();
     else if (ui.screen === 'total') {
-      submitNumber(cartTotal(), () => { ui.screen = 'pay'; ui.paid = 0; ui.paidBills = []; payStep(); });
+      if (ui.input === '') return;
+      const res = billSubmit(ui.bill, Number(ui.input));
+      ui.input = '';
+      if (res === 'wrong') { sfx.bad(); totalStep(); shake('.display'); return; }
+      sfx.ok();
+      if (res === 'next') { totalStep(); return; }
+      if (ui.bill.mistakes === 0) ui.stars += 1;
+      recordBill(S, ui.bill, save);
+      ui.screen = 'pay'; ui.paid = 0; ui.paidBills = []; payStep();
     } else if (ui.screen === 'change') {
       submitNumber(ui.paid - cartTotal(), () => {
         S.money -= cartTotal();

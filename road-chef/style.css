@@ -213,3 +213,14 @@ button.bill:active { transform: translateY(4px); }
 .cap { opacity: .7; }
 .b50 { background: #e5707e; } .b100 { background: #4d6bff; }
 .plan { display: block; opacity: .75; font-weight: 700; margin-bottom: 4px; }
+
+/* ---------- guided billing ---------- */
+.bill-card .badge { display: inline-block; background: #e6f0ff; color: #2467c9; border-radius: 10px; padding: 1px 10px; font-weight: 800; margin-bottom: 4px; }
+.brow { padding: 5px 8px !important; border-radius: 12px; justify-content: space-between; opacity: .6; }
+.brow.active { background: #fff7c2; opacity: 1; outline: 3px solid var(--yellow); }
+.brow.ok { opacity: 1; }
+.brow .got { color: #2f9a4d; animation: pop .35s; }
+.brow .ask { color: var(--red); }
+.sumline { font-size: 26px; font-weight: 900; text-align: center; margin-top: 6px; color: #2467c9; animation: pop .4s; }
+.bhint { text-align: center; font-weight: 800; color: #b85c00; background: #fff0d6; border-radius: 10px; margin-top: 6px; padding: 4px; font-size: 16px; }
+.mathmode { z-index: 2; position: relative; }

@@ -1,5 +1,6 @@
 import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal, portionsLeft } from './data.js';
 import { sfx } from './sound.js';
+import { billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 
 const CUSTOMERS = ['👧', '👦', '👩', '👨', '🧓', '👵', '👩‍🦰', '👨‍🦱', '🧑‍🎤', '👩‍🔬'];
 const PER_SHIFT = 3;
@@ -74,9 +75,8 @@ export function createRestaurant(host) {
       bubble = 'Yum, that smells great! 😋';
       body = `<button class="btn big" data-act="r-serve">Serve & bill 🧾</button>`;
     } else if (r.step === 'bill') {
-      bubble = 'How much do I owe you?';
-      const rows = lines().map((l) => `<li><span>${recipeById[l.id].emoji} ${l.qty} × ${fmt(recipeById[l.id].price)}</span><span class="hintv">${U.tries >= 2 ? fmt(l.qty * recipeById[l.id].price) : '?'}</span></li>`).join('');
-      body = `<div class="card receipt"><ul>${rows}</ul>${U.tries >= 2 ? '<small>Add them all up! ➕</small>' : ''}</div>${pad(U.input)}`;
+      bubble = billBubble(r.bill);
+      body = `${billHtml(r.bill, fmt)}${pad(U.input)}`;
     } else if (r.step === 'change') {
       bubble = `Here is ${fmt(r.cust.pay)}. What's my change?`;
       body = `<div class="card receipt"><div class="sum">${bill(r.cust.pay)} − <b>${fmt(total())}</b> = ?</div>${U.tries >= 2 ? `<small>Count up from ${fmt(total())} to ${fmt(r.cust.pay)} 👆</small>` : ''}</div>${pad(U.input)}`;
@@ -145,10 +145,18 @@ export function createRestaurant(host) {
 
   function ok() {
     if (r.step === 'bill') {
-      submit(total(), () => {
-        if (r.cust.pay === total()) pay();
-        else { r.step = 'change'; render(); }
-      });
+      const U = getUi();
+      if (U.input === '') return;
+      const res = billSubmit(r.bill, Number(U.input));
+      U.input = '';
+      if (res === 'wrong') { sfx.bad(); render(); shake('.display'); return; }
+      sfx.ok();
+      if (res === 'next') { render(); return; }
+      if (r.bill.mistakes === 0) r.cust.stars += 1;
+      recordBill(S, r.bill, save);
+      U.tries = 0;
+      if (r.cust.pay === total()) pay();
+      else { r.step = 'change'; render(); }
     } else if (r.step === 'change') {
       submit(r.cust.pay - total(), pay);
     }
@@ -224,7 +232,10 @@ export function createRestaurant(host) {
         render();
       }, 1400);
     },
-    'r-serve': () => { r.step = 'bill'; getUi().tries = 0; getUi().input = ''; render(); },
+    'r-serve': () => {
+      r.bill = newBill(lines().map((l) => ({ emoji: recipeById[l.id].emoji, qty: l.qty, price: recipeById[l.id].price })), billMode(S));
+      r.step = 'bill'; getUi().tries = 0; getUi().input = ''; render();
+    },
     'r-next': () => { r.cust = null; r.tray = []; r.step = 'idle'; render(); },
   };
 

@@ -50,7 +50,7 @@ export const orderCost = (order) =>
 export function makePlan(level) {
   const k = level < 3 ? 2 : 3;
   for (let i = 0; i < 60; i++) {
-    const dishes = shuffle(RECIPES).slice(0, k).map((r) => ({ id: r.id, qty: level < 2 ? 1 : rand(1, 2) }));
+    const dishes = shuffle(RECIPES).slice(0, k).map((r) => ({ id: r.id, qty: rand(1, 2) }));
     const need = {};
     for (const d of dishes) for (const [id, q] of Object.entries(recipeById[d.id].ing)) need[id] = (need[id] || 0) + q * d.qty;
     const order = Object.entries(need).map(([id, qty]) => ({ id, qty }));
@@ -71,7 +71,7 @@ export function makeCustomerOrder(level, pantry) {
     const can = RECIPES.filter((r) => !lines.some((l) => l.id === r.id) && portionsLeft(r, stock) > 0);
     if (!can.length) break;
     const r = can[rand(0, can.length - 1)];
-    const qty = rand(1, Math.min(level < 2 ? 1 : 2, portionsLeft(r, stock)));
+    const qty = rand(1, Math.min(2, portionsLeft(r, stock)));
     for (const [id, q] of Object.entries(r.ing)) stock[id] -= q * qty;
     lines.push({ id: r.id, qty });
   }
