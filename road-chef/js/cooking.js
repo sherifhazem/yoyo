@@ -26,8 +26,15 @@ export function createCooking({ $app, shake }) {
   const $ = (id) => document.getElementById(id);
   const step = () => c.dish.steps[c.i];
   const miss = () => { c.mistakes += 1; };
+  const STATION = { chop: 'board', tap: 'counter', pour: 'sink', heat: 'stove', flip: 'stove' };
+  const stationOf = (sp) => sp.at || STATION[sp.t];
+  const LABEL = { board: 'cutting board', counter: 'mixing counter', sink: 'sink', stove: 'stove' };
 
   function init(spec) {
+    return { entered: false, ...initStep(spec) };
+  }
+
+  function initStep(spec) {
     switch (spec.t) {
       case 'chop': return { phase: 'cut', cuts: [], gone: [], err: '' };
       case 'tap': return { k: 0 };
@@ -38,9 +45,9 @@ export function createCooking({ $app, shake }) {
     }
   }
 
-  function begin(dish, { rerender, onDone }) {
+  function begin(dish, { rerender, onDone, onEnter }) {
     clearAll();
-    c = { dish, i: 0, mistakes: 0, rerender, onDone, finished: false };
+    c = { dish, i: 0, mistakes: 0, rerender, onDone, onEnter, finished: false };
     c.s = init(step());
     c.rerender();
   }
@@ -67,6 +74,7 @@ export function createCooking({ $app, shake }) {
     if (c.finished) return 'Order up! 🛎️';
     const sp = step();
     const s = c.s;
+    if (!s.entered) return `Next stop: the ${LABEL[stationOf(sp)]}! 👆`;
     switch (sp.t) {
       case 'chop': return s.phase === 'cut' ? `Cut the ${byId[sp.ing].name.toLowerCase()} into <b>${sp.pieces}</b> pieces ✂️` : `Put the pieces in the ${sp.into}!`;
       case 'tap': return sp.label;
@@ -126,13 +134,17 @@ ${s.err ? `<div class="bhint">${s.err}</div>` : '<small>Tap the board to make cu
   function html() {
     if (!c) return '';
     if (c.finished) return `<div class="card mg center"><div class="ding">${c.dish.emoji}</div><h3>${c.dish.name} is ready!</h3></div>`;
+    if (!c.s.entered) {
+      const st = stationOf(step());
+      return `<div class="card mg center"><div class="gobig">${{ board: '🔪', counter: '🥣', sink: '🚰', stove: '🔥' }[st]}</div><h3>Go to the ${LABEL[st]}</h3><small>Tap the glowing spot in the kitchen</small><button class="btn big" data-act="c-enter">Go! 🏃</button></div>`;
+    }
     const dots = c.dish.steps.map((_, i) => `<i class="${i < c.i ? 'done' : i === c.i ? 'now' : ''}"></i>`).join('');
     return `<div class="card mg"><div class="mgdots">${dots}</div>${body(step(), c.s)}</div>`;
   }
 
   // Called after the caller placed `html()` in the DOM.
   function afterRender() {
-    if (!c || c.finished) return;
+    if (!c || c.finished || !c.s.entered) return;
     if (step().t === 'flip') {
       c.s.last = performance.now();
       raf = requestAnimationFrame(flipLoop);
@@ -237,7 +249,15 @@ ${s.err ? `<div class="bhint">${s.err}</div>` : '<small>Tap the board to make cu
   }
 
   /* ---------- actions ---------- */
+  function enter() {
+    if (!c || c.s.entered) return;
+    if (c.onEnter) c.onEnter(stationOf(step()));
+    c.s.entered = true;
+    c.rerender();
+  }
+
   const acts = {
+    'c-enter': enter,
     'c-cut': (_, e) => {
       const s = c.s;
       const board = e.target.closest('.board');
@@ -331,5 +351,19 @@ ${s.err ? `<div class="bhint">${s.err}</div>` : '<small>Tap the board to make cu
     },
   };
 
-  return { begin, stop, html, bubble, afterRender, acts, active: () => !!c };
+  return {
+    begin,
+    stop,
+    html,
+    bubble,
+    afterRender,
+    acts,
+    enter,
+    active: () => !!c,
+    entered: () => !!c && !c.finished && c.s.entered,
+    station: () => (c && !c.finished ? stationOf(step()) : null),
+    stepType: () => (c && !c.finished ? step().t : null),
+    // for the progress ticket: [{ icon, state }]
+    ticket: () => (c ? c.dish.steps.map((sp, i) => ({ icon: sp.t === 'chop' ? '🔪' : sp.t === 'tap' ? sp.emoji : sp.t === 'pour' ? sp.liquid : sp.t === 'heat' ? '🔥' : '🔄', state: c.finished || i < c.i ? 'done' : i === c.i ? 'now' : '' })) : []),
+  };
 }

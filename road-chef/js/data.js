@@ -45,7 +45,7 @@ export const RECIPES = [
   { id: 'shake', name: 'Berry Shake', emoji: '🥤', ing: { milk: 1, berry: 1 }, price: 11,
     steps: [chop('berry', 2, 'blender'), { t: 'pour', liquid: '🥛', name: 'milk', target: 2, color: '#fffdf5' }, tap('🌀', 'Blend it!', 10)] },
   { id: 'stew', name: 'Chicken Stew', emoji: '🥘', ing: { chicken: 1, potato: 1 }, price: 12,
-    steps: [chop('chicken', 4, 'pot'), chop('potato', 4, 'pot'), { t: 'pour', liquid: '🍵', name: 'broth', target: 2, color: '#e0b06a' }, { t: 'heat', what: 'pot', target: 180, secs: 4 }, tap('🥄', 'Stir it!', 6)] },
+    steps: [chop('chicken', 4, 'pot'), chop('potato', 4, 'pot'), { t: 'pour', liquid: '🍵', name: 'broth', target: 2, color: '#e0b06a' }, { t: 'heat', what: 'pot', target: 180, secs: 4 }, { ...tap('🥄', 'Stir it!', 6), at: 'stove' }] },
   { id: 'fish', name: 'Fish & Chips', emoji: '🍟', ing: { fish: 1, potato: 1 }, price: 13,
     steps: [chop('potato', 6, 'fryer'), { t: 'heat', what: 'fryer', target: 180, secs: 3 }, { t: 'flip', food: '🐟' }] },
   { id: 'steak', name: 'Steak Dinner', emoji: '🍽️', ing: { steak: 1, broccoli: 1 }, price: 18,
@@ -90,3 +90,16 @@ export function makeCustomerOrder(level, pantry) {
 }
 
 export const dishTotal = (lines) => lines.reduce((s, l) => s + l.qty * recipeById[l.id].price, 0);
+
+// Kitchen equipment. `owned` ones are drawn in the kitchen; the rest are planned
+// upgrades for the Appliance Shop (price in dollars, what they unlock).
+export const EQUIPMENT = [
+  { id: 'fridge', name: 'Fridge', emoji: '🧊', price: 0 },
+  { id: 'stove', name: 'Stove', emoji: '🔥', price: 0 },
+  { id: 'board', name: 'Cutting board', emoji: '🔪', price: 0 },
+  { id: 'counter', name: 'Mixing counter', emoji: '🥣', price: 0 },
+  { id: 'sink', name: 'Sink', emoji: '🚰', price: 0 },
+  { id: 'oven', name: 'Oven', emoji: '♨️', price: 60, unlocks: 'baked dishes' },
+  { id: 'blender', name: 'Pro blender', emoji: '🥤', price: 35, unlocks: 'faster shakes' },
+  { id: 'fridge2', name: 'Big fridge', emoji: '🧊', price: 80, unlocks: 'bigger pantry' },
+];
