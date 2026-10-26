@@ -8,6 +8,7 @@ export const SPOTS = {
   board: { x: 33, y: 92, label: 'Cutting board', emoji: '🔪' },
   counter: { x: 49, y: 92, label: 'Mixing counter', emoji: '🥣' },
   stove: { x: 69, y: 92, label: 'Stove', emoji: '🔥' },
+  oven: { x: 69, y: 92, label: 'Oven', emoji: '♨️' },
   sink: { x: 90, y: 92, label: 'Sink', emoji: '🚰' },
 };
 
@@ -16,14 +17,15 @@ const HIT = {
   fridge: [6, 34, 86, 176],
   board: [94, 112, 58, 94],
   counter: [152, 100, 58, 106],
-  stove: [212, 20, 88, 186],
+  stove: [212, 20, 88, 110],
+  oven: [222, 130, 68, 66],
   sink: [302, 116, 82, 90],
 };
 
 const wood = (id, a, b) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
 
-function svg({ focus, fridgeOpen, hot, water, knife }) {
-  const glow = hot ? '<ellipse cx="256" cy="168" rx="30" ry="26" fill="url(#kGlow)"/>' : '';
+function svg({ focus, fridgeOpen, hot, ovenHot, ovenOwned, proBlender, water, knife }) {
+  const glow = ovenHot ? '<ellipse cx="256" cy="168" rx="30" ry="26" fill="url(#kGlow)"/>' : '';
   const flames = hot ? [[228, 110], [256, 110], [284, 110]].map(([x, y]) => `<g class="kflame" transform="translate(${x} ${y})"><path d="M0 0 C-5 -7 -3 -13 0 -17 C3 -13 5 -7 0 0Z" fill="#ff9f43"/><path d="M0 0 C-2 -4 -1 -8 0 -10 C1 -8 2 -4 0 0Z" fill="#ffe066"/></g>`).join('') : '';
   const drops = water ? [0, 1, 2].map((i) => `<ellipse class="kdrop" style="animation-delay:${i * 0.25}s" cx="${342 + (i - 1) * 3}" cy="${112 + i}" rx="2.4" ry="4" fill="#6ec6ff"/>`).join('') : '';
   const focusBox = focus && HIT[focus] ? `<rect class="kfocus" x="${HIT[focus][0]}" y="${HIT[focus][1]}" width="${HIT[focus][2]}" height="${HIT[focus][3]}" rx="12"/><text class="karrow" x="${HIT[focus][0] + HIT[focus][2] / 2}" y="${HIT[focus][1] - 4}" text-anchor="middle" font-size="22">👇</text>` : '';
@@ -96,7 +98,7 @@ ${fridgeOpen ? `
 <g transform="translate(130 112) rotate(-18)"><rect x="0" y="0" width="22" height="5" rx="2" fill="#c0c7d3"/><rect x="20" y="-0.5" width="10" height="6" rx="2" fill="#7a4d27"/></g></g>
 <!-- mixing bowl + blender -->
 <g><path d="M158 118 H190 Q188 134 174 134 Q160 134 158 118Z" fill="#6ec6ff" stroke="#3a8dff" stroke-width="2"/><ellipse cx="174" cy="118" rx="16" ry="4" fill="#d9f0ff" stroke="#3a8dff" stroke-width="1.5"/>
-<g transform="translate(195 106)"><rect x="-1" y="14" width="14" height="10" rx="2" fill="#5a6070"/><path d="M0 14 L-2 -6 H15 L13 14Z" fill="url(#kGlass)" stroke="#7a8798" stroke-width="1.5"/><rect x="-3" y="-9" width="20" height="4" rx="2" fill="#5a6070"/></g></g>
+<g transform="translate(195 106)"><rect x="-1" y="14" width="14" height="10" rx="2" fill="${proBlender ? 'url(#kSteel)' : '#5a6070'}" stroke="${proBlender ? '#6f7a8a' : 'none'}"/>${proBlender ? '<circle cx="6" cy="19" r="1.8" fill="#3fc96b"/>' : ''}<path d="M0 14 L-2 -6 H15 L13 14Z" fill="url(#kGlass)" stroke="#7a8798" stroke-width="1.5"/><rect x="-3" y="-9" width="20" height="4" rx="2" fill="${proBlender ? '#e8505b' : '#5a6070'}"/></g></g>
 
 <!-- stove -->
 <g>
@@ -107,9 +109,15 @@ ${fridgeOpen ? `
 <g><ellipse cx="276" cy="97" rx="15" ry="5" fill="#5a6070"/><path d="M262 96 q14 6 28 0" fill="none" stroke="#c0c7d3" stroke-width="2"/><rect x="288" y="95" width="14" height="4" rx="2" fill="#2b2d42"/></g>
 ${flames}
 <g fill="#c0c7d3"><circle cx="228" cy="120" r="4.5"/><circle cx="244" cy="120" r="4.5"/><circle cx="268" cy="120" r="4.5"/><circle cx="284" cy="120" r="4.5"/></g>
-<rect x="222" y="130" width="68" height="66" rx="8" fill="#1f2430" stroke="#8c98a8" stroke-width="3"/>
-<rect x="228" y="136" width="56" height="48" rx="5" fill="${hot ? '#ff9a3c' : '#3a4150'}" ${hot ? 'opacity=".95"' : ''}/>${glow}
-<rect x="232" y="124" width="48" height="5" rx="2.5" fill="#d7dce5"/>
+${ovenOwned ? `
+<rect x="222" y="130" width="68" height="66" rx="8" fill="url(#kSteel)" stroke="#6f7a8a" stroke-width="3"/>
+<rect x="229" y="140" width="54" height="40" rx="5" fill="${ovenHot ? '#ff9a3c' : '#2b3242'}"/>${glow}
+<rect x="229" y="140" width="54" height="40" rx="5" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>
+<rect x="232" y="132" width="48" height="5" rx="2.5" fill="#4a5262"/><circle cx="240" cy="188" r="2.5" fill="#3fc96b"/><rect x="250" y="186" width="26" height="5" rx="2.5" fill="#4a5262"/>` : `
+<rect x="222" y="130" width="68" height="66" rx="8" fill="#2a2f3b" stroke="#6b7384" stroke-width="3" stroke-dasharray="6 4"/>
+<rect x="229" y="140" width="54" height="40" rx="5" fill="#1b1f29"/>
+<path d="M236 144 L248 160 L242 172 M270 146 L260 164" stroke="#46506a" stroke-width="2" fill="none"/>
+<g transform="rotate(-8 256 168)"><rect x="228" y="158" width="56" height="18" rx="3" fill="#e8505b"/><text x="256" y="171" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">OUT OF ORDER</text></g>`}
 </g>
 
 <!-- sink -->
@@ -148,10 +156,13 @@ export function createKitchen() {
       const from = SPOTS[a ? a.from : chef];
       const to = SPOTS[chef];
       const style = `--fx:${from.x}%;--fy:${from.y}%;--tx:${to.x}%;--ty:${to.y}%`;
-      const hot = doing === 'stove' && (state.stepType === 'heat' || state.stepType === 'flip' || state.stepType === 'tap');
+      const active = state.stepType === 'heat' || state.stepType === 'flip' || state.stepType === 'tap';
+      const hot = doing === 'stove' && active;
+      const ovenHot = doing === 'oven' && active;
+      const owned = state.owned || [];
       return `
 <div class="kitchen">
-  ${svg({ focus: state.focus, fridgeOpen: doing === 'fridge', hot, water: doing === 'sink', knife: doing === 'board' })}
+  ${svg({ focus: state.focus, fridgeOpen: doing === 'fridge', hot, ovenHot, ovenOwned: owned.includes('oven'), proBlender: owned.includes('blender'), water: doing === 'sink', knife: doing === 'board' })}
   <div class="kchef ${a ? 'walking' : ''} ${doing ? 'working' : ''}" style="${style}"><span class="kshadow"></span><span class="kface">👨‍🍳</span></div>
   ${state.bubble ? `<div class="bubble kbubble">${state.bubble}</div>` : ''}
 </div>`;

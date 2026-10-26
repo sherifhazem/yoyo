@@ -1,8 +1,8 @@
 import { byId } from './data.js';
 import { sfx } from './sound.js';
 
-const CONTAINER = { bowl: '🥣', pot: '🍲', pan: '🍳', blender: '🥤', fryer: '🍳', grill: '🍳' };
-const APPLIANCE = { pan: 'pan', pot: 'pot', fryer: 'fryer', grill: 'grill' };
+const CONTAINER = { bowl: '🥣', pot: '🍲', pan: '🍳', blender: '🥤', fryer: '🍳', grill: '🍳', oven: '♨️' };
+const APPLIANCE = { pan: 'pan', pot: 'pot', fryer: 'fryer', grill: 'grill', oven: 'oven' };
 const rnd = (a, b) => a + Math.random() * (b - a);
 
 /**
@@ -28,7 +28,7 @@ export function createCooking({ $app, shake }) {
   const miss = () => { c.mistakes += 1; };
   const STATION = { chop: 'board', tap: 'counter', pour: 'sink', heat: 'stove', flip: 'stove' };
   const stationOf = (sp) => sp.at || STATION[sp.t];
-  const LABEL = { board: 'cutting board', counter: 'mixing counter', sink: 'sink', stove: 'stove' };
+  const LABEL = { board: 'cutting board', counter: 'mixing counter', sink: 'sink', stove: 'stove', oven: 'oven' };
 
   function init(spec) {
     return { entered: false, ...initStep(spec) };
@@ -45,8 +45,10 @@ export function createCooking({ $app, shake }) {
     }
   }
 
-  function begin(dish, { rerender, onDone, onEnter }) {
+  function begin(base, { rerender, onDone, onEnter, owned = [] }) {
     clearAll();
+    // Equipment bonuses: the pro blender halves the blending taps.
+    const dish = { ...base, steps: base.steps.map((sp) => (sp.pro && owned.includes('blender') ? { ...sp, n: sp.pro } : sp)) };
     c = { dish, i: 0, mistakes: 0, rerender, onDone, onEnter, finished: false };
     c.s = init(step());
     c.rerender();
@@ -80,7 +82,7 @@ export function createCooking({ $app, shake }) {
       case 'tap': return sp.label;
       case 'pour': return `Pour the ${sp.name} up to line <b>${sp.target}</b>`;
       case 'heat': return `Set the ${APPLIANCE[sp.what]} to <b>${sp.target}°</b>`;
-      case 'flip': return 'Tap FLIP when the marker is in the green!';
+      case 'flip': return sp.label || 'Tap FLIP when the marker is in the green!';
       default: return '';
     }
   }
@@ -126,7 +128,7 @@ ${s.err ? `<div class="bhint">${s.err}</div>` : '<small>Tap the board to make cu
 <div class="flipstage"><span class="flipfood" id="flipfood">${sp.food}</span></div>
 <div class="fliptrack" id="track"><i class="zone" id="zone" style="left:${s.a * 100}%;width:${s.w * 100}%"></i><b id="marker"></b></div>
 <div class="bhint" id="fmsg" style="visibility:hidden">.</div>
-<button class="btn big" data-act="c-flip">FLIP! 🔄</button>`;
+<button class="btn big" data-act="c-flip">${sp.btn || 'FLIP! 🔄'}</button>`;
     }
     return '';
   }
@@ -136,7 +138,7 @@ ${s.err ? `<div class="bhint">${s.err}</div>` : '<small>Tap the board to make cu
     if (c.finished) return `<div class="card mg center"><div class="ding">${c.dish.emoji}</div><h3>${c.dish.name} is ready!</h3></div>`;
     if (!c.s.entered) {
       const st = stationOf(step());
-      return `<div class="card mg center"><div class="gobig">${{ board: '🔪', counter: '🥣', sink: '🚰', stove: '🔥' }[st]}</div><h3>Go to the ${LABEL[st]}</h3><small>Tap the glowing spot in the kitchen</small><button class="btn big" data-act="c-enter">Go! 🏃</button></div>`;
+      return `<div class="card mg center"><div class="gobig">${{ board: '🔪', counter: '🥣', sink: '🚰', stove: '🔥', oven: '♨️' }[st]}</div><h3>Go to the ${LABEL[st]}</h3><small>Tap the glowing spot in the kitchen</small><button class="btn big" data-act="c-enter">Go! 🏃</button></div>`;
     }
     const dots = c.dish.steps.map((_, i) => `<i class="${i < c.i ? 'done' : i === c.i ? 'now' : ''}"></i>`).join('');
     return `<div class="card mg"><div class="mgdots">${dots}</div>${body(step(), c.s)}</div>`;
@@ -364,6 +366,6 @@ ${s.err ? `<div class="bhint">${s.err}</div>` : '<small>Tap the board to make cu
     station: () => (c && !c.finished ? stationOf(step()) : null),
     stepType: () => (c && !c.finished ? step().t : null),
     // for the progress ticket: [{ icon, state }]
-    ticket: () => (c ? c.dish.steps.map((sp, i) => ({ icon: sp.t === 'chop' ? '🔪' : sp.t === 'tap' ? sp.emoji : sp.t === 'pour' ? sp.liquid : sp.t === 'heat' ? '🔥' : '🔄', state: c.finished || i < c.i ? 'done' : i === c.i ? 'now' : '' })) : []),
+    ticket: () => (c ? c.dish.steps.map((sp, i) => ({ icon: sp.t === 'chop' ? '🔪' : sp.t === 'tap' ? sp.emoji : sp.t === 'pour' ? sp.liquid : sp.t === 'heat' ? (sp.what === 'oven' ? '♨️' : '🔥') : (sp.at === 'oven' ? '🧤' : '🔄'), state: c.finished || i < c.i ? 'done' : i === c.i ? 'now' : '' })) : []),
   };
 }
