@@ -339,3 +339,49 @@ button.bill:active { transform: translateY(4px); }
 .rsign.neon { background: #2b2d42; color: #ffe066; box-shadow: 0 0 12px #ffd23f, 0 0 26px #ffb020, 0 4px 0 #111; text-shadow: 0 0 8px #ffd23f; animation: neon 1.6s ease-in-out infinite; }
 @keyframes neon { 50% { box-shadow: 0 0 6px #ffd23f, 0 0 12px #ffb020, 0 4px 0 #111; } }
 .rtable2 { position: absolute; left: 10px; bottom: 6px; font-size: 24px; z-index: 1; }
+
+/* ---------- dining room (play view + designer) ---------- */
+.rscene.room { height: auto; padding: 8px 8px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; background: linear-gradient(#ffeccb, #ffe2b8); }
+.rscene.room .rsign { position: static; transform: none; }
+.rbwrap { width: 100%; min-height: 58px; display: flex; align-items: center; justify-content: center; }
+.rscene.room .rb { position: static; width: 100%; max-height: none; }
+.rfloor { background: repeating-conic-gradient(#f4c28a 0 25%, #f9d7ac 0 50%) 0 0 / 40px 40px; border-radius: 14px; padding: 6px; box-shadow: inset 0 0 0 3px #d99a58; }
+.rgrid { display: grid; grid-template-columns: repeat(var(--cols), 54px); grid-auto-rows: 54px; gap: 3px; }
+.rcell { position: relative; border-radius: 9px; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; }
+.rcell.has { background: rgba(255,255,255,.4); }
+.rcell.locked { background: rgba(70,55,40,.22); }
+.rcell .lock { font-size: 14px; opacity: .55; }
+.decor { font-size: 32px; line-height: 1; filter: drop-shadow(0 3px 0 rgba(0,0,0,.15)); }
+.tbl { position: relative; display: block; width: 34px; height: 34px; }
+.tbl .top { position: absolute; inset: 3px; border-radius: 50%; background: radial-gradient(#eab983, #b9772f); box-shadow: 0 3px 0 #8d5620; }
+.tbl.t4 { width: 38px; height: 38px; }
+.chair { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #c0546b; box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+.chair.l { left: -7px; top: 50%; margin-top: -6px; } .chair.r { right: -7px; top: 50%; margin-top: -6px; }
+.chair.t { top: -7px; left: 50%; margin-left: -6px; } .chair.b { bottom: -7px; left: 50%; margin-left: -6px; }
+.tbl.mini { width: 30px; height: 30px; margin: 8px; }
+.sitter { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 30px; line-height: 1; z-index: 2; animation: sit .6s ease-out; }
+.sitter.happy { animation: hop .6s ease-in-out 2; }
+@keyframes sit { from { opacity: 0; transform: translateX(-50%) translateY(-24px) scale(.5); } }
+.rscene.room .counter { position: relative; left: auto; right: auto; bottom: auto; height: 38px; width: calc(100% + 16px); margin: 6px -8px 0; }
+.rscene.room .trayrow { bottom: 44px; }
+.rscene.room .chef { bottom: 40px; right: 12px; font-size: 52px; }
+.designer { background: linear-gradient(#fff3dc, #ffe2b8); }
+.rstats { display: flex; justify-content: space-between; gap: 6px; font-size: 14px; font-weight: 800; background: #fff; border-radius: 14px; padding: 6px 10px; box-shadow: var(--shadow); flex: none; }
+.rresult { text-align: center; font-weight: 800; font-size: 15px; background: #e6ffe9; border-radius: 12px; padding: 4px; flex: none; }
+.designgrid { display: flex; justify-content: center; padding: 8px; flex: none; }
+.designgrid .rgrid { grid-template-columns: repeat(var(--cols), 56px); grid-auto-rows: 56px; }
+.designgrid .rcell { background: #fff4dc; cursor: pointer; border: 2px dashed #e8c48a; }
+.designgrid .rcell.has { border-style: solid; background: #fff; }
+.designgrid .rcell.locked { background: #d9cdb8; border-color: #c3b49a; cursor: default; }
+.expandrow { display: flex; gap: 10px; justify-content: center; flex: none; }
+.expandrow .btn { font-size: 15px; line-height: 1.15; padding: 8px 12px; }
+.expandrow small { font-size: 12px; font-weight: 700; opacity: .95; }
+.maxed { align-self: center; font-weight: 800; opacity: .6; }
+.palette { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: none; }
+.pitem { background: #fff; border-radius: 16px; padding: 8px 6px; text-align: center; box-shadow: 0 4px 0 rgba(0,0,0,.12); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+.pitem.sel { outline: 4px solid var(--green); }
+.pitem .pe { font-size: 34px; line-height: 1.2; }
+.pitem b { font-size: 15px; }
+.pitem small { font-size: 12px; opacity: .7; }
+
+.btn small { display: block; font-size: 12px; font-weight: 700; opacity: .9; }

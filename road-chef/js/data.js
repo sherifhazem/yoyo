@@ -121,7 +121,6 @@ export const EQUIPMENT = [
   { id: 'sink', name: 'Sink', emoji: '🚰', price: 0 },
   { id: 'blender', name: 'Pro blender', emoji: '🥤', price: 35, benefit: 'Shakes need half the blending and sell for $2 more.' },
   { id: 'sign', name: 'Neon sign', emoji: '✨', price: 40, benefit: 'Every customer leaves a $1 tip.' },
-  { id: 'table2', name: 'Extra table', emoji: '🪑', price: 50, benefit: 'Serve 4 customers per shift instead of 3.' },
   { id: 'oven', name: 'Oven', emoji: '♨️', price: 60, benefit: 'Unlocks 4 baked dishes: pizza, bread, cookies and cake.' },
 ];
 export const BASE_EQUIPMENT = ['fridge', 'stove', 'board', 'counter', 'sink'];
