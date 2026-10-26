@@ -403,3 +403,25 @@ button.bill:active { transform: translateY(4px); }
 .save { background: #dffbe3; color: #2f9a4d; border-radius: 8px; padding: 0 6px; font-weight: 800; font-size: 12px; }
 .ribbon { flex-basis: 100%; color: #b85c00; font-weight: 900; font-size: 13px; }
 .pchip.sup { background: #eef6ff; }
+
+/* ---------- long-term goals ---------- */
+.lvlcard { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 18px; padding: 8px 12px; box-shadow: var(--shadow); z-index: 2; position: relative; width: min(340px, 92%); margin: 6px auto; }
+.lvlico { font-size: 34px; }
+.lvlbody { flex: 1; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.lvlbody small { font-size: 12px; font-weight: 700; color: #5b6b86; }
+.goalsbtn { z-index: 2; position: relative; }
+.goals-map { position: absolute; left: 14px; top: 70px; z-index: 6; }
+.dot { background: #ff4d5e; color: #fff; border-radius: 10px; padding: 0 6px; font-style: normal; font-size: 12px; margin-left: 4px; }
+.screen.goals { gap: 10px; padding-bottom: 16px; overflow-y: auto; }
+.glist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.grow { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 16px; padding: 8px 10px; box-shadow: var(--shadow); }
+.grow.ready { outline: 3px solid #ffd23f; animation: glow 1.4s infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 0 6px rgba(255, 210, 63, .45); } }
+.grow.claimed { opacity: .6; }
+.gico { font-size: 28px; }
+.gtext { flex: 1; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.gtext b { font-size: 15px; }
+.gtext small { font-size: 12px; font-weight: 700; color: #5b6b86; }
+.greward { color: #2b9a4a; }
+.gdone { font-size: 22px; }
+.banner { background: #fff6cc; border: 2px solid #ffd23f; border-radius: 14px; padding: 8px 12px; font-weight: 800; text-align: center; }
