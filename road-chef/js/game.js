@@ -1,4 +1,4 @@
-import { AISLES, ITEMS, BILLS, EQUIPMENT, byId, makePlan, orderCost, recipeById } from './data.js';
+import { AISLES, ITEMS, BILLS, EQUIPMENT, SUPPLIES, START_SUPPLIES, byId, makePlan, orderCost, recipeById, saleFor, paidPacks, saving } from './data.js';
 import { createRestaurant } from './restaurant.js';
 import { newRoom } from './room.js';
 import { MODES, billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
@@ -9,7 +9,7 @@ import { drawCar, CAR_COLORS } from './sprites.js';
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, room: newRoom(), billPref: 'auto', billStreak: 0 });
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, room: newRoom(), supplies: { ...START_SUPPLIES }, billPref: 'auto', billStreak: 0 });
 const S = (() => {
   try {
     return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
@@ -119,7 +119,7 @@ function map() {
       <path d="M150 400 C 40 340, 260 300, 150 230 S 60 130, 150 40" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="10 12" stroke-linecap="round"/>
     </svg>
     <button class="pin p1" data-act="go-grocery"><span class="pin-ico">🏪</span><b>Fresh Grocery</b><small>Fruit · Veggies · Meat</small></button>
-    <div class="pin p2 locked"><span class="pin-ico">🛒</span><b>Supply Store</b><small>🔒 Soon</small></div>
+    <button class="pin p2" data-act="go-supply"><span class="pin-ico">🛒</span><b>Supply Store</b><small>Plates · Napkins</small></button>
     <button class="pin p3" data-act="go-appliance"><span class="pin-ico">🏬</span><b>Appliance Shop</b><small>Oven · Blender · Sign</small></button>
     <button class="restaurant" data-act="restaurant">🍽️ Your restaurant</button>
   </div>
@@ -129,6 +129,7 @@ function map() {
 const DEST = {
   grocery: { emoji: '🏪', name: 'FRESH GROCERY', title: 'Arrived at the grocery!', btn: 'Go shopping 🛒' },
   appliance: { emoji: '🏬', name: 'APPLIANCE SHOP', title: 'Arrived at the appliance shop!', btn: 'Go inside 🛠️' },
+  supply: { emoji: '🛒', name: 'SUPPLY STORE', title: 'Arrived at the supply store!', btn: 'Go inside 🛒' },
 };
 
 function drive(dest) {
@@ -206,7 +207,7 @@ function startShop() {
 }
 
 const cartCount = (id) => ui.cart[id] || 0;
-const due = () => (ui.equip ? ui.equip.price : cartTotal());
+const due = () => (ui.equip ? ui.equip.price : ui.supply ? ui.supply.total : cartTotal());
 const cartTotal = () => Object.entries(ui.cart).reduce((s, [id, q]) => s + q * byId[id].price, 0);
 const listDone = () =>
   ui.order.every((l) => cartCount(l.id) === l.qty) &&
@@ -289,7 +290,58 @@ function changeStep() {
 
 function finishPurchase() {
   if (ui.equip) installed();
+  else if (ui.supply) stockedUp();
   else done();
+}
+
+const sale = () => saleFor(S.trips);
+const supplyLines = () =>
+  SUPPLIES.flatMap((s) => s.packs.map((p) => ({ s, p, n: ui.cart[p.id] || 0 })))
+    .filter((x) => x.n > 0)
+    .map(({ s, p, n }) => ({ emoji: s.emoji, qty: paidPacks(p, n, sale()), price: p.price, tag: p.qty > 1 ? `(${p.qty}-pack)` : '' }))
+    .filter((l) => l.qty > 0);
+
+function stockedUp() {
+  const got = [];
+  for (const s of SUPPLIES) {
+    const add = s.packs.reduce((sum, p) => sum + (ui.cart[p.id] || 0) * p.qty, 0);
+    if (add) { S.supplies[s.id] = (S.supplies[s.id] || 0) + add; got.push(`${s.emoji} +${add} ${s.name.toLowerCase()}`); }
+  }
+  save();
+  $app.innerHTML = `
+<section class="screen done">
+  <div class="trophy">📦</div>
+  <h2>Stocked up!</h2>
+  <div class="card">${got.join('<br>')}<br><br>Plates: <b>${S.supplies.plate}</b> · Napkins: <b>${S.supplies.napkin}</b><br>Wallet: <b>${fmt(S.money)}</b></div>
+  <button class="btn big" data-act="restaurant">Open the restaurant 🍽️</button>
+  <button class="btn alt" data-act="map">Back to map</button>
+</section>`;
+  sfx.ok();
+}
+
+function supplyShop() {
+  if (!ui.cart || ui.screen !== 'supply') ui = { screen: 'supply', cart: {}, dest: 'supply', stars: 0 };
+  const sp = sale();
+  const cards = SUPPLIES.map((s) => {
+    const rows = s.packs.map((p) => {
+      const n = ui.cart[p.id] || 0;
+      const sv = saving(s, p);
+      const isSale = sp === p.id;
+      return `<div class="pack ${isSale ? 'onsale' : ''}">
+        <div class="pinfo"><b>${p.qty === 1 ? '1 ' + s.name.toLowerCase().replace(/s$/, '') : `${p.qty}-pack`}</b> <span class="pprice">${fmt(p.price)}</span>${sv > 0 ? `<small class="save">Save ${fmt(sv)}</small>` : ''}${isSale ? '<small class="ribbon">🔥 Buy 2, get 1 FREE</small>' : ''}</div>
+        <div class="qty"><button data-act="sup-minus" data-v="${p.id}">−</button><b>${n}</b><button data-act="sup-plus" data-v="${p.id}">+</button></div>
+      </div>`;
+    }).join('');
+    return `<div class="card supcard"><div class="suphead"><span class="supico">${s.emoji}</span><div><b>${s.name}</b><small>${s.use}</small></div><span class="pchip">You have <b>${S.supplies[s.id] || 0}</b></span></div>${rows}</div>`;
+  }).join('');
+  const lines = supplyLines();
+  $app.innerHTML = `
+<section class="screen supshop">
+  ${topbar('Supply Store')}
+  <div class="shopfront sup"><span>🛒</span><div><b>Stock up the café!</b><small>Bigger packs cost less per piece.</small></div></div>
+  <div class="suplist">${cards}</div>
+  <div class="cartbar"><div>🧾 ${lines.length ? `${SUPPLIES.flatMap((s) => s.packs).reduce((a, p) => a + (ui.cart[p.id] || 0), 0)} packs · pay for ${lines.reduce((a, l) => a + l.qty, 0)}` : 'Cart is empty'}</div><button class="btn ${lines.length ? '' : 'dim'}" data-act="sup-checkout">Checkout</button></div>
+</section>`;
 }
 
 function installed() {
@@ -385,7 +437,7 @@ const R = createRestaurant({ S, save, $app, topbar, pad, fmt, shake, getUi: () =
 const acts = {
   ...R.acts,
   home: () => { ui.stop?.(); R.stop(); ui = { screen: 'home' }; home(); },
-  'shop-start': () => (ui.dest === 'appliance' ? applianceShop() : startShop()),
+  'shop-start': () => (ui.dest === 'appliance' ? applianceShop() : ui.dest === 'supply' ? supplyShop() : startShop()),
   garage: () => { ui = { screen: 'garage' }; garage(); },
   'car-pick': (v) => {
     const c = CAR_COLORS[v];
@@ -411,6 +463,17 @@ const acts = {
   },
   'go-grocery': () => { ui = { screen: 'drive' }; drive('grocery'); },
   'go-appliance': () => { ui = { screen: 'drive' }; drive('appliance'); },
+  'go-supply': () => { ui = { screen: 'drive' }; drive('supply'); },
+  'sup-plus': (id) => { ui.cart[id] = (ui.cart[id] || 0) + 1; sfx.add(); supplyShop(); },
+  'sup-minus': (id) => { if (ui.cart[id] > 0) { ui.cart[id] -= 1; sfx.remove(); supplyShop(); } },
+  'sup-checkout': () => {
+    const lines = supplyLines();
+    if (!lines.length) { sfx.bad(); shake('.suplist'); return; }
+    ui.supply = { total: lines.reduce((s, l) => s + l.qty * l.price, 0) };
+    ui.screen = 'total'; ui.tries = 0; ui.input = '';
+    ui.bill = newBill(lines, billMode(S));
+    totalStep();
+  },
   'equip-goal': (id) => { S.goal = id; save(); sfx.coin(); applianceShop(); },
   'equip-buy': (id) => {
     const e = EQUIPMENT.find((x) => x.id === id);

@@ -24,7 +24,8 @@ export function createRestaurant(host) {
   const pantryTotal = () => Object.values(S.pantry).reduce((a, b) => a + b, 0);
   const owned = () => S.kitchen.owned;
   const perShift = () => roomStats(S.room).customers;
-  const canCook = () => available(owned()).some((d) => portionsLeft(d, S.pantry) > 0);
+  const platesOk = () => (S.supplies.plate || 0) > 0;
+  const canCook = () => platesOk() && available(owned()).some((d) => portionsLeft(d, S.pantry) > 0);
   const lines = () => r.cust.order;
   const total = () => dishTotal(lines(), owned());
 
@@ -46,7 +47,8 @@ export function createRestaurant(host) {
   /* ---------- pieces ---------- */
   const pantryChips = () => {
     const items = Object.entries(S.pantry).filter(([, q]) => q > 0);
-    return `<div class="pantry">${items.length ? items.map(([id, q]) => `<span class="pchip">${byId[id].emoji}<b>${q}</b></span>`).join('') : '<small>Pantry is empty</small>'}</div>`;
+    const sup = `<span class="pchip sup">🍽️<b>${S.supplies.plate || 0}</b></span><span class="pchip sup">🧻<b>${S.supplies.napkin || 0}</b></span>`;
+    return `<div class="pantry">${items.length ? items.map(([id, q]) => `<span class="pchip">${byId[id].emoji}<b>${q}</b></span>`).join('') : '<small>Pantry is empty</small>'}${sup}</div>`;
   };
 
   const scene = (bubble) => `
@@ -71,7 +73,7 @@ export function createRestaurant(host) {
     if (r.step === 'idle') {
       if (r.served >= perShift() || (r.served > 0 && !canCook())) return summary();
       if (!canCook()) {
-        body = `<div class="card center"><h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p><button class="btn big" data-act="map">Go shopping 🚗</button></div><button class="btn alt" data-act="room-open">🏗️ Design your café</button>`;
+        body = `<div class="card center">${platesOk() ? "<h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p>" : '<h3>No clean plates! 🍽️</h3><p>Drive to the Supply Store and stock up on plates.</p>'}<button class="btn big" data-act="map">Go shopping 🚗</button></div><button class="btn alt" data-act="room-open">🏗️ Design your café</button>`;
       } else {
         body = `<button class="btn big" data-act="r-open">Open the door 🚪</button>
         <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room).customers} customers/shift)</small></button>
@@ -101,7 +103,7 @@ export function createRestaurant(host) {
       body = `<div class="card receipt"><div class="sum">${bill(r.cust.pay)} − <b>${fmt(total())}</b> = ?</div>${U.tries >= 2 ? `<small>Count up from ${fmt(total())} to ${fmt(r.cust.pay)} 👆</small>` : ''}</div>${pad(U.input)}`;
     } else if (r.step === 'paid') {
       bubble = 'Thank you! Bye! 👋';
-      body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.signTip ? '<p>✨ Neon sign tip! +$1</p>' : ''}${r.cust.ambTip ? `<p>🌿 Cozy café tip! +$${r.cust.ambTip}</p>` : ''}${r.cust.stars >= 2 ? '<p>🧮 Accurate bill! +$1</p>' : ''}</div>
+      body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.signTip ? '<p>✨ Neon sign tip! +$1</p>' : ''}${r.cust.ambTip ? `<p>🌿 Cozy café tip! +$${r.cust.ambTip}</p>` : ''}${r.cust.napkinTip ? '<p>🧻 Napkin service! +$1</p>' : ''}${r.cust.stars >= 2 ? '<p>🧮 Accurate bill! +$1</p>' : ''}</div>
       <button class="btn big" data-act="r-next">${r.served >= perShift() || !canCook() ? 'Close shop 🔒' : 'Next customer ➡️'}</button>`;
     }
     $app.innerHTML = `<section class="screen rest">${topbar("Chef's Café")}${kitchen || scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
@@ -143,7 +145,7 @@ export function createRestaurant(host) {
     <hr><div class="rrow big"><span>Profit</span><b class="${profit < 0 ? 'neg' : ''}">${fmt(profit)}</b></div>
   </div>
   <small class="cap">Profit = Sales − Ingredients</small>
-  ${canCook() ? '' : '<small class="cap">You ran out of ingredients — time to shop! 🛒</small>'}
+  ${canCook() ? '' : `<small class="cap">${platesOk() ? 'You ran out of ingredients — time to shop! 🛒' : 'You ran out of plates — visit the Supply Store! 🛒'}</small>`}
   <div class="row"><button class="btn alt" data-act="map">Go shopping 🚗</button>${canCook() ? '<button class="btn" data-act="r-new">New shift</button>' : ''}</div>
 </section>`;
     getUi().screen = 'r-summary';
@@ -193,7 +195,8 @@ export function createRestaurant(host) {
     r.cust.cookTip = r.cust.cookMistakes <= 1 ? 1 : 0;
     r.cust.signTip = owned().includes('sign') ? 1 : 0;
     r.cust.ambTip = roomStats(S.room).tip;
-    const tip = (r.cust.stars >= 2 ? 1 : 0) + r.cust.cookTip + r.cust.signTip + r.cust.ambTip;
+    r.cust.napkinTip = r.cust.napkin ? 1 : 0;
+    const tip = (r.cust.stars >= 2 ? 1 : 0) + r.cust.cookTip + r.cust.signTip + r.cust.ambTip + r.cust.napkinTip;
     r.cust.tip = tip;
     r.cust.earned = t + tip;
     S.money += t + tip;
@@ -237,7 +240,7 @@ export function createRestaurant(host) {
     },
     'r-new': () => { r = newShift(); render(); },
     'r-open': () => {
-      const order = makeCustomerOrder(level(), S.pantry, owned());
+      const order = makeCustomerOrder(level(), S.pantry, owned(), S.supplies.plate || 0);
       if (!order.length) { render(); return; }
       const t = dishTotal(order, owned());
       let pay = CUSTOMER_BILLS.find((b) => b >= t);
@@ -279,6 +282,10 @@ export function createRestaurant(host) {
       K.begin(d, { rerender: render, onDone: portionDone, onEnter: (st) => KT.walkTo(st), owned: owned() });
     },
     'r-serve': () => {
+      S.supplies.plate = Math.max(0, (S.supplies.plate || 0) - r.portions.length);
+      r.cust.napkin = (S.supplies.napkin || 0) > 0;
+      if (r.cust.napkin) S.supplies.napkin -= 1;
+      save();
       r.bill = newBill(lines().map((l) => ({ emoji: recipeById[l.id].emoji, qty: l.qty, price: dishPrice(recipeById[l.id], owned()) })), billMode(S));
       r.step = 'bill'; getUi().tries = 0; getUi().input = ''; render();
     },
