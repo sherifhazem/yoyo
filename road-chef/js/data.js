@@ -94,17 +94,19 @@ export function makePlan(level, owned) {
 export const portionsLeft = (r, stock) => Math.min(...Object.entries(r.ing).map(([id, q]) => Math.floor((stock[id] || 0) / q)));
 
 // A customer only orders what the pantry (and the kitchen equipment) can make.
-export function makeCustomerOrder(level, pantry, owned) {
+export function makeCustomerOrder(level, pantry, owned, plates = 99) {
   const stock = { ...pantry };
   const lines = [];
+  let platesLeft = plates;
   const pool = available(owned);
   const n = level < 3 ? 1 : level < 5 ? 2 : 3;
   for (let i = 0; i < n; i++) {
-    const can = pool.filter((r) => !lines.some((l) => l.id === r.id) && portionsLeft(r, stock) > 0);
+    const can = platesLeft > 0 ? pool.filter((r) => !lines.some((l) => l.id === r.id) && portionsLeft(r, stock) > 0) : [];
     if (!can.length) break;
     const r = can[rand(0, can.length - 1)];
-    const qty = rand(1, Math.min(2, portionsLeft(r, stock)));
+    const qty = rand(1, Math.min(2, portionsLeft(r, stock), platesLeft));
     for (const [id, q] of Object.entries(r.ing)) stock[id] -= q * qty;
+    platesLeft -= qty;
     lines.push({ id: r.id, qty });
   }
   return lines;
@@ -124,3 +126,18 @@ export const EQUIPMENT = [
   { id: 'oven', name: 'Oven', emoji: '♨️', price: 60, benefit: 'Unlocks 4 baked dishes: pizza, bread, cookies and cake.' },
 ];
 export const BASE_EQUIPMENT = ['fridge', 'stove', 'board', 'counter', 'sink'];
+
+// Supplies the café uses up while serving: a plate per dish and a napkin per customer
+// (a napkin earns a $1 tip). Bigger packs are cheaper per piece; one pack is on sale each visit.
+export const SUPPLIES = [
+  { id: 'plate', name: 'Plates', emoji: '🍽️', base: 1, use: 'One plate per dish served.',
+    packs: [{ id: 'plate1', qty: 1, price: 1 }, { id: 'plate6', qty: 6, price: 5 }, { id: 'plate12', qty: 12, price: 9 }] },
+  { id: 'napkin', name: 'Napkins', emoji: '🧻', base: 1, use: 'One napkin per customer → $1 tip.',
+    packs: [{ id: 'napkin5', qty: 5, price: 3 }, { id: 'napkin10', qty: 10, price: 5 }, { id: 'napkin20', qty: 20, price: 9 }] },
+];
+export const START_SUPPLIES = { plate: 8, napkin: 4 };
+const SALE_PACKS = ['napkin10', 'plate12', 'napkin20', 'plate6'];
+export const saleFor = (visit) => SALE_PACKS[visit % SALE_PACKS.length];
+// Buy 2, get 1 free on the sale pack.
+export const paidPacks = (pack, count, sale) => count - (sale === pack.id ? Math.floor(count / 3) : 0);
+export const saving = (supply, pack) => pack.qty * supply.base - pack.price;

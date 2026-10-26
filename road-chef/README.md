@@ -51,6 +51,12 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - Items: table for 2 ($12), table for 4 ($24), flowers ($5), plant ($7), lamp ($9), fish tank ($20).
 - Old saves that bought the shop's extra table get a free table for 2 in the new room.
 
+## Supply Store (third shop)
+- Plates and napkins are **used up** in the café: a plate per dish served, a napkin per customer (a napkin earns a $1 tip). With no plates the café cannot serve (customers only order what the plates cover).
+- Packs get cheaper per piece (plates: 1 for $1, 6 for $5, 12 for $9; napkins: 5 for $3, 10 for $5, 20 for $9); each pack shows **Save $X**. One pack is **Buy 2, get 1 free** per visit, so the child pays for fewer packs than they receive.
+- Checkout uses the guided billing (multiply each pack line, then add), then payment and change.
+- Starting stock: 8 plates, 4 napkins. The map pin and the restaurant message point to the store when stock runs out.
+
 ## Guided billing (grocery checkout and restaurant bill)
 - Step 1: multiply each line (qty × price), one highlighted row at a time; results stay on screen.
 - Step 2: add the line results shown in front of the child. Hints appear after 2 wrong tries (repeated addition / running sums).
@@ -58,4 +64,4 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - Auto mode merges both steps into one "total" question after 3 flawless bills in a row (any mistake resets); the home screen button cycles Auto / Guided / Combined for parents.
 
 ## Next
-- Supply Store (plates, decor), restaurant expansion (more tables and layout).
+- Higher-level goals: multiple restaurants, staff, and daily specials.

@@ -385,3 +385,21 @@ button.bill:active { transform: translateY(4px); }
 .pitem small { font-size: 12px; opacity: .7; }
 
 .btn small { display: block; font-size: 12px; font-weight: 700; opacity: .9; }
+
+/* ---------- supply store ---------- */
+.supshop { background: linear-gradient(#e9fbe9, #d3f1d6); }
+.shopfront.sup { background: linear-gradient(135deg, #3fc96b, #7bdc6b); }
+.suplist { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.supcard { display: flex; flex-direction: column; gap: 6px; }
+.suphead { display: flex; align-items: center; gap: 10px; }
+.suphead b { font-size: 18px; display: block; }
+.suphead small { font-size: 12px; opacity: .7; }
+.supico { font-size: 40px; }
+.suphead .pchip { margin-left: auto; font-size: 13px; }
+.pack { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #f5faf5; border-radius: 14px; padding: 6px 10px; }
+.pack.onsale { background: #fff3b0; outline: 3px solid var(--yellow); }
+.pinfo { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 16px; }
+.pprice { color: #2f9a4d; font-weight: 900; }
+.save { background: #dffbe3; color: #2f9a4d; border-radius: 8px; padding: 0 6px; font-weight: 800; font-size: 12px; }
+.ribbon { flex-basis: 100%; color: #b85c00; font-weight: 900; font-size: 13px; }
+.pchip.sup { background: #eef6ff; }

@@ -80,7 +80,7 @@ export function billHtml(b, fmt) {
       if (l.value !== null && b.step !== 'all') right = `<b class="got">${fmt(l.value)}</b>`;
       else if (b.step === 'all' && help) right = `<b class="hintv">${fmt(l.qty * l.price)}</b>`;
       else right = '<b class="ask">?</b>';
-      return `<li class="brow ${active ? 'active' : ''} ${l.value !== null && b.step !== 'all' ? 'ok' : ''}"><span>${l.emoji} ${l.qty} × ${fmt(l.price)}</span><span>= ${right}</span></li>`;
+      return `<li class="brow ${active ? 'active' : ''} ${l.value !== null && b.step !== 'all' ? 'ok' : ''}"><span>${l.emoji} ${l.qty} × ${fmt(l.price)}${l.tag ? ` <small>${l.tag}</small>` : ''}</span><span>= ${right}</span></li>`;
     })
     .join('');
   let extra = '';
