@@ -49,6 +49,7 @@ export function startDrive(canvas, opts) {
   const th = THEMES[opts.theme] || THEMES.day;
   const carColor = (CAR_COLORS[opts.color] || CAR_COLORS.red).hex;
   const level = opts.level;
+  const dest = opts.dest || { emoji: '🏪', name: 'FRESH GROCERY' };
   const runSeconds = Math.min(MAX_SECONDS, 40 + 3 * (level - 1));
   const vBase = 24 + level * 1.5;
 
@@ -467,7 +468,7 @@ export function startDrive(canvas, opts) {
     ctx.fillStyle = '#e8505b'; ctx.fillRect(cx - hw * 1.05, y - ph, hw * 0.12, ph); ctx.fillRect(cx + hw * 0.93, y - ph, hw * 0.12, ph);
     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.roundRect(cx - hw * 1.1, y - ph * 1.3, hw * 2.2, ph * 0.34, hw * 0.08); ctx.fill();
     ctx.fillStyle = '#e8505b'; ctx.font = `900 ${hw * 0.2}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('🏪 FRESH GROCERY', cx, y - ph * 1.13);
+    ctx.fillText(`${dest.emoji} ${dest.name}`, cx, y - ph * 1.13);
     const sq = hw * 0.11;
     for (let i = 0; i < 20; i++) { ctx.fillStyle = i % 2 ? '#222' : '#fff'; ctx.fillRect(cx - hw + i * sq * 1.0, y - sq * 1.2, sq, sq * 0.6); }
     ctx.globalAlpha = 1;
@@ -494,7 +495,7 @@ export function startDrive(canvas, opts) {
     ctx.fillStyle = '#4cc96b'; ctx.beginPath(); ctx.roundRect(bx, by, Math.max(16, bw * p), 16, 8); ctx.fill();
     ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText('🚗', bx + Math.max(8, bw * p), by + 8);
-    ctx.fillText('🏪', bx + bw - 4, by + 8);
+    ctx.fillText(dest.emoji, bx + bw - 4, by + 8);
     // pills
     const pill = (x, text, bg) => {
       ctx.font = `900 22px ${FONT}`; const tw = ctx.measureText(text).width + 24;

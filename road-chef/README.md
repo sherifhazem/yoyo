@@ -38,6 +38,12 @@ Each portion: gather ingredients → a short sequence of mini-steps per dish →
 ## Kitchen
 While cooking, the restaurant switches to an illustrated kitchen (fridge, worktop with cutting board and mixing bowl, stove and oven, sink). Each step belongs to a station: the station glows, the child taps it (or Go!), the chef walks there and the mini-step opens. A ticket shows the recipe progress. Equipment catalogue (`EQUIPMENT` in `data.js`) and `S.kitchen.owned` are the groundwork for buying/placing appliances (oven, pro blender, bigger fridge) and expanding the restaurant.
 
+## Appliance Shop (investment and planning)
+- Unlocked from the map (drive there like the grocery). Equipment is bought with the wallet through the same pay-with-bills and change steps; bills go up to $50.
+- Catalogue (`EQUIPMENT` in `data.js`): **Pro blender $35** (half the blending taps, shakes +$2), **Neon sign $40** (+$1 tip per customer), **Extra table $50** (4 customers per shift), **Oven $60** (unlocks pizza, bread, cookies, cake; needs the new Bakery aisle: flour, butter, sugar).
+- Planning: each card shows a progress bar toward the price, "Save for it" sets a goal that appears on the map, and an unaffordable Buy sets the goal automatically.
+- The kitchen shows the purchases: the old oven starts "OUT OF ORDER", the new one glows when baking; the pro blender is drawn in steel.
+
 ## Guided billing (grocery checkout and restaurant bill)
 - Step 1: multiply each line (qty × price), one highlighted row at a time; results stay on screen.
 - Step 2: add the line results shown in front of the child. Hints appear after 2 wrong tries (repeated addition / running sums).
@@ -45,4 +51,4 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - Auto mode merges both steps into one "total" question after 3 flawless bills in a row (any mistake resets); the home screen button cycles Auto / Guided / Combined for parents.
 
 ## Next
-- Supply Store and Appliance Shop (save up for an oven).
+- Supply Store (plates, decor), restaurant expansion (more tables and layout).

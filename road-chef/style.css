@@ -125,7 +125,7 @@ button.pin { animation: bounce 1.2s ease-in-out infinite; outline: 4px solid var
 .bill { display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-weight: 900; border-radius: 8px; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.3); }
 .stack .bill { padding: 4px 10px; font-size: 16px; animation: pop .3s; }
 .b1 { background: #6dbb6d; } .b5 { background: #4aa3e0; } .b10 { background: #e0a43a; } .b20 { background: #b57edc; }
-.bills { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 button.bill { height: 76px; font-size: 32px; border: 3px dashed rgba(255,255,255,.7); box-shadow: 0 5px 0 rgba(0,0,0,.2); }
 button.bill:active { transform: translateY(4px); }
 .row { display: flex; gap: 10px; justify-content: center; }
@@ -154,7 +154,7 @@ button.bill:active { transform: translateY(4px); }
 .summary { width: 100%; max-width: 340px; text-align: left; }
 .summary hr { border: 0; border-top: 2px dashed #d5dbe6; margin: 6px 0; }
 .summary .big { font-size: 26px; font-weight: 900; color: #2f9a4d; }
-.garage-btn { position: absolute; left: 14px; top: 70px; z-index: 6; }
+.garage-btn { position: absolute; right: 14px; top: 70px; z-index: 6; }
 .garage { background: linear-gradient(#e6f4ff, #cfe8ff); }
 .preview { padding: 0; overflow: hidden; }
 .preview canvas { width: 100%; display: block; }
@@ -314,3 +314,28 @@ button.bill:active { transform: translateY(4px); }
 .tsteps i.done { background: #dffbe3; opacity: 1; position: relative; }
 .tsteps i.done::after { content: '✓'; position: absolute; right: -3px; bottom: -4px; font-size: 12px; font-weight: 900; color: #2f9a4d; background: #fff; border-radius: 50%; width: 14px; height: 14px; line-height: 14px; text-align: center; }
 .gobig { font-size: 56px; line-height: 1; }
+
+/* ---------- appliance shop + goals ---------- */
+.appshop { background: linear-gradient(#eef4ff, #d9e6ff); }
+.shopfront { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #3a8dff, #6ec6ff); color: #fff; border-radius: 20px; padding: 10px 14px; box-shadow: var(--shadow); flex: none; }
+.shopfront span { font-size: 48px; }
+.shopfront b { font-size: 20px; display: block; }
+.shopfront small { opacity: .9; }
+.equiplist { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.equip { display: flex; align-items: center; gap: 10px; }
+.equip .eico { font-size: 44px; width: 56px; text-align: center; flex: none; }
+.equip .einfo { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.equip .einfo b { font-size: 18px; }
+.equip .einfo small { font-size: 13px; opacity: .75; line-height: 1.2; }
+.equip .eact { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none; }
+.equip .eprice { font-size: 20px; color: #2f9a4d; }
+.equip .own { color: #2f9a4d; font-weight: 900; }
+.equip.owned { opacity: .7; }
+.goalbtn { background: none; font-size: 12px; font-weight: 800; color: #2467c9; text-decoration: underline; }
+.gbar { height: 8px; background: #e5eefb; border-radius: 6px; overflow: hidden; }
+.gbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd23f, #4cc96b); border-radius: 6px; }
+.goalchip { position: absolute; left: 14px; right: 14px; bottom: 74px; z-index: 6; display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 16px; padding: 6px 10px; box-shadow: var(--shadow); font-size: 14px; font-weight: 800; }
+.goalchip .gbar { flex: 1; }
+.rsign.neon { background: #2b2d42; color: #ffe066; box-shadow: 0 0 12px #ffd23f, 0 0 26px #ffb020, 0 4px 0 #111; text-shadow: 0 0 8px #ffd23f; animation: neon 1.6s ease-in-out infinite; }
+@keyframes neon { 50% { box-shadow: 0 0 6px #ffd23f, 0 0 12px #ffb020, 0 4px 0 #111; } }
+.rtable2 { position: absolute; left: 10px; bottom: 6px; font-size: 24px; z-index: 1; }

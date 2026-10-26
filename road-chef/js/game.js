@@ -1,4 +1,4 @@
-import { AISLES, ITEMS, BILLS, byId, makePlan, orderCost, recipeById } from './data.js';
+import { AISLES, ITEMS, BILLS, EQUIPMENT, byId, makePlan, orderCost, recipeById } from './data.js';
 import { createRestaurant } from './restaurant.js';
 import { MODES, billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 import { sfx } from './sound.js';
@@ -92,11 +92,19 @@ function home() {
 </section>`;
 }
 
+function goalChip() {
+  const e = S.goal && EQUIPMENT.find((x) => x.id === S.goal);
+  if (!e) return '';
+  const pct = Math.min(100, Math.round((S.money / e.price) * 100));
+  return `<div class="goalchip"><span>🎯 ${e.emoji} ${e.name}</span><div class="gbar"><i style="width:${pct}%"></i></div><b>${fmt(Math.min(S.money, e.price))} / ${fmt(e.price)}</b></div>`;
+}
+
 function map() {
   $app.innerHTML = `
 <section class="screen map">
   ${topbar('Pick a shop')}
   <button class="chip garage-btn" data-act="garage">🔧 Garage</button>
+  ${goalChip()}
   <div class="mapboard">
     <svg viewBox="0 0 300 420" class="roadsvg" aria-hidden="true">
       <path d="M150 400 C 40 340, 260 300, 150 230 S 60 130, 150 40" fill="none" stroke="#6b6f7a" stroke-width="30" stroke-linecap="round"/>
@@ -104,13 +112,18 @@ function map() {
     </svg>
     <button class="pin p1" data-act="go-grocery"><span class="pin-ico">🏪</span><b>Fresh Grocery</b><small>Fruit · Veggies · Meat</small></button>
     <div class="pin p2 locked"><span class="pin-ico">🛒</span><b>Supply Store</b><small>🔒 Soon</small></div>
-    <div class="pin p3 locked"><span class="pin-ico">🔥</span><b>Appliance Shop</b><small>🔒 Soon</small></div>
+    <button class="pin p3" data-act="go-appliance"><span class="pin-ico">🏬</span><b>Appliance Shop</b><small>Oven · Blender · Sign</small></button>
     <button class="restaurant" data-act="restaurant">🍽️ Your restaurant</button>
   </div>
 </section>`;
 }
 
-function drive() {
+const DEST = {
+  grocery: { emoji: '🏪', name: 'FRESH GROCERY', title: 'Arrived at the grocery!', btn: 'Go shopping 🛒' },
+  appliance: { emoji: '🏬', name: 'APPLIANCE SHOP', title: 'Arrived at the appliance shop!', btn: 'Go inside 🛠️' },
+};
+
+function drive(dest) {
   $app.innerHTML = '<section class="screen drive"><canvas id="road"></canvas></section>';
   const host = $app.firstElementChild;
   ui.stop = startDrive(host.querySelector('canvas'), {
@@ -119,18 +132,20 @@ function drive() {
     color: S.car,
     magnet: S.magnet,
     host,
-    onDone: (res) => { ui.stop = null; arrive(res); },
+    dest: DEST[dest],
+    onDone: (res) => { ui.stop = null; arrive(res, dest); },
   });
 }
 
-function arrive(res) {
+function arrive(res, dest) {
+  ui.dest = dest;
   S.money += res.money;
   save();
   const row = (icon, label, val) => `<div class="rrow"><span>${icon} ${label}</span><b>${val}</b></div>`;
   $app.innerHTML = `
 <section class="screen done">
-  <div class="trophy">🏪</div>
-  <h2>Arrived at the grocery!</h2>
+  <div class="trophy">${DEST[dest].emoji}</div>
+  <h2>${DEST[dest].title}</h2>
   <div class="card summary">
     ${row('🪙', '5 coins = $1', `${res.coins} → ${fmt(Math.floor(res.coins / 5))}`)}
     ${res.gifts ? row('🎁', 'Gift boxes', `${res.gifts} × $3`) : ''}
@@ -138,7 +153,7 @@ function arrive(res) {
     ${res.bestCombo >= 3 ? row('🔥', 'Best combo', `x${res.bestCombo}`) : ''}
     <hr><div class="rrow big"><span>Driving bonus</span><b>+${fmt(res.money)}</b></div>
   </div>
-  <button class="btn big" data-act="shop-start">Go shopping 🛒</button>
+  <button class="btn big" data-act="shop-start">${DEST[dest].btn}</button>
 </section>`;
   sfx.ok();
 }
@@ -170,7 +185,7 @@ function garage() {
 }
 
 function startShop() {
-  const { order, dishes } = makePlan(level());
+  const { order, dishes } = makePlan(level(), S.kitchen.owned);
   const cost = orderCost(order);
   let topUp = 0;
   if (S.money < cost) {
@@ -183,6 +198,7 @@ function startShop() {
 }
 
 const cartCount = (id) => ui.cart[id] || 0;
+const due = () => (ui.equip ? ui.equip.price : cartTotal());
 const cartTotal = () => Object.entries(ui.cart).reduce((s, [id, q]) => s + q * byId[id].price, 0);
 const listDone = () =>
   ui.order.every((l) => cartCount(l.id) === l.qty) &&
@@ -236,14 +252,14 @@ function totalStep() {
 }
 
 function payStep() {
-  const total = cartTotal();
+  const total = due();
   const bills = BILLS.map(
     (b) => `<button class="bill b${b}" data-act="bill" data-v="${b}"><span>${fmt(b)}</span></button>`,
   ).join('');
   $app.innerHTML = `
 <section class="screen pay">
   ${topbar('Pay')}
-  <div class="cashier">🧑‍💼 <div class="bubble">Total: <b>${fmt(total)}</b>. Pay with your cash!</div></div>
+  <div class="cashier">🧑‍💼 <div class="bubble">${ui.equip ? `${ui.equip.emoji} ${ui.equip.name}: ` : 'Total: '}<b>${fmt(total)}</b>. Pay with your cash!</div></div>
   <div class="card tray"><div>You are paying</div><div class="paid" id="paid">${fmt(ui.paid || 0)}</div>
     <div class="stack" id="stack">${(ui.paidBills || []).map((b) => `<i class="bill b${b}">${fmt(b)}</i>`).join('')}</div></div>
   <div class="bills">${bills}</div>
@@ -252,7 +268,7 @@ function payStep() {
 }
 
 function changeStep() {
-  const total = cartTotal();
+  const total = due();
   $app.innerHTML = `
 <section class="screen pay">
   ${topbar('Change')}
@@ -260,6 +276,50 @@ function changeStep() {
   <div class="card receipt"><div class="sum"><b>${fmt(ui.paid)}</b> − <b>${fmt(total)}</b> = ?</div>
   ${ui.tries >= 2 ? `<small>Count up from ${fmt(total)} to ${fmt(ui.paid)} 👆</small>` : ''}</div>
   ${pad(ui.input)}
+</section>`;
+}
+
+function finishPurchase() {
+  if (ui.equip) installed();
+  else done();
+}
+
+function installed() {
+  const e = ui.equip;
+  S.kitchen.owned.push(e.id);
+  if (S.goal === e.id) S.goal = null;
+  save();
+  const confetti = Array.from({ length: 28 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * 0.2}s;--c:${['#ff5a4e', '#ffd23f', '#3ec6ff', '#7bdc6b', '#c58bff'][i % 5]}"></i>`).join('');
+  $app.innerHTML = `
+<section class="screen done">
+  <div class="confetti">${confetti}</div>
+  <div class="trophy">${e.emoji}</div>
+  <h2>${e.name} installed!</h2>
+  <div class="card">${e.benefit}<br>Wallet: <b>${fmt(S.money)}</b></div>
+  <button class="btn big" data-act="restaurant">See it in the kitchen 🍽️</button>
+  <button class="btn alt" data-act="map">Back to map</button>
+</section>`;
+  sfx.ok();
+}
+
+function applianceShop(msg) {
+  const cards = EQUIPMENT.filter((e) => e.price > 0)
+    .map((e) => {
+      const own = S.kitchen.owned.includes(e.id);
+      const pct = Math.min(100, Math.round((S.money / e.price) * 100));
+      const act = own
+        ? '<span class="own">Owned ✔</span>'
+        : `<b class="eprice">${fmt(e.price)}</b><button class="btn sm ${S.money >= e.price ? '' : 'dim'}" data-act="equip-buy" data-v="${e.id}">${S.money >= e.price ? 'Buy' : `Need ${fmt(e.price - S.money)}`}</button><button class="goalbtn" data-act="equip-goal" data-v="${e.id}">${S.goal === e.id ? '🎯 Saving' : '🎯 Save for it'}</button>`;
+      return `<div class="card equip ${own ? 'owned' : ''}"><div class="eico">${e.emoji}</div><div class="einfo"><b>${e.name}</b><small>${e.benefit}</small>${own ? '' : `<div class="gbar"><i style="width:${pct}%"></i></div>`}</div><div class="eact">${act}</div></div>`;
+    })
+    .join('');
+  $app.innerHTML = `
+<section class="screen appshop">
+  ${topbar('Appliance Shop')}
+  <div class="shopfront"><span>🏬</span><div><b>Upgrade your café!</b><small>Save up, then invest in the best deal.</small></div></div>
+  ${msg ? `<div class="toast">${msg}</div>` : ''}
+  <div class="equiplist">${cards}</div>
+  <button class="btn alt" data-act="map">Back to map</button>
 </section>`;
 }
 
@@ -317,7 +377,7 @@ const R = createRestaurant({ S, save, $app, topbar, pad, fmt, shake, getUi: () =
 const acts = {
   ...R.acts,
   home: () => { ui.stop?.(); R.stop(); ui = { screen: 'home' }; home(); },
-  'shop-start': () => startShop(),
+  'shop-start': () => (ui.dest === 'appliance' ? applianceShop() : startShop()),
   garage: () => { ui = { screen: 'garage' }; garage(); },
   'car-pick': (v) => {
     const c = CAR_COLORS[v];
@@ -341,7 +401,16 @@ const acts = {
       home();
     }
   },
-  'go-grocery': () => { ui = { screen: 'drive' }; drive(); },
+  'go-grocery': () => { ui = { screen: 'drive' }; drive('grocery'); },
+  'go-appliance': () => { ui = { screen: 'drive' }; drive('appliance'); },
+  'equip-goal': (id) => { S.goal = id; save(); sfx.coin(); applianceShop(); },
+  'equip-buy': (id) => {
+    const e = EQUIPMENT.find((x) => x.id === id);
+    if (S.kitchen.owned.includes(id)) return;
+    if (S.money < e.price) { S.goal = id; save(); sfx.bad(); applianceShop(`Not enough yet! You need ${fmt(e.price - S.money)} more. Goal set 🎯`); return; }
+    ui = { screen: 'pay', equip: e, paid: 0, paidBills: [], stars: 0, tries: 0, input: '', dest: 'appliance' };
+    payStep();
+  },
   honk: () => sfx.honk(),
   tab: (v) => { ui.tab = v; shop(); },
   plus: (v) => { ui.cart[v] = cartCount(v) + 1; sfx.add(); shop(); bump(v); },
@@ -375,10 +444,10 @@ const acts = {
       recordBill(S, ui.bill, save);
       ui.screen = 'pay'; ui.paid = 0; ui.paidBills = []; payStep();
     } else if (ui.screen === 'change') {
-      submitNumber(ui.paid - cartTotal(), () => {
-        S.money -= cartTotal();
+      submitNumber(ui.paid - due(), () => {
+        S.money -= due();
         sfx.coin();
-        done();
+        finishPurchase();
       });
     }
   },
@@ -392,11 +461,11 @@ const acts = {
   },
   clear: () => { ui.paid = 0; ui.paidBills = []; payStep(); },
   paynow: () => {
-    if (ui.paid < cartTotal()) { sfx.bad(); shake('.tray'); return; }
+    if (ui.paid < due()) { sfx.bad(); shake('.tray'); return; }
     ui.screen = 'change'; ui.tries = 0; ui.input = '';
-    if (ui.paid === cartTotal()) { // exact payment: no change to compute
-      S.money -= cartTotal();
-      done();
+    if (ui.paid === due()) { // exact payment: no change to compute
+      S.money -= due();
+      finishPurchase();
       return;
     }
     changeStep();
