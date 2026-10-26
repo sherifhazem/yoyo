@@ -2,6 +2,7 @@ import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal
 import { sfx } from './sound.js';
 import { createCooking } from './cooking.js';
 import { createKitchen } from './kitchen.js';
+import { createRoomDesigner, gridHtml, roomStats } from './room.js';
 import { billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 
 const CUSTOMERS = ['👧', '👦', '👩', '👨', '🧓', '👵', '👩‍🦰', '👨‍🦱', '🧑‍🎤', '👩‍🔬'];
@@ -17,11 +18,12 @@ export function createRestaurant(host) {
   let timer = 0;
   const K = createCooking({ $app, shake });
   const KT = createKitchen();
+  const RD = createRoomDesigner({ S, save, $app, topbar, fmt, shake, onClose: () => { getUi().screen = 'r-idle'; render(); } });
 
   const level = () => Math.min(1 + Math.floor(S.served / 4), 6);
   const pantryTotal = () => Object.values(S.pantry).reduce((a, b) => a + b, 0);
   const owned = () => S.kitchen.owned;
-  const perShift = () => 3 + (owned().includes('table2') ? 1 : 0);
+  const perShift = () => roomStats(S.room).customers;
   const canCook = () => available(owned()).some((d) => portionsLeft(d, S.pantry) > 0);
   const lines = () => r.cust.order;
   const total = () => dishTotal(lines(), owned());
@@ -48,12 +50,10 @@ export function createRestaurant(host) {
   };
 
   const scene = (bubble) => `
-<div class="rscene">
+<div class="rscene room">
   <div class="rsign ${owned().includes('sign') ? 'neon' : ''}">Chef's Café</div>
-  ${owned().includes('table2') ? '<div class="rtable2">🪑🍽️🪑</div>' : ''}
-  <div class="rwin">🌤️</div><div class="rpic">🖼️</div>
-  ${r.cust ? `<div class="customer ${r.step === 'paid' ? 'happy' : 'in'}">${r.cust.face}${r.step === 'paid' ? '<span class="hearts">❤️</span>' : ''}</div>` : ''}
-  ${bubble ? `<div class="bubble rb">${bubble}</div>` : ''}
+  <div class="rbwrap">${bubble ? `<div class="bubble rb">${bubble}</div>` : ''}</div>
+  <div class="rfloor">${gridHtml(S.room, { sitAt: r.cust ? r.seatKey : null, face: r.cust && r.cust.face, happy: r.step === 'paid' })}</div>
   <div class="counter"></div>
   <div class="trayrow">${r.tray.map((e) => `<span>${e}</span>`).join('')}</div>
   <div class="chef ${r.step === 'cook' && r.phase === 'make' ? 'busy' : ''}">👨‍🍳</div>
@@ -71,9 +71,10 @@ export function createRestaurant(host) {
     if (r.step === 'idle') {
       if (r.served >= perShift() || (r.served > 0 && !canCook())) return summary();
       if (!canCook()) {
-        body = `<div class="card center"><h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p><button class="btn big" data-act="map">Go shopping 🚗</button></div>`;
+        body = `<div class="card center"><h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p><button class="btn big" data-act="map">Go shopping 🚗</button></div><button class="btn alt" data-act="room-open">🏗️ Design your café</button>`;
       } else {
         body = `<button class="btn big" data-act="r-open">Open the door 🚪</button>
+        <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room).customers} customers/shift)</small></button>
         <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${lock ? ` <small>🔒 needs ${d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned()))}</b></li>`; }).join('')}</ul></div>`;
       }
     } else if (r.step === 'order') {
@@ -100,7 +101,7 @@ export function createRestaurant(host) {
       body = `<div class="card receipt"><div class="sum">${bill(r.cust.pay)} − <b>${fmt(total())}</b> = ?</div>${U.tries >= 2 ? `<small>Count up from ${fmt(total())} to ${fmt(r.cust.pay)} 👆</small>` : ''}</div>${pad(U.input)}`;
     } else if (r.step === 'paid') {
       bubble = 'Thank you! Bye! 👋';
-      body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.signTip ? '<p>✨ Neon sign tip! +$1</p>' : ''}${r.cust.stars >= 2 ? '<p>🧮 Accurate bill! +$1</p>' : ''}</div>
+      body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.signTip ? '<p>✨ Neon sign tip! +$1</p>' : ''}${r.cust.ambTip ? `<p>🌿 Cozy café tip! +$${r.cust.ambTip}</p>` : ''}${r.cust.stars >= 2 ? '<p>🧮 Accurate bill! +$1</p>' : ''}</div>
       <button class="btn big" data-act="r-next">${r.served >= perShift() || !canCook() ? 'Close shop 🔒' : 'Next customer ➡️'}</button>`;
     }
     $app.innerHTML = `<section class="screen rest">${topbar("Chef's Café")}${kitchen || scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
@@ -191,7 +192,8 @@ export function createRestaurant(host) {
     const t = total();
     r.cust.cookTip = r.cust.cookMistakes <= 1 ? 1 : 0;
     r.cust.signTip = owned().includes('sign') ? 1 : 0;
-    const tip = (r.cust.stars >= 2 ? 1 : 0) + r.cust.cookTip + r.cust.signTip;
+    r.cust.ambTip = roomStats(S.room).tip;
+    const tip = (r.cust.stars >= 2 ? 1 : 0) + r.cust.cookTip + r.cust.signTip + r.cust.ambTip;
     r.cust.tip = tip;
     r.cust.earned = t + tip;
     S.money += t + tip;
@@ -222,6 +224,8 @@ export function createRestaurant(host) {
 
   const acts = {
     ...K.acts,
+    ...RD.acts,
+    'room-open': () => { getUi().screen = 'r-room'; RD.acts['room-open'](); },
     restaurant: open,
     'r-fridge': () => { KT.walkTo('fridge'); r.gatherIn = true; render(); },
     'k-station': (st) => {
@@ -239,6 +243,8 @@ export function createRestaurant(host) {
       let pay = CUSTOMER_BILLS.find((b) => b >= t);
       const next = CUSTOMER_BILLS[CUSTOMER_BILLS.indexOf(pay) + 1];
       if (level() >= 2 && next && Math.random() < 0.4) pay = next;
+      const tables = roomStats(S.room).tables;
+      r.seatKey = tables[Math.floor(Math.random() * tables.length)];
       r.cust = { face: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)], order, pay, stars: 1, cookMistakes: 0 };
       r.tray = [];
       r.step = 'order';

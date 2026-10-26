@@ -40,9 +40,16 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 
 ## Appliance Shop (investment and planning)
 - Unlocked from the map (drive there like the grocery). Equipment is bought with the wallet through the same pay-with-bills and change steps; bills go up to $50.
-- Catalogue (`EQUIPMENT` in `data.js`): **Pro blender $35** (half the blending taps, shakes +$2), **Neon sign $40** (+$1 tip per customer), **Extra table $50** (4 customers per shift), **Oven $60** (unlocks pizza, bread, cookies, cake; needs the new Bakery aisle: flour, butter, sugar).
+- Catalogue (`EQUIPMENT` in `data.js`): **Pro blender $35** (half the blending taps, shakes +$2), **Neon sign $40** (+$1 tip per customer), **Oven $60** (unlocks pizza, bread, cookies, cake; needs the new Bakery aisle: flour, butter, sugar).
 - Planning: each card shows a progress bar toward the price, "Save for it" sets a goal that appears on the map, and an unaffordable Buy sets the goal automatically.
 - The kitchen shows the purchases: the old oven starts "OUT OF ORDER", the new one glows when baking; the pro blender is drawn in steel.
+
+## Dining room (restaurant expansion)
+- The café floor is a tile grid. From the restaurant, **Design your café** opens the designer: buy tables and decorations, pick an item and tap a tile to place it, tap a placed item to pick it up.
+- **Area math**: the room starts at 3 × 2 = 6 tiles; add a column or row for $10 per new tile (shown as `tiles × $10 = cost`), up to 5 × 4.
+- **Seats** decide customers per shift (2 + seats ÷ 2, max 8); **cozy** points from decorations add a tip (+$1 per 2 points, max +$3). Customers actually sit at your tables.
+- Items: table for 2 ($12), table for 4 ($24), flowers ($5), plant ($7), lamp ($9), fish tank ($20).
+- Old saves that bought the shop's extra table get a free table for 2 in the new room.
 
 ## Guided billing (grocery checkout and restaurant bill)
 - Step 1: multiply each line (qty × price), one highlighted row at a time; results stay on screen.

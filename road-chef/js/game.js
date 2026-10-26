@@ -1,5 +1,6 @@
 import { AISLES, ITEMS, BILLS, EQUIPMENT, byId, makePlan, orderCost, recipeById } from './data.js';
 import { createRestaurant } from './restaurant.js';
+import { newRoom } from './room.js';
 import { MODES, billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 import { sfx } from './sound.js';
 import { startDrive } from './drive.js';
@@ -8,7 +9,7 @@ import { drawCar, CAR_COLORS } from './sprites.js';
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, billPref: 'auto', billStreak: 0 });
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, room: newRoom(), billPref: 'auto', billStreak: 0 });
 const S = (() => {
   try {
     return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
@@ -23,6 +24,13 @@ const save = () => {
     /* storage unavailable */
   }
 };
+
+// Old saves: the Appliance Shop's extra table became a table for the dining room.
+if (S.kitchen.owned.includes('table2')) {
+  S.kitchen.owned = S.kitchen.owned.filter((x) => x !== 'table2');
+  S.room.stock.table2 = (S.room.stock.table2 || 0) + 1;
+  save();
+}
 
 // Transient state for the current trip.
 let ui = { screen: 'home' };
