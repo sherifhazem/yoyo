@@ -35,6 +35,9 @@ Each portion: gather ingredients → a short sequence of mini-steps per dish →
 - **Flip** (stop the moving marker inside the green zone): timing; the zone widens after misses.
 - **Tap** steps (crack, whisk, stir, blend): counting. Few mistakes while cooking earns a tip.
 
+## Kitchen
+While cooking, the restaurant switches to an illustrated kitchen (fridge, worktop with cutting board and mixing bowl, stove and oven, sink). Each step belongs to a station: the station glows, the child taps it (or Go!), the chef walks there and the mini-step opens. A ticket shows the recipe progress. Equipment catalogue (`EQUIPMENT` in `data.js`) and `S.kitchen.owned` are the groundwork for buying/placing appliances (oven, pro blender, bigger fridge) and expanding the restaurant.
+
 ## Guided billing (grocery checkout and restaurant bill)
 - Step 1: multiply each line (qty × price), one highlighted row at a time; results stay on screen.
 - Step 2: add the line results shown in front of the child. Hints appear after 2 wrong tries (repeated addition / running sums).

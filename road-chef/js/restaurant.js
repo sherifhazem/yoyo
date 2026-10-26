@@ -1,6 +1,7 @@
 import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal, portionsLeft } from './data.js';
 import { sfx } from './sound.js';
 import { createCooking } from './cooking.js';
+import { createKitchen } from './kitchen.js';
 import { billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 
 const CUSTOMERS = ['👧', '👦', '👩', '👨', '🧓', '👵', '👩‍🦰', '👨‍🦱', '🧑‍🎤', '👩‍🔬'];
@@ -16,6 +17,7 @@ export function createRestaurant(host) {
   let r;
   let timer = 0;
   const K = createCooking({ $app, shake });
+  const KT = createKitchen();
 
   const level = () => Math.min(1 + Math.floor(S.served / 4), 6);
   const pantryTotal = () => Object.values(S.pantry).reduce((a, b) => a + b, 0);
@@ -28,6 +30,7 @@ export function createRestaurant(host) {
   function open() {
     clearTimeout(timer);
     K.stop();
+    KT.reset();
     setUi({ screen: 'r-idle', input: '', tries: 0 });
     r = newShift();
     render();
@@ -62,6 +65,7 @@ export function createRestaurant(host) {
     U.screen = `r-${r.step}`;
     let body = '';
     let bubble = '';
+    let kitchen = '';
     if (r.step === 'idle') {
       if (r.served >= PER_SHIFT || (r.served > 0 && !canCook())) return summary();
       if (!canCook()) {
@@ -74,8 +78,15 @@ export function createRestaurant(host) {
       bubble = `Hello! I'd like<br>${lines().map((l) => `${recipeById[l.id].emoji} ${recipeById[l.id].name} × ${l.qty}`).join('<br>')}`;
       body = `<button class="btn big" data-act="r-cook">Start cooking 👨‍🍳</button>`;
     } else if (r.step === 'cook') {
-      bubble = r.phase === 'make' ? K.bubble() : 'Get the ingredients from the fridge! 🧊';
-      body = r.phase === 'make' ? K.html() : cookBody();
+      const make = r.phase === 'make';
+      const doing = make ? (K.entered() ? K.station() : null) : (r.gatherIn ? 'fridge' : null);
+      const focus = make ? (K.entered() ? null : K.station()) : (r.gatherIn ? null : 'fridge');
+      bubble = make ? K.bubble() : r.gatherIn ? 'Get the ingredients from the fridge! 🧊' : 'Next stop: the fridge! 👆';
+      kitchen = KT.scene({ focus, doing, stepType: make ? K.stepType() : null, bubble });
+      const ticket = ticketHtml();
+      if (make) body = `${ticket}${K.html()}`;
+      else if (r.gatherIn) body = `${ticket}${cookBody()}`;
+      else body = `${ticket}<div class="card mg center"><div class="gobig">🧊</div><h3>Go to the fridge</h3><small>Tap the glowing spot in the kitchen</small><button class="btn big" data-act="r-fridge">Go! 🏃</button></div>`;
     } else if (r.step === 'serve') {
       bubble = 'Yum, that smells great! 😋';
       body = `<button class="btn big" data-act="r-serve">Serve & bill 🧾</button>`;
@@ -90,8 +101,15 @@ export function createRestaurant(host) {
       body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.tip - (r.cust.cookTip || 0) ? `<p>🧮 Accurate bill! +$${r.cust.tip - r.cust.cookTip}</p>` : ''}</div>
       <button class="btn big" data-act="r-next">${r.served >= PER_SHIFT || !canCook() ? 'Close shop 🔒' : 'Next customer ➡️'}</button>`;
     }
-    $app.innerHTML = `<section class="screen rest">${topbar("Chef's Café")}${scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
+    $app.innerHTML = `<section class="screen rest">${topbar("Chef's Café")}${kitchen || scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
     if (r.step === 'cook' && r.phase === 'make') K.afterRender();
+  }
+
+  function ticketHtml() {
+    const d = recipeById[r.portions[r.pi]];
+    const gather = { icon: '🧊', state: r.phase === 'gather' ? 'now' : 'done' };
+    const steps = r.phase === 'gather' ? d.steps.map((sp) => ({ icon: sp.t === 'chop' ? '🔪' : sp.t === 'tap' ? sp.emoji : sp.t === 'pour' ? sp.liquid : sp.t === 'heat' ? '🔥' : '🔄', state: '' })) : K.ticket();
+    return `<div class="ticket"><span class="tname">${d.emoji} <b>${d.name}</b> <small>${r.pi + 1}/${r.portions.length}</small></span><span class="tsteps">${[gather, ...steps].map((s) => `<i class="${s.state}">${s.icon}</i>`).join('')}</span></div>`;
   }
 
   function cookBody() {
@@ -193,6 +211,7 @@ export function createRestaurant(host) {
     r.pi += 1;
     r.added = {};
     r.phase = 'gather';
+    r.gatherIn = false;
     save();
     if (r.pi >= r.portions.length) r.step = 'serve';
     render();
@@ -201,6 +220,14 @@ export function createRestaurant(host) {
   const acts = {
     ...K.acts,
     restaurant: open,
+    'r-fridge': () => { KT.walkTo('fridge'); r.gatherIn = true; render(); },
+    'k-station': (st) => {
+      if (r.step !== 'cook') return;
+      const need = r.phase === 'make' ? (K.entered() ? null : K.station()) : (r.gatherIn ? null : 'fridge');
+      if (!need || st !== need) { sfx.bad(); shake('.kitchen'); return; }
+      if (r.phase === 'make') K.enter();
+      else acts['r-fridge']();
+    },
     'r-new': () => { r = newShift(); render(); },
     'r-open': () => {
       const order = makeCustomerOrder(level(), S.pantry);
@@ -220,6 +247,7 @@ export function createRestaurant(host) {
       r.pi = 0;
       r.added = {};
       r.phase = 'gather';
+      r.gatherIn = false;
       r.step = 'cook';
       render();
     },
@@ -239,7 +267,7 @@ export function createRestaurant(host) {
       if (!done) { render(); return; }
       save();
       r.phase = 'make';
-      K.begin(d, { rerender: render, onDone: portionDone });
+      K.begin(d, { rerender: render, onDone: portionDone, onEnter: (st) => KT.walkTo(st) });
     },
     'r-serve': () => {
       r.bill = newBill(lines().map((l) => ({ emoji: recipeById[l.id].emoji, qty: l.qty, price: recipeById[l.id].price })), billMode(S));

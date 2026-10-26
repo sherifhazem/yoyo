@@ -8,7 +8,7 @@ import { drawCar, CAR_COLORS } from './sprites.js';
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, billPref: 'auto', billStreak: 0 });
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, billPref: 'auto', billStreak: 0 });
 const S = (() => {
   try {
     return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };

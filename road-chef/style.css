@@ -282,3 +282,35 @@ button.bill:active { transform: translateY(4px); }
 .fliptrack { position: relative; width: 100%; height: 30px; background: #e0e6f1; border-radius: 15px; }
 .fliptrack .zone { position: absolute; top: 0; bottom: 0; background: #7bdc6b; border-radius: 15px; opacity: .9; }
 .fliptrack #marker { position: absolute; top: -6px; width: 8px; height: 42px; margin-left: -4px; background: var(--red); border-radius: 4px; box-shadow: 0 0 0 3px #fff; }
+
+/* ---------- kitchen ---------- */
+.kitchen { position: relative; width: 100%; aspect-ratio: 390 / 300; border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); flex: none; background: #ffe9c7; }
+.ksvg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.khit { cursor: pointer; }
+.kfocus { fill: rgba(255,224,102,.22); stroke: #ffd23f; stroke-width: 4; stroke-dasharray: 10 6; animation: kpulse 1s ease-in-out infinite; pointer-events: none; }
+@keyframes kpulse { 50% { stroke-width: 7; fill: rgba(255,224,102,.4); } }
+.karrow { animation: karrow .8s ease-in-out infinite; pointer-events: none; }
+@keyframes karrow { 50% { transform: translateY(-6px); } }
+.kflame { animation: flick .35s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: bottom; }
+.kdrop { animation: kdrop .7s linear infinite; }
+@keyframes kdrop { from { transform: translateY(0); opacity: 1; } to { transform: translateY(16px); opacity: 0; } }
+.kknife { animation: kchop .35s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes kchop { 50% { transform: translateY(2px); } }
+.kchef { position: absolute; left: var(--tx); top: var(--ty); transform: translate(-50%, -100%); z-index: 3; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+.kchef.walking { animation: kwalk .75s ease-in-out both; }
+@keyframes kwalk { from { left: var(--fx); top: var(--fy); } to { left: var(--tx); top: var(--ty); } }
+.kchef .kface { font-size: 46px; line-height: 1; }
+.kchef.walking .kface { animation: kstep .25s ease-in-out infinite; }
+.kchef.working .kface { animation: shakey .35s linear infinite; }
+@keyframes kstep { 50% { transform: translateY(-6px) rotate(6deg); } }
+.kshadow { position: absolute; bottom: -4px; width: 34px; height: 9px; border-radius: 50%; background: rgba(0,0,0,.22); z-index: -1; }
+.kbubble { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 88%; max-width: 330px; z-index: 4; font-size: 15px; text-align: center; padding: 6px 10px; pointer-events: none; }
+.ticket { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff; border-radius: 16px; padding: 6px 10px; box-shadow: var(--shadow); flex: none; }
+.ticket .tname { font-size: 16px; }
+.ticket small { opacity: .6; }
+.tsteps { display: flex; gap: 4px; }
+.tsteps i { font-style: normal; font-size: 20px; width: 32px; height: 32px; border-radius: 10px; background: #eef1f6; display: flex; align-items: center; justify-content: center; opacity: .55; }
+.tsteps i.now { background: #fff3b0; opacity: 1; outline: 3px solid var(--yellow); transform: scale(1.1); }
+.tsteps i.done { background: #dffbe3; opacity: 1; position: relative; }
+.tsteps i.done::after { content: '✓'; position: absolute; right: -3px; bottom: -4px; font-size: 12px; font-weight: 900; color: #2f9a4d; background: #fff; border-radius: 50%; width: 14px; height: 14px; line-height: 14px; text-align: center; }
+.gobig { font-size: 56px; line-height: 1; }
