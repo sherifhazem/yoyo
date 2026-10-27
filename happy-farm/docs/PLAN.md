@@ -42,16 +42,22 @@ happy-farm/src/
 - Real-time growth stays timestamp-based (catch-up on load, capped at 8 h so a long absence is rewarded, not punished).
 - Save v2 migrates the existing v1 prototype save.
 
-## Phases (each ends with: build green, tests green, Playwright smoke, commit + push)
-- **P0 Foundation**: refactor prototype into the layout above, save migration, event bus, tier picker, skill log, test harness.
-- **P1 Farm core**: soil NPK + water, light/season/weather, crop catalogue (8 crops), land purchase (area/perimeter), day/night.
-- **P2 Economy**: dynamic market + price graph, orders board, ledger/profit view, tier-3 loan.
-- **P3 Animals & biology**: chicken, cow, sheep; feed need; breeding traits; bees/pests ecosystem.
-- **P4 Physics**: well (levers/pulleys/gears), irrigation network, power grid (wind/solar/battery), tractor trips, greenhouse.
-- **P5 Progression**: XP/levels, tech tree unlocking systems, quests/story, achievements, gentle tutorial (first 5 minutes).
-- **P6 Feel**: particles, tweens, WebAudio sfx + music toggle, procedural art pass (animals walk, crops sway, weather FX).
-- **P7 Parent view**: per-skill progress from event log, tier switch, reset, export JSON.
-- **P8 Release**: PWA (offline), mobile perf check, README, balance pass via simulation script.
+## Phases (revised after Opus review)
+Each phase ends with: build green, `node --test` green, Playwright smoke, commit + push.
+- **P0 Foundation**: modular layout, save v2 (+v1 migration), clock/seeded weather, event bus, skill-evidence log, **remove the quiz gate** (bills are shown as per-unit price and total, never asked), PWA/offline, test harness.
+- **P1 Farm core + first fun**: 5 crops, soil nitrogen and water, seasons/weather, land purchase (area/perimeter), harvest juice (pop, coins fly to HUD), 60-second guided first harvest and sale, minimal XP/levels.
+- **P2 Economy + balance**: market curve with supply pressure and price graph, visual orders board (crates, no word problems), ledger, balance simulation script run in every later phase; dominant-strategy checks (reasoning must beat random by ≥20%).
+- **P3 Animals and biology**: chicken, cow, bees; feed; simple inherited traits (tier 1: "runs in families", tier 3: probabilities); pollination and pests.
+- **P4a Physics core**: well (pulleys/gears → force vs. time trade-off), delivery trips (speed vs. fuel vs. time), windmill/solar with battery (watts, wind cube law).
+- **P5 Retention**: daily reward, sticker/collection book, farm decoration, neighbour NPC farm, quests/story, achievements, session-length nudge.
+- **P6 Parent view**: evidence per skill defined as "chose the better option k of last n times" (see `skills.js`); tier auto-adjusts from play, age only sets the start; export/reset.
+- **P7 Release**: README, balance pass, accessibility (colour-blind-safe bars, sound off by default), performance check.
+- **Post-launch (not in this build)**: irrigation pressure network, greenhouse heat, loans with interest, cloud save/server.
+
+## Review decisions
+- Prototype `askTotal` quiz gate was removed in P0 (violated rules 1–2).
+- P1 cut to 5 crops; physics split; balance simulation moved to P2; juice, onboarding and PWA moved early.
+- Orders use visual crates; breeding stays qualitative at tier 1.
 
 ## Testing
 - `node --test` unit tests for each sim module (growth, price curve bounds, breeding ratios, pressure/flow, power balance).
