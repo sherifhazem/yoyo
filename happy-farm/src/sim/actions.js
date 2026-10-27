@@ -37,6 +37,10 @@ export function tick(s, now = Date.now()) {
   if (trip) { income(s, to, trip.pay); events.push({ type: 'trip', ...trip }); }
   if (Math.floor(to) !== Math.floor(from)) {
     if (refreshOrders(s, to)) events.push({ type: 'orders' });
+    // end-of-day evidence: did the day make money, and did the power plan work?
+    const led = s.ledger[Math.floor(from)];
+    if (led && led.in + led.out > 0) record(s, 'profit', led.in >= led.out);
+    if (s.owned.pump) record(s, 'power', (s.pumpRun || 0) >= 0.6);
     // gentle bailout so the game can never dead-end
     const poor = s.coins < 2 && !Object.values(s.seeds).some((n) => n > 0) && !Object.values(s.goods).some((n) => n > 0) && !Object.keys(s.plots).length;
     if (poor && s.bailoutDay !== Math.floor(to)) { s.bailoutDay = Math.floor(to); s.seeds.wheat = (s.seeds.wheat || 0) + 3; events.push({ type: 'bailout' }); }

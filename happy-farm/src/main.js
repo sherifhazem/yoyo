@@ -17,7 +17,7 @@ const state = load();
 const now = () => Date.now();
 const day = () => dayOf(state, now());
 
-A.tick(state, now());
+const bootEvents = A.tick(state, now());
 refreshOrders(state, day());
 let shownLevel = state.level;
 let tool = 'plant';
@@ -85,6 +85,7 @@ $('seedbar').addEventListener('click', (e) => {
 $('soilbtn').addEventListener('click', () => { scene.setSoilView(!scene.soilView); $('soilbtn').style.background = scene.soilView ? '#ffe27a' : ''; });
 $('sndbtn').addEventListener('click', () => {
   state.settings.sound = !state.settings.sound; setSound(state.settings.sound);
+for (const e of bootEvents) if (e.type === 'trip') panels.info(`<div class="big">🚚</div><h2>Welcome back!</h2><p class="center">Your delivery arrived while you were away: <b>$${e.pay}</b>.</p>`, 'Great');
   $('sndbtn').textContent = state.settings.sound ? '🔊' : '🔇'; sfx.click(); save(state);
 });
 
@@ -162,7 +163,7 @@ panels = createPanels({
   growth: (k, d) => growthFactors(state, k, d),
   trades: (d) => A.tradeOffers(state, d),
   doTrade: (d, i) => A.doTrade(state, d, i, day()),
-  reset: () => { try { localStorage.clear(); } catch {} location.reload(); },
+  reset: () => { window.__noSave = true; try { localStorage.clear(); } catch {} location.reload(); },
 });
 setSound(state.settings.sound);
 $('sndbtn').textContent = state.settings.sound ? '🔊' : '🔇';
@@ -177,5 +178,8 @@ const start = () => {
 };
 if (!state.stats.intro) panels.agePicker(() => { state.stats.intro = 1; state.daily.last = today; afterAction(); });
 else start();
+
+// gentle nudge to rest after 30 minutes of play
+setInterval(() => { if (!panels.isOpen()) panels.info('<div class="big">🌙</div><h2>Time for a break?</h2><p class="center">You have been farming for a while. Stretch, drink some water, and come back later — your crops keep growing!</p>', 'OK'); }, 30 * 60 * 1000);
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) navigator.serviceWorker.register('./sw.js').catch(() => {});

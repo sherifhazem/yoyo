@@ -69,3 +69,6 @@ Each phase ends with: build green, `node --test` green, Playwright smoke, commit
 - **Quiz-feel**: guarded by rule 1–2; every mechanic reviewed against "would a kid do this without being asked?".
 - **Dead-ends/frustration**: starter bailout (free wheat seeds if broke), no permanent loss, offline catch-up cap.
 - **Performance**: sprite caching of Graphics → textures, cap on animated objects, DPR ≤ 2.
+
+## Status
+Built: P0–P7 as revised above (see README). Deferred: irrigation network, greenhouse, loans, server/cloud save.

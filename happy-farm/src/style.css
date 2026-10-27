@@ -28,7 +28,7 @@ canvas{display:block;touch-action:none}
 .card h2{margin:0 0 6px;font-size:20px;text-align:center}
 .card h3{margin:10px 0 4px;font-size:15px}
 .tabs{display:flex;gap:4px;margin-bottom:8px;overflow-x:auto}
-.tab{flex:1;white-space:nowrap;background:#efe0b8;border:2px solid var(--tan2);border-radius:10px;padding:5px 6px;font-weight:700;font-size:13px;color:var(--brown);font-family:inherit}
+.tab{flex:1;white-space:nowrap;background:#efe0b8;border:2px solid var(--tan2);border-radius:10px;padding:5px 5px;font-weight:700;font-size:12px;color:var(--brown);font-family:inherit}
 .tab.on{background:#fff;border-color:#ffcf33}
 .row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed #b98a4577}
 .row .nm{flex:1;font-weight:700;font-size:14px}
@@ -59,6 +59,7 @@ canvas{display:block;touch-action:none}
 .up{color:#2e7d32}.down{color:#c62828}
 .pill-sm{display:inline-block;background:#fff;border:2px solid var(--tan2);border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
 .anim{display:flex;gap:8px;align-items:center;padding:6px;border:2px solid var(--tan2);border-radius:10px;margin:5px 0;background:#fff}
+.anim small{display:block;font-weight:400;font-size:12px}
 .anim.sel{border-color:#ffcf33;box-shadow:0 0 0 2px #ffcf33}
 .fly{position:fixed;font-size:22px;z-index:40;pointer-events:none;transition:transform .7s cubic-bezier(.5,0,.8,.4),opacity .7s}
 svg.spark{width:70px;height:24px}

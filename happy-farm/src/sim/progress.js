@@ -52,3 +52,14 @@ export function dailyReward(s, dateStr) {
   addGood(s, 'wheat', 0);
   return { coins };
 }
+
+export const ACHIEVEMENTS = [
+  { icon: '🌱', text: 'Plant 20 seeds', check: (s) => (s.stats.planted || 0) >= 20 },
+  { icon: '🧺', text: 'Harvest 50 crops', check: (s) => (s.stats.harvested || 0) >= 50 },
+  { icon: '💰', text: 'Have $500', check: (s) => s.coins >= 500 },
+  { icon: '📋', text: 'Fill 10 orders', check: (s) => (s.stats.orders || 0) >= 10 },
+  { icon: '🗺️', text: 'Own 30 tiles of land', check: (s) => s.land.cols * s.land.rows >= 30 },
+  { icon: '✨', text: 'Breed a golden animal', check: (s) => s.animals.some((a) => a.genes.includes('H') && a.parents) },
+  { icon: '🔋', text: 'Run the pump on wind and sun', check: (s) => s.owned.pump > 0 && s.owned.windmill > 0 && s.owned.solar > 0 },
+  { icon: '🚚', text: 'Make 5 city deliveries', check: (s) => (s.stats.deliveries || 0) >= 5 },
+];

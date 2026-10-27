@@ -13,8 +13,8 @@ export const GOODS = {
 export const goodIds = Object.keys(GOODS);
 
 export const ANIMALS = {
-  chicken: { name: 'Chicken', icon: '🐔', price: 25, unlock: 4, product: 'egg', everyDays: 0.5, feed: 1, trait: 'Golden feathers', unitName: 'egg' },
-  cow:     { name: 'Cow',     icon: '🐄', price: 80, unlock: 8, product: 'milk', everyDays: 1,  feed: 2, trait: 'Spotted coat', unitName: 'milk' },
+  chicken: { name: 'Chicken', icon: '🐔', price: 25, unlock: 4, product: 'egg', everyDays: 0.5, feed: 1, trait: 'Golden', unitName: 'egg' },
+  cow:     { name: 'Cow',     icon: '🐄', price: 80, unlock: 8, product: 'milk', everyDays: 1,  feed: 2, trait: 'Spotted', unitName: 'milk' },
 };
 export const PEN_LIMIT = 6;
 export const BARN_LIMIT = 40;           // total goods the barn holds

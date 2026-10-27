@@ -175,3 +175,12 @@ test('evidence needs three samples before it counts', () => {
   const s = mk();
   assert.equal(score(s, 'market'), null);
 });
+
+test('end of day records profit and power evidence', () => {
+  const s = mk(); s.owned.pump = 1;
+  s.ledger[0] = { in: 30, out: 10 };
+  s.startedAt = T0; s.lastTick = T0 + 0.9 * DAY_MS;
+  A.tick(s, T0 + 1.2 * DAY_MS);
+  assert.deepEqual(s.evidence.profit, [1]);
+  assert.equal(s.evidence.power.length, 1);
+});

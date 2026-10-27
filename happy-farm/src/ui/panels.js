@@ -8,7 +8,7 @@ import { supply, demand, BATTERY_WH, TANK_MAX, PUMP_W } from '../sim/power.js';
 import { weatherOf, WEATHER_ICON } from '../sim/weather.js';
 import { phenotype, offspringOdds } from '../sim/breeding.js';
 import { SKILLS, score } from '../sim/skills.js';
-import { STICKERS } from '../sim/progress.js';
+import { STICKERS, ACHIEVEMENTS } from '../sim/progress.js';
 import { MAX_COLS, MAX_ROWS, goodCount } from '../core/state.js';
 import { dayOf } from '../core/clock.js';
 
@@ -19,7 +19,7 @@ const ui = { tab: {}, sell: {}, load: {}, speed: 60, pick: [], msg: '' };
 
 export const closeModal = () => { modal.classList.add('hidden'); clearInterval(live); live = null; card.onclick = null; };
 modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-const show = (html) => { card.innerHTML = html; modal.classList.remove('hidden'); };
+const show = (html) => { const top = card.scrollTop; card.innerHTML = html; modal.classList.remove('hidden'); card.scrollTop = top; };
 
 const tabsHtml = (tabs, cur) => `<div class="tabs">${tabs.map(([id, label]) => `<button class="tab ${cur === id ? 'on' : ''}" data-tab="${id}">${label}</button>`).join('')}</div>`;
 const gauge = (v, max, cls, mark) => `<div class="gauge"><b class="${cls}" style="width:${Math.max(0, Math.min(100, (v / max) * 100))}%"></b>${mark != null ? `<i style="left:${(mark / max) * 100}%"></i>` : ''}</div>`;
@@ -200,7 +200,7 @@ export function createPanels(ctx) {
       const def = ANIMALS[a.type], gold = phenotype(a) === 'H', baby = a.age < 1;
       const genes = s.tier >= 2 ? ` · genes ${a.genes.join(' ')}` : '';
       return `<div class="anim ${ui.pick.includes(a.id) ? 'sel' : ''}" data-act="pick" data-id="${a.id}"><span class="ico">${def.icon}${gold ? '✨' : ''}</span>
-        <span class="nm" style="flex:1">${gold ? def.trait : 'Plain'} ${def.name} #${a.id}${baby ? ' (baby)' : ''}<small>${baby ? 'growing up…' : `hunger ${a.fed < 0.15 ? 'hungry!' : 'ok'}${genes}`}${a.parents ? ` · child of #${a.parents.join(' & #')}` : ''}</small>${gauge(a.fed, 1, 'g-gold')}</span>
+        <span class="nm" style="flex:1">${gold ? def.trait : 'Plain'} ${def.name.toLowerCase()} #${a.id}${baby ? ' (baby)' : ''}<small>${baby ? 'growing up…' : `hunger ${a.fed < 0.15 ? 'hungry!' : 'ok'}${genes}`}${a.parents ? ` · child of #${a.parents.join(' & #')}` : ''}</small>${gauge(a.fed, 1, 'g-gold')}</span>
         ${a.ready > 0 ? `<button class="btn sm" data-act="collect" data-id="${a.id}">Collect ${a.ready}</button>` : ''}
         <button class="btn sm gray" data-act="sellanimal" data-id="${a.id}">Sell</button></div>`;
     }).join('') || '<p class="center">No animals yet. Buy a chicken in Market › Buy (level 4).</p>';
@@ -317,6 +317,7 @@ export function createPanels(ctx) {
       const g = GOODS[id], got = s.stickers.includes(id);
       return `<div class="center" style="border:2px solid var(--tan2);border-radius:10px;padding:6px;background:${got ? '#fff' : '#ddd'}"><div class="ico">${got ? g.icon : '❔'}</div><small>${got ? g.name : '???'}</small></div>`;
     }).join('')}</div><p class="center"><small>${s.stickers.length} / ${STICKERS.length} collected. Harvest or collect each product once!</small></p>
+      <h3>🏅 Achievements</h3>${ACHIEVEMENTS.map((a) => `<div class="kv"><span>${a.icon} ${a.text}</span><b>${a.check(s) ? '✔' : '…'}</b></div>`).join('')}
       <div class="btns"><button class="btn gray" data-act="back">Back</button></div>`);
     card.onclick = (e) => { if (e.target.dataset.act === 'back') menu(); };
   }

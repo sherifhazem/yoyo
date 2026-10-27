@@ -65,6 +65,7 @@ export function load() {
 }
 
 export function save(state) {
+  if (typeof window !== 'undefined' && window.__noSave) return;
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
 }
 
