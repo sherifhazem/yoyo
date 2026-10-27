@@ -1,3 +1,5 @@
+import { chefFull } from './art.js';
+
 // The restaurant kitchen: an illustrated room with stations. The chef walks between
 // stations as the recipe steps move on. New appliances (EQUIPMENT in data.js, saved in
 // S.kitchen.owned) are meant to be added to this room as stations later.
@@ -163,7 +165,7 @@ export function createKitchen() {
       return `
 <div class="kitchen">
   ${svg({ focus: state.focus, fridgeOpen: doing === 'fridge', hot, ovenHot, ovenOwned: owned.includes('oven'), proBlender: owned.includes('blender'), water: doing === 'sink', knife: doing === 'board' })}
-  <div class="kchef ${a ? 'walking' : ''} ${doing ? 'working' : ''}" style="${style}"><span class="kshadow"></span><span class="kface">👨‍🍳</span></div>
+  <div class="kchef ${a ? 'walking' : ''} ${doing ? 'working' : ''}" style="${style}"><span class="kshadow"></span><span class="kface">${chefFull()}</span></div>
   ${state.bubble ? `<div class="bubble kbubble">${state.bubble}</div>` : ''}
 </div>`;
     },

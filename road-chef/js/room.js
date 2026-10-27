@@ -1,4 +1,5 @@
 import { sfx } from './sound.js';
+import { person, tableSvg, decorSvg } from './art.js';
 
 // The dining room: a tile grid the child designs. Tables give seats (more customers per
 // shift), decorations add ambiance (bigger tips) and new tiles cost $10 each (area = cols × rows).
@@ -50,11 +51,10 @@ export function gridHtml(room, opts = {}) {
       const it = id && byId[id];
       let inner = '';
       if (it && it.seats) {
-        const chairs = it.seats === 2 ? '<i class="chair l"></i><i class="chair r"></i>' : '<i class="chair l"></i><i class="chair r"></i><i class="chair t"></i><i class="chair b"></i>';
-        inner = `<span class="tbl ${it.seats === 4 ? 't4' : 't2'}">${chairs}<b class="top"></b></span>`;
-        if (opts.sitAt === key) inner += `<span class="sitter ${opts.happy ? 'happy' : ''}">${opts.face}</span>`;
+        inner = `<span class="tbl">${tableSvg(it.seats)}</span>`;
+        if (opts.sitAt === key) inner += `<span class="sitter ${opts.happy ? 'happy' : ''}">${person({ look: opts.face, mood: opts.happy ? 'happy' : 'smile', size: 34 })}</span>`;
       } else if (it) {
-        inner = `<span class="decor">${it.emoji}</span>`;
+        inner = `<span class="decor">${decorSvg(id, 46)}</span>`;
       } else if (!open) {
         inner = '<span class="lock">🔒</span>';
       }
@@ -75,7 +75,7 @@ export function createRoomDesigner({ S, save, $app, topbar, fmt, shake, onClose 
     const room = S.room;
     const st = roomStats(room);
     const palette = ROOM_ITEMS.map((it) => {
-      const icon = it.seats ? `<span class="tbl ${it.seats === 4 ? 't4' : 't2'} mini"><i class="chair l"></i><i class="chair r"></i>${it.seats === 4 ? '<i class="chair t"></i><i class="chair b"></i>' : ''}<b class="top"></b></span>` : `<span class="pe">${it.emoji}</span>`;
+      const icon = it.seats ? `<span class="pe">${tableSvg(it.seats, 46)}</span>` : `<span class="pe">${decorSvg(it.id, 42)}</span>`;
       return `<div class="pitem ${sel === it.id ? 'sel' : ''}" data-act="room-pick" data-v="${it.id}">${icon}<b>${it.name}</b><small>${it.blurb} · have ${stockOf(it.id)}</small><button class="btn sm ${S.money >= it.price ? '' : 'dim'}" data-act="room-buy" data-v="${it.id}">Buy ${fmt(it.price)}</button></div>`;
     }).join('');
     const colCost = room.rows * TILE_PRICE;

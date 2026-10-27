@@ -1,3 +1,4 @@
+import { person, chefHeadGroup } from './art.js';
 import { AISLES, ITEMS, BILLS, EQUIPMENT, SUPPLIES, START_SUPPLIES, byId, makePlan, orderCost, recipeById, saleFor, paidPacks, saving } from './data.js';
 import { createRestaurant } from './restaurant.js';
 import { newRoom } from './room.js';
@@ -48,7 +49,7 @@ const car = `
     <path d="M14 78 Q14 58 38 56 L68 30 Q74 24 84 24 H140 Q152 24 160 34 L178 56 Q206 58 206 80 V90 H14Z" fill="#ff5a4e"/>
     <path d="M78 34 H138 Q146 34 152 42 L164 56 H70Z" fill="#bfe9ff"/>
     <path d="M110 34 V56" stroke="#ff5a4e" stroke-width="5"/>
-    <text x="84" y="53" font-size="22">👨‍🍳</text>
+    ${chefHeadGroup(110, 52, 0.7)}
     <rect x="14" y="76" width="192" height="8" fill="#e23f34"/>
     <rect x="192" y="66" width="14" height="10" rx="3" fill="#ffe066"/>
     <rect x="14" y="68" width="10" height="10" rx="3" fill="#ffb3a8"/>
@@ -270,7 +271,7 @@ function totalStep() {
   $app.innerHTML = `
 <section class="screen pay">
   ${topbar('Cashier')}
-  <div class="cashier">🧑‍💼 <div class="bubble">${billBubble(ui.bill)}</div></div>
+  <div class="cashier">${person({ role: 'cashier', mood: 'talk', size: 70 })} <div class="bubble">${billBubble(ui.bill)}</div></div>
   ${billHtml(ui.bill, fmt)}
   ${pad(ui.input)}
 </section>`;
@@ -284,7 +285,7 @@ function payStep() {
   $app.innerHTML = `
 <section class="screen pay">
   ${topbar('Pay')}
-  <div class="cashier">🧑‍💼 <div class="bubble">${ui.equip ? `${ui.equip.emoji} ${ui.equip.name}: ` : 'Total: '}<b>${fmt(total)}</b>. Pay with your cash!</div></div>
+  <div class="cashier">${person({ role: 'cashier', mood: 'talk', size: 70 })} <div class="bubble">${ui.equip ? `${ui.equip.emoji} ${ui.equip.name}: ` : 'Total: '}<b>${fmt(total)}</b>. Pay with your cash!</div></div>
   <div class="card tray"><div>You are paying</div><div class="paid" id="paid">${fmt(ui.paid || 0)}</div>
     <div class="stack" id="stack">${(ui.paidBills || []).map((b) => `<i class="bill b${b}">${fmt(b)}</i>`).join('')}</div></div>
   <div class="bills">${bills}</div>
@@ -297,7 +298,7 @@ function changeStep() {
   $app.innerHTML = `
 <section class="screen pay">
   ${topbar('Change')}
-  <div class="cashier">🧑‍💼 <div class="bubble">Bill ${fmt(total)}, you paid ${fmt(ui.paid)}. How much change?</div></div>
+  <div class="cashier">${person({ role: 'cashier', mood: 'talk', size: 70 })} <div class="bubble">Bill ${fmt(total)}, you paid ${fmt(ui.paid)}. How much change?</div></div>
   <div class="card receipt"><div class="sum"><b>${fmt(ui.paid)}</b> − <b>${fmt(total)}</b> = ?</div>
   ${ui.tries >= 2 ? `<small>Count up from ${fmt(total)} to ${fmt(ui.paid)} 👆</small>` : ''}</div>
   ${pad(ui.input)}

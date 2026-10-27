@@ -69,5 +69,10 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - **🏆 Goals board**: nine milestones (serve customers, accurate bills, different dishes, earnings, buy the oven, reach a level). The child taps to claim each reward. The board is reachable from the home screen and the map; a red dot counts unclaimed goals.
 - Progress lives in `js/goals.js` (`rep`, `stats`, `claimed` in the save; older saves are filled in automatically). Thresholds and rewards are first estimates and need a playtest.
 
+## Art pass — phase 1 (characters and café)
+- `js/art.js`: SVG characters (chef bust, full-body kitchen chef, cashier, 10 customer looks with hair/outfit/glasses/beard variants), top-down tables and chairs, decor (flowers, plant, lamp, fish tank) and wall pieces (window, frame, pendant lamps, register, bell). No image files.
+- Café room: wall with wainscot, window, hanging lamps, plank floor, counter with register and service bell; the chef stands behind the counter.
+- Kitchen chef walks with animated legs/arms; the cashier and the car driver use the same art.
+
 ## Next
 - Multiple restaurants, staff, and daily specials.
