@@ -1,0 +1,2 @@
+{ "name": "Happy Farm", "short_name": "Happy Farm", "start_url": "./", "display": "fullscreen", "orientation": "portrait", "background_color": "#9fd66b", "theme_color": "#7a4f1d",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }] }

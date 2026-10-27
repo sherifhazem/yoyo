@@ -2,16 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#7a4f1d" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon.svg" />
 <title>Happy Farm</title>
 <link rel="stylesheet" href="./src/style.css" />
 </head>
 <body>
 <div id="hud">
-  <div class="pill" id="coins">💰 $0</div>
-  <div class="pill" id="stock"></div>
+  <div class="pill gold" id="coins">💰 $0</div>
+  <div class="pill" id="lvl"><span id="lvltxt">Lv 1</span><i class="bar"><b id="xpbar"></b></i></div>
+  <div class="pill" id="clock"></div>
+  <div class="pill" id="tank">💧 0</div>
+  <button class="pill btn-i" id="soilbtn" title="Soil view">🔍</button>
+  <button class="pill btn-i" id="sndbtn" title="Sound">🔇</button>
 </div>
+<div id="quest"></div>
 <div id="toast"></div>
+<div id="seedbar" class="hidden"></div>
 <div id="toolbar"></div>
 <div id="modal" class="hidden"><div class="card" id="card"></div></div>
 <script type="module" src="./src/main.js"></script>
