@@ -36,6 +36,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Add Road Chef (static game served at /road-chef/)
+        run: |
+          mkdir -p dist/road-chef
+          cp -r road-chef/index.html road-chef/style.css road-chef/js dist/road-chef/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
