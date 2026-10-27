@@ -425,3 +425,5 @@ button.bill:active { transform: translateY(4px); }
 .greward { color: #2b9a4a; }
 .gdone { font-size: 22px; }
 .banner { background: #fff6cc; border: 2px solid #ffd23f; border-radius: 14px; padding: 8px 12px; font-weight: 800; text-align: center; }
+.banner.special { background: #fff0b8; }
+.spec { color: #d98a00; font-weight: 900; }

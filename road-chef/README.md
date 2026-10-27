@@ -66,8 +66,9 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 ## Long-term goals
 
 - **Restaurant level**: every star a customer gives (accurate bill, good cooking) adds to the restaurant's reputation. Levels: Street Cart → Cozy Café → Bistro → Restaurant → Grand Restaurant, each with a cash bonus. Shown on the home screen and the shift summary.
-- **🏆 Goals board**: nine milestones (serve customers, accurate bills, different dishes, earnings, buy the oven, reach a level). The child taps to claim each reward. The board is reachable from the home screen and the map; a red dot counts unclaimed goals.
+- **🏆 Goals board**: ten milestones (serve customers, accurate bills, different dishes, earnings, buy the oven, reach a level). The child taps to claim each reward. The board is reachable from the home screen and the map; a red dot counts unclaimed goals.
+- **⭐ Today's special**: each shift one dish the pantry can make is the special (+$3 per dish, banner and ⭐ on the menu, the order and the bill). Customers pick it more often, so the child is nudged to vary what they cook. A goal rewards selling 8 specials.
 - Progress lives in `js/goals.js` (`rep`, `stats`, `claimed` in the save; older saves are filled in automatically). Thresholds and rewards are first estimates and need a playtest.
 
 ## Next
-- Multiple restaurants, staff, and daily specials.
+- Multiple restaurants and staff.

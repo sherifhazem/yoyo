@@ -74,7 +74,15 @@ export const orderCost = (order) =>
 // Recipes available with the equipment the restaurant owns.
 export const available = (owned) => RECIPES.filter((r) => !r.needs || owned.includes(r.needs));
 // Selling price, including equipment bonuses (pro blender = fancier shakes).
-export const dishPrice = (r, owned) => r.price + (r.id === 'shake' && owned.includes('blender') ? 2 : 0);
+export const SPECIAL_BONUS = 3;
+export const dishPrice = (r, owned, special) => r.price + (r.id === 'shake' && owned.includes('blender') ? 2 : 0) + (r.id === special ? SPECIAL_BONUS : 0);
+
+// Today's special: a dish the pantry can make, chosen fresh each shift.
+export function pickSpecial(pantry, owned, plates) {
+  if (plates <= 0) return null;
+  const pool = available(owned).filter((r) => portionsLeft(r, pantry) > 0);
+  return pool.length ? pool[rand(0, pool.length - 1)].id : null;
+}
 
 // A shopping list is the ingredient total for a few dishes the chef plans to cook.
 export function makePlan(level, owned) {
@@ -94,7 +102,7 @@ export function makePlan(level, owned) {
 export const portionsLeft = (r, stock) => Math.min(...Object.entries(r.ing).map(([id, q]) => Math.floor((stock[id] || 0) / q)));
 
 // A customer only orders what the pantry (and the kitchen equipment) can make.
-export function makeCustomerOrder(level, pantry, owned, plates = 99) {
+export function makeCustomerOrder(level, pantry, owned, plates = 99, special = null) {
   const stock = { ...pantry };
   const lines = [];
   let platesLeft = plates;
@@ -103,7 +111,8 @@ export function makeCustomerOrder(level, pantry, owned, plates = 99) {
   for (let i = 0; i < n; i++) {
     const can = platesLeft > 0 ? pool.filter((r) => !lines.some((l) => l.id === r.id) && portionsLeft(r, stock) > 0) : [];
     if (!can.length) break;
-    const r = can[rand(0, can.length - 1)];
+    const sp = i === 0 && special && can.find((r) => r.id === special);
+    const r = sp && Math.random() < 0.6 ? sp : can[rand(0, can.length - 1)];
     const qty = rand(1, Math.min(2, portionsLeft(r, stock), platesLeft));
     for (const [id, q] of Object.entries(r.ing)) stock[id] -= q * qty;
     platesLeft -= qty;
@@ -112,7 +121,7 @@ export function makeCustomerOrder(level, pantry, owned, plates = 99) {
   return lines;
 }
 
-export const dishTotal = (lines, owned) => lines.reduce((s, l) => s + l.qty * dishPrice(recipeById[l.id], owned), 0);
+export const dishTotal = (lines, owned, special) => lines.reduce((s, l) => s + l.qty * dishPrice(recipeById[l.id], owned, special), 0);
 
 // Equipment the restaurant can buy at the Appliance Shop. The first five come with the kitchen.
 export const EQUIPMENT = [
