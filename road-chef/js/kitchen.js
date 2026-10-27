@@ -1,4 +1,4 @@
-import { chefFull } from './art.js';
+import { chefFull, catSvg } from './art.js';
 
 // The restaurant kitchen: an illustrated room with stations. The chef walks between
 // stations as the recipe steps move on. New appliances (EQUIPMENT in data.js, saved in
@@ -27,8 +27,10 @@ const HIT = {
 const wood = (id, a, b) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
 
 function svg({ focus, fridgeOpen, hot, ovenHot, ovenOwned, proBlender, water, knife }) {
-  const glow = ovenHot ? '<ellipse cx="256" cy="168" rx="30" ry="26" fill="url(#kGlow)"/>' : '';
+  const glow = ovenHot ? '<ellipse class="kovenglow" cx="256" cy="168" rx="30" ry="26" fill="url(#kGlow)"/>' : '';
   const flames = hot ? [[228, 110], [256, 110], [284, 110]].map(([x, y]) => `<g class="kflame" transform="translate(${x} ${y})"><path d="M0 0 C-5 -7 -3 -13 0 -17 C3 -13 5 -7 0 0Z" fill="#ff9f43"/><path d="M0 0 C-2 -4 -1 -8 0 -10 C1 -8 2 -4 0 0Z" fill="#ffe066"/></g>`).join('') : '';
+  const steam = hot ? [[236, 82, 0], [262, 80, 0.5], [278, 86, 0.9]].map(([x, y, d]) => `<path class="ksteam" style="animation-delay:${d}s" d="M${x} ${y} q-5 -6 0 -11 q5 -5 0 -10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`).join('') : '';
+  const mist = fridgeOpen ? [[34, 170], [60, 150], [46, 188]].map(([x, y], i) => `<ellipse class="kmist" style="animation-delay:${i * 0.5}s" cx="${x}" cy="${y}" rx="20" ry="6" fill="#d9f0ff"/>`).join('') : '';
   const drops = water ? [0, 1, 2].map((i) => `<ellipse class="kdrop" style="animation-delay:${i * 0.25}s" cx="${342 + (i - 1) * 3}" cy="${112 + i}" rx="2.4" ry="4" fill="#6ec6ff"/>`).join('') : '';
   const focusBox = focus && HIT[focus] ? `<rect class="kfocus" x="${HIT[focus][0]}" y="${HIT[focus][1]}" width="${HIT[focus][2]}" height="${HIT[focus][3]}" rx="12"/><text class="karrow" x="${HIT[focus][0] + HIT[focus][2] / 2}" y="${HIT[focus][1] - 4}" text-anchor="middle" font-size="22">👇</text>` : '';
   const hits = Object.entries(HIT).map(([id, [x, y, w, h]]) => `<rect class="khit" data-act="k-station" data-v="${id}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"/>`).join('');
@@ -55,18 +57,18 @@ function svg({ focus, fridgeOpen, hot, ovenHot, ovenOwned, proBlender, water, kn
 
 <!-- window -->
 <g><rect x="104" y="26" width="92" height="76" rx="8" fill="#fff"/><rect x="110" y="32" width="80" height="64" rx="5" fill="url(#kGlass)"/>
-<circle cx="168" cy="52" r="11" fill="#ffe066"/><circle cx="168" cy="52" r="17" fill="#ffe066" opacity=".25"/>
-<ellipse cx="132" cy="60" rx="16" ry="7" fill="#fff" opacity=".9"/><ellipse cx="143" cy="55" rx="10" ry="6" fill="#fff" opacity=".9"/>
+<clipPath id="kWinClip"><rect x="110" y="32" width="80" height="64" rx="5"/></clipPath><g clip-path="url(#kWinClip)"><circle class="ksun" cx="168" cy="52" r="11" fill="#ffe066"/><circle class="ksun" cx="168" cy="52" r="17" fill="#ffe066" opacity=".25"/>
+<g class="kcloud"><ellipse cx="132" cy="60" rx="16" ry="7" fill="#fff" opacity=".9"/><ellipse cx="143" cy="55" rx="10" ry="6" fill="#fff" opacity=".9"/></g><g class="kcloud c2"><ellipse cx="116" cy="44" rx="10" ry="4" fill="#fff" opacity=".8"/></g></g>
 <path d="M150 32V96M110 64H190" stroke="#fff" stroke-width="4"/>
-<path d="M104 24 Q120 54 104 104 H96 V24Z" fill="#e8505b"/><path d="M196 24 Q180 54 196 104 H204 V24Z" fill="#e8505b"/>
+<path class="kcurt l" d="M104 24 Q120 54 104 104 H96 V24Z" fill="#e8505b"/><path class="kcurt r" d="M196 24 Q180 54 196 104 H204 V24Z" fill="#e8505b"/>
 <rect x="98" y="100" width="104" height="6" rx="3" fill="#a8742f"/>
 <g transform="translate(120 88)"><rect x="-8" y="-2" width="16" height="12" rx="3" fill="#c0546b"/><path d="M0 -2 C-8 -14 8 -14 0 -2" fill="#3fc96b"/><circle cx="-3" cy="-9" r="3" fill="#ff7aa8"/></g></g>
 <!-- clock -->
-<g transform="translate(334 34)"><circle r="17" fill="#fff" stroke="#a8742f" stroke-width="4"/><path d="M0 0V-10M0 0L7 4" stroke="#2b2d42" stroke-width="2.5" stroke-linecap="round"/><circle r="2" fill="#e8505b"/></g>
+<g transform="translate(334 34)"><circle r="17" fill="#fff" stroke="#a8742f" stroke-width="4"/><path d="M0 0L7 4" stroke="#2b2d42" stroke-width="2.5" stroke-linecap="round"/><path class="kmin" d="M0 0V-11" stroke="#2b2d42" stroke-width="2.2" stroke-linecap="round"/><path class="ksec" d="M0 2V-13" stroke="#e8505b" stroke-width="1" stroke-linecap="round"/><circle r="2" fill="#e8505b"/></g>
 <!-- shelf over sink -->
 <g><rect x="306" y="78" width="78" height="7" rx="3" fill="url(#kWood)"/><rect x="314" y="58" width="16" height="20" rx="4" fill="#ff9fb2"/><rect x="316" y="54" width="12" height="5" rx="2" fill="#fff"/><rect x="336" y="62" width="14" height="16" rx="4" fill="#9fd4ff"/><rect x="338" y="58" width="10" height="5" rx="2" fill="#fff"/><path d="M366 78 q-8 -18 0 -22 q8 4 0 22" fill="#3fc96b"/><path d="M366 78 q-14 -8 -10 -16 q10 2 10 16" fill="#2f9d4a"/><rect x="360" y="76" width="12" height="4" fill="#c0546b"/></g>
 <!-- hood and rail -->
-<g><path d="M222 22 H290 L300 62 H212 Z" fill="url(#kSteel)" stroke="#8c98a8" stroke-width="2"/><rect x="226" y="58" width="60" height="6" rx="3" fill="#ffe9a8"/>
+<g><path d="M222 22 H290 L300 62 H212 Z" fill="url(#kSteel)" stroke="#8c98a8" stroke-width="2"/><rect class="khood" x="226" y="58" width="60" height="6" rx="3" fill="#ffe9a8"/>
 <rect x="216" y="70" width="80" height="4" rx="2" fill="#8c98a8"/>
 <g stroke="#5a6070" stroke-width="2" fill="none"><path d="M226 74V82M246 74V84M266 74V80M284 74V82"/></g>
 <ellipse cx="226" cy="90" rx="6" ry="9" fill="#5a6070"/><rect x="224" y="78" width="4" height="8" fill="#5a6070"/>
@@ -122,6 +124,7 @@ ${ovenOwned ? `
 <g transform="rotate(-8 256 168)"><rect x="228" y="158" width="56" height="18" rx="3" fill="#e8505b"/><text x="256" y="171" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">OUT OF ORDER</text></g>`}
 </g>
 
+${steam}${mist}
 <!-- sink -->
 <g><rect x="302" y="140" width="82" height="66" fill="url(#kWood)"/><path d="M343 140V206" stroke="#8d5620" stroke-width="3"/>
 <rect x="310" y="150" width="30" height="48" rx="5" fill="url(#kWoodDark)" opacity=".55"/><rect x="346" y="150" width="30" height="48" rx="5" fill="url(#kWoodDark)" opacity=".55"/>
@@ -166,6 +169,7 @@ export function createKitchen() {
 <div class="kitchen">
   ${svg({ focus: state.focus, fridgeOpen: doing === 'fridge', hot, ovenHot, ovenOwned: owned.includes('oven'), proBlender: owned.includes('blender'), water: doing === 'sink', knife: doing === 'board' })}
   <div class="kchef ${a ? 'walking' : ''} ${doing ? 'working' : ''}" style="${style}"><span class="kshadow"></span><span class="kface">${chefFull()}</span></div>
+  <span class="kcatwrap">${catSvg()}</span>
   ${state.bubble ? `<div class="bubble kbubble">${state.bubble}</div>` : ''}
 </div>`;
     },

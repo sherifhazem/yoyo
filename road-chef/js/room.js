@@ -1,5 +1,5 @@
 import { sfx } from './sound.js';
-import { person, tableSvg, decorSvg } from './art.js';
+import { person, tableSvg, decorSvg, heartsSvg } from './art.js';
 
 // The dining room: a tile grid the child designs. Tables give seats (more customers per
 // shift), decorations add ambiance (bigger tips) and new tiles cost $10 each (area = cols × rows).
@@ -52,7 +52,7 @@ export function gridHtml(room, opts = {}) {
       let inner = '';
       if (it && it.seats) {
         inner = `<span class="tbl">${tableSvg(it.seats)}</span>`;
-        if (opts.sitAt === key) inner += `<span class="sitter ${opts.happy ? 'happy' : ''}">${person({ look: opts.face, mood: opts.happy ? 'happy' : 'smile', size: 34 })}</span>`;
+        if (opts.sitAt === key) inner += `<span class="sitter ${opts.happy ? 'happy' : ''}">${person({ look: opts.face, mood: opts.happy ? 'happy' : opts.talk ? 'talk' : 'smile', size: 34 })}${opts.happy ? heartsSvg() : ''}</span>`;
       } else if (it) {
         inner = `<span class="decor">${decorSvg(id, 46)}</span>`;
       } else if (!open) {

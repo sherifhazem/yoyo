@@ -73,6 +73,7 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - `js/art.js`: SVG characters (chef bust, full-body kitchen chef, cashier, 10 customer looks with hair/outfit/glasses/beard variants), top-down tables and chairs, decor (flowers, plant, lamp, fish tank) and wall pieces (window, frame, pendant lamps, register, bell). No image files.
 - Café room: wall with wainscot, window, hanging lamps, plank floor, counter with register and service bell; the chef stands behind the counter.
 - Kitchen chef walks with animated legs/arms; the cashier and the car driver use the same art.
+- Idle motion: blinking and breathing characters, talking mouths while ordering, hearts when paid, fish and bubbles in the tank, swaying plants/flowers, pulsing lamp, window clouds and sun, light beams with dust motes, steam over served dishes and hot pots, curtains, ticking clock, a kitchen cat, and birds plus sun rays on the home screen. `prefers-reduced-motion` turns it all off.
 
 ## Next
 - Multiple restaurants, staff, and daily specials.

@@ -36,9 +36,9 @@ function faceParts(skin, mood) {
   }[mood] || '';
   const brow = (x, flip) => `<path d="M${x - 6} ${flip ? 41 : 42} Q${x} ${flip ? 38 : 37} ${x + 6} ${flip ? 42 : 41}" fill="none" stroke="${ink}" stroke-width="2.2" stroke-linecap="round" opacity=".75"/>`;
   const eye = (x) => `<ellipse cx="${x}" cy="49" rx="3.6" ry="4.6" fill="${ink}"/><circle cx="${x + 1.2}" cy="47.3" r="1.5" fill="#fff"/><circle cx="${x - 1.2}" cy="50.6" r=".8" fill="#fff" opacity=".8"/>`;
-  return `${brow(38, 0)}${brow(62, 1)}${eye(38)}${eye(62)}
+  return `${brow(38, 0)}${brow(62, 1)}<g class="eyes">${eye(38)}${eye(62)}</g>
   <ellipse cx="31" cy="58" rx="5" ry="3.2" fill="#ff6b6b" opacity=".22"/><ellipse cx="69" cy="58" rx="5" ry="3.2" fill="#ff6b6b" opacity=".22"/>
-  <path d="M48 53 Q50 57 52 53" fill="none" stroke="${shade(skin, -0.3)}" stroke-width="1.8" stroke-linecap="round"/>${mouth}`;
+  <path d="M48 53 Q50 57 52 53" fill="none" stroke="${shade(skin, -0.3)}" stroke-width="1.8" stroke-linecap="round"/><g class="mouth ${mood}">${mouth}</g>`;
 }
 
 function hairBack(style, c) {
@@ -113,7 +113,7 @@ export function person(o = {}) {
   const hf = role === 'chef' ? '' : hairFront(look.hair, look.hc, id);
   const hb = role === 'chef' ? '' : hairBack(look.hair, look.hc);
   const size = o.size || 64;
-  return `<svg class="ppl ${o.cls || ''}" viewBox="0 0 100 122" width="${size}" height="${size * 1.22}" aria-hidden="true">
+  return `<svg class="ppl ${o.cls || ''}" style="--bd:${(-Math.random() * 5).toFixed(2)}s" viewBox="0 0 100 122" width="${size}" height="${size * 1.22}" aria-hidden="true">
 <defs>${hatDefs}${grad(`${id}s`, sk3, skin)}</defs>
 <ellipse cx="50" cy="119" rx="40" ry="3.5" fill="rgba(0,0,0,.14)"/>
 ${hb}
@@ -132,7 +132,7 @@ ${hf}${visor}${chefHat}
 export function chefFull() {
   const id = uid();
   const skin = SKINS[1];
-  return `<svg class="pfull" viewBox="0 0 80 124" width="40" height="62" aria-hidden="true">
+  return `<svg class="pfull" style="--bd:-1.3s" viewBox="0 0 80 124" width="40" height="62" aria-hidden="true">
 <defs>${grad(`${id}c`, '#ffffff', '#d3d9e6')}${grad(`${id}s`, shade(skin, 0.3), skin)}
 <radialGradient id="${id}hat" cx=".35" cy=".25" r=".9"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#c9d1e0" stop-opacity=".7"/></radialGradient></defs>
 <g class="pleg a"><rect x="25" y="86" width="13" height="28" rx="5" fill="#3b4256"/><path d="M21 112 H40 Q41 122 34 122 H22Z" fill="#2b2d42"/></g>
@@ -146,8 +146,8 @@ export function chefFull() {
 <g class="parm b"><rect x="58" y="52" width="13" height="30" rx="6" fill="url(#${id}c)" stroke="#c4ccdb" stroke-width="1.2"/><circle cx="64.5" cy="84" r="5.5" fill="${skin}"/></g>
 <rect x="34" y="36" width="12" height="10" rx="4" fill="${shade(skin, -0.12)}"/>
 <ellipse cx="40" cy="28" rx="15" ry="16" fill="url(#${id}s)"/>
-<ellipse cx="33" cy="29" rx="2.2" ry="2.8" fill="#2b2d42"/><ellipse cx="47" cy="29" rx="2.2" ry="2.8" fill="#2b2d42"/>
-<circle cx="33.8" cy="28" r=".9" fill="#fff"/><circle cx="47.8" cy="28" r=".9" fill="#fff"/>
+<g class="eyes"><ellipse cx="33" cy="29" rx="2.2" ry="2.8" fill="#2b2d42"/><ellipse cx="47" cy="29" rx="2.2" ry="2.8" fill="#2b2d42"/>
+<circle cx="33.8" cy="28" r=".9" fill="#fff"/><circle cx="47.8" cy="28" r=".9" fill="#fff"/></g>
 <path d="M30 35 Q35 33 40 36 Q45 33 50 35 Q46 40 40 37 Q34 40 30 35Z" fill="#4a2f1b"/>
 <path d="M34 40 Q40 44 46 40" fill="none" stroke="#9c3d3d" stroke-width="1.8" stroke-linecap="round"/>
 <ellipse cx="27" cy="34" rx="3" ry="2" fill="#ff6b6b" opacity=".22"/><ellipse cx="53" cy="34" rx="3" ry="2" fill="#ff6b6b" opacity=".22"/>
@@ -194,23 +194,23 @@ export function tableSvg(seats, size = 54) {
 const DECOR = {
   flowers: `<ellipse cx="24" cy="42" rx="12" ry="3" fill="rgba(0,0,0,.14)"/>
 <path d="M17 24 H31 L29 42 Q24 45 19 42Z" fill="url(#G)"/><path d="M17 24 H31" stroke="#fff" stroke-width="2" opacity=".5"/>
-<g stroke="#3a9b52" stroke-width="2" stroke-linecap="round" fill="none"><path d="M24 26 V12"/><path d="M21 26 L14 14"/><path d="M27 26 L34 14"/></g>
-<g><circle cx="24" cy="10" r="5.5" fill="#ff7aa8"/><circle cx="24" cy="10" r="2.2" fill="#ffe066"/><circle cx="13" cy="13" r="5" fill="#ffd23f"/><circle cx="13" cy="13" r="2" fill="#e8883a"/><circle cx="35" cy="13" r="5" fill="#a96bff"/><circle cx="35" cy="13" r="2" fill="#ffe066"/></g>`,
+<g class="sway"><g stroke="#3a9b52" stroke-width="2" stroke-linecap="round" fill="none"><path d="M24 26 V12"/><path d="M21 26 L14 14"/><path d="M27 26 L34 14"/></g>
+<g><circle cx="24" cy="10" r="5.5" fill="#ff7aa8"/><circle cx="24" cy="10" r="2.2" fill="#ffe066"/><circle cx="13" cy="13" r="5" fill="#ffd23f"/><circle cx="13" cy="13" r="2" fill="#e8883a"/><circle cx="35" cy="13" r="5" fill="#a96bff"/><circle cx="35" cy="13" r="2" fill="#ffe066"/></g></g>`,
   plant: `<ellipse cx="24" cy="43" rx="13" ry="3" fill="rgba(0,0,0,.14)"/>
-<path d="M24 30 Q10 28 8 12 Q22 12 24 30Z" fill="#3fc96b"/><path d="M24 30 Q38 28 40 12 Q26 12 24 30Z" fill="#2f9d4a"/><path d="M24 30 Q16 20 22 4 Q32 16 24 30Z" fill="#58de82"/>
-<path d="M24 30 V10 M24 28 L12 16 M24 28 L36 16" stroke="#1f7a37" stroke-width="1.1" fill="none" opacity=".6"/>
+<g class="sway"><path d="M24 30 Q10 28 8 12 Q22 12 24 30Z" fill="#3fc96b"/><path d="M24 30 Q38 28 40 12 Q26 12 24 30Z" fill="#2f9d4a"/><path d="M24 30 Q16 20 22 4 Q32 16 24 30Z" fill="#58de82"/>
+<path d="M24 30 V10 M24 28 L12 16 M24 28 L36 16" stroke="#1f7a37" stroke-width="1.1" fill="none" opacity=".6"/></g>
 <path d="M14 30 H34 L31 44 H17Z" fill="url(#G)"/><rect x="12" y="28" width="24" height="5" rx="2.5" fill="#e0733f"/>`,
   lamp: `<ellipse cx="24" cy="44" rx="10" ry="2.6" fill="rgba(0,0,0,.14)"/>
-<circle cx="24" cy="14" r="15" fill="url(#GL)"/>
+<circle class="glow" cx="24" cy="14" r="15" fill="url(#GL)"/>
 <rect x="22.4" y="22" width="3.2" height="20" rx="1.6" fill="#6b7385"/><ellipse cx="24" cy="42" rx="8" ry="2.6" fill="#4b5563"/>
 <path d="M14 22 L18 6 H30 L34 22Z" fill="url(#G)"/><path d="M18 6 H30" stroke="#fff" stroke-width="1.6" opacity=".5"/>`,
   tank: `<ellipse cx="24" cy="43" rx="19" ry="3" fill="rgba(0,0,0,.14)"/>
 <rect x="4" y="12" width="40" height="28" rx="5" fill="url(#G)" stroke="#e9eef4" stroke-width="3"/>
 <rect x="4" y="8" width="40" height="6" rx="3" fill="#aab6c4"/><rect x="4" y="38" width="40" height="5" rx="2.5" fill="#6f7a8a"/>
 <path d="M7 36 Q14 31 20 36 Q28 30 41 36 V38 H7Z" fill="#f0d49a"/><path d="M33 36 q-1 -8 2 -11 q3 4 1 11" fill="#2f9d4a"/><path d="M12 36 q-2 -6 1 -9 q2 3 0 9" fill="#3fc96b"/>
-<g><ellipse cx="22" cy="24" rx="5" ry="3.2" fill="#ff8a3d"/><path d="M26.5 24 L31 20.5 V27.5Z" fill="#ff8a3d"/><circle cx="19.5" cy="23.2" r=".9" fill="#2b2d42"/></g>
-<g><ellipse cx="34" cy="30" rx="3.4" ry="2.2" fill="#6ec6ff"/><path d="M31 30 L27.6 27.8 V32.2Z" fill="#6ec6ff"/></g>
-<g fill="none" stroke="#fff" stroke-width="1" opacity=".8"><circle cx="12" cy="30" r="1.6"/><circle cx="14" cy="24" r="1.2"/><circle cx="11" cy="19" r="1"/></g>
+<g class="fish f1"><ellipse cx="22" cy="24" rx="5" ry="3.2" fill="#ff8a3d"/><path d="M26.5 24 L31 20.5 V27.5Z" fill="#ff8a3d"/><circle cx="19.5" cy="23.2" r=".9" fill="#2b2d42"/></g>
+<g class="fish f2"><ellipse cx="34" cy="30" rx="3.4" ry="2.2" fill="#6ec6ff"/><path d="M31 30 L27.6 27.8 V32.2Z" fill="#6ec6ff"/></g>
+<g fill="none" stroke="#fff" stroke-width="1"><circle class="bub b1" cx="12" cy="34" r="1.6"/><circle class="bub b2" cx="14" cy="34" r="1.2"/><circle class="bub b3" cx="11" cy="34" r="1"/></g>
 <path d="M8 15 H14 L10 38 H8Z" fill="#fff" opacity=".25"/>`,
 };
 const DECOR_FILL = {
@@ -234,9 +234,9 @@ export function decorSvg(id, size = 44) {
 export function windowSvg() {
   const id = uid();
   return `<svg class="rwall win" viewBox="0 0 70 66" width="70" height="66" aria-hidden="true"><defs>${grad(`${id}s`, '#9fdcff', '#d9f3ff')}</defs>
-<rect x="4" y="2" width="62" height="54" rx="6" fill="#fff" stroke="#e3c28f" stroke-width="2"/><rect x="9" y="7" width="52" height="44" rx="3" fill="url(#${id}s)"/>
-<circle cx="48" cy="20" r="7" fill="#ffe066"/><ellipse cx="22" cy="26" rx="11" ry="4.5" fill="#fff"/><ellipse cx="30" cy="22" rx="7" ry="4" fill="#fff"/>
-<path d="M9 40 Q22 32 34 38 Q46 32 61 40 V51 H9Z" fill="#7fd48a"/><path d="M35 7V51M9 29H61" stroke="#fff" stroke-width="3"/>
+<rect x="4" y="2" width="62" height="54" rx="6" fill="#fff" stroke="#e3c28f" stroke-width="2"/><clipPath id="${id}k"><rect x="9" y="7" width="52" height="44" rx="3"/></clipPath><rect x="9" y="7" width="52" height="44" rx="3" fill="url(#${id}s)"/><g clip-path="url(#${id}k)">
+<circle class="wsun" cx="48" cy="20" r="7" fill="#ffe066"/><g class="wcloud"><ellipse cx="22" cy="26" rx="11" ry="4.5" fill="#fff"/><ellipse cx="30" cy="22" rx="7" ry="4" fill="#fff"/></g><g class="wcloud c2"><ellipse cx="4" cy="16" rx="8" ry="3.2" fill="#fff" opacity=".9"/></g>
+<path d="M9 40 Q22 32 34 38 Q46 32 61 40 V51 H9Z" fill="#7fd48a"/></g><path d="M35 7V51M9 29H61" stroke="#fff" stroke-width="3"/>
 <path d="M12 9 L30 30 L12 30Z" fill="#fff" opacity=".35"/><rect x="0" y="54" width="70" height="7" rx="3" fill="#c88a45"/>
 <g transform="translate(12 46)"><path d="M0 8 H10 L9 16 H1Z" fill="#e0733f"/><path d="M5 8 Q-1 0 5 -4 Q11 0 5 8" fill="#3fc96b"/></g></svg>`;
 }
@@ -258,11 +258,41 @@ export function pendantSvg(color = '#e8505b') {
 export function registerSvg() {
   return `<svg class="rwall reg" viewBox="0 0 54 44" width="48" height="39" aria-hidden="true">
 <rect x="4" y="22" width="46" height="20" rx="4" fill="#4b5563"/><rect x="4" y="22" width="46" height="6" rx="3" fill="#6b7385"/>
-<rect x="10" y="6" width="26" height="14" rx="3" fill="#2b2d42"/><rect x="12" y="8" width="22" height="9" rx="2" fill="#3fc96b"/><text x="23" y="15.5" font-size="7" font-weight="900" fill="#0d3b1e" text-anchor="middle">$ 0</text>
+<rect x="10" y="6" width="26" height="14" rx="3" fill="#2b2d42"/><rect x="12" y="8" width="22" height="9" rx="2" fill="#3fc96b"/><text class="rdisp" x="23" y="15.5" font-size="7" font-weight="900" fill="#0d3b1e" text-anchor="middle">$ 0</text>
 <g fill="#aab6c4"><rect x="10" y="30" width="6" height="4" rx="1"/><rect x="19" y="30" width="6" height="4" rx="1"/><rect x="28" y="30" width="6" height="4" rx="1"/></g><rect x="38" y="30" width="8" height="8" rx="2" fill="#ffd23f"/></svg>`;
 }
 
 /** Hot-dish steam / cloche for the counter tray is drawn via emoji; this is the bell. */
 export function bellSvg() {
   return `<svg class="rwall bell" viewBox="0 0 40 30" width="34" height="26" aria-hidden="true"><ellipse cx="20" cy="26" rx="16" ry="3" fill="#8c98a8"/><path d="M6 24 Q6 6 20 6 Q34 6 34 24Z" fill="#ffd23f"/><path d="M11 20 Q11 11 18 10" fill="none" stroke="#fff" stroke-width="2" opacity=".6" stroke-linecap="round"/><circle cx="20" cy="5" r="3" fill="#e8a600"/></svg>`;
+}
+
+/* ---------- life: steam, hearts, cat, birds ---------- */
+
+export function steamSvg() {
+  return `<svg class="steam" viewBox="0 0 60 40" width="60" height="40" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".85"><path class="w1" d="M18 38 q-6 -8 0 -14 q6 -6 0 -14"/><path class="w2" d="M30 38 q-6 -8 0 -14 q6 -6 0 -14"/><path class="w3" d="M42 38 q-6 -8 0 -14 q6 -6 0 -14"/></g></svg>`;
+}
+
+export function heartsSvg() {
+  const h = (x, d, c) => `<path class="ht" style="animation-delay:${d}s" transform="translate(${x} 30)" d="M0 4 C-8 -2 -4 -9 0 -5 C4 -9 8 -2 0 4Z" fill="${c}"/>`;
+  return `<svg class="hearts" viewBox="0 0 60 40" width="56" height="38" aria-hidden="true">${h(14, 0, '#ff5d7a')}${h(30, 0.4, '#ff8fa3')}${h(46, 0.8, '#ff5d7a')}</svg>`;
+}
+
+/** A sitting kitchen cat. Tail swishes, eyes blink (CSS). */
+export function catSvg() {
+  return `<svg class="kcat" viewBox="0 0 50 46" width="34" height="31" aria-hidden="true">
+<ellipse cx="25" cy="43" rx="19" ry="3" fill="rgba(0,0,0,.14)"/>
+<path class="tail" d="M38 40 Q52 38 48 22 Q46 16 42 18" fill="none" stroke="#e8883a" stroke-width="5" stroke-linecap="round"/>
+<path d="M10 42 Q8 24 20 20 H30 Q42 24 40 42Z" fill="#ff9f43"/><path d="M16 42 Q18 30 25 30 Q32 30 34 42Z" fill="#ffe0b8"/>
+<path d="M16 20 L14 6 L24 14Z M34 20 L36 6 L26 14Z" fill="#ff9f43"/><path d="M16.5 15 L16 9.5 L20.5 13Z M33.5 15 L34 9.5 L29.5 13Z" fill="#ffb3a8"/>
+<ellipse cx="25" cy="22" rx="13" ry="11" fill="#ff9f43"/>
+<path d="M19 13 V17 M25 11 V16 M31 13 V17" stroke="#e8883a" stroke-width="1.8" stroke-linecap="round"/>
+<g class="eyes"><ellipse cx="19.5" cy="22" rx="2" ry="2.6" fill="#2b2d42"/><ellipse cx="30.5" cy="22" rx="2" ry="2.6" fill="#2b2d42"/><circle cx="20.1" cy="21" r=".8" fill="#fff"/><circle cx="31.1" cy="21" r=".8" fill="#fff"/></g>
+<path d="M23.5 26 H26.5 L25 27.8Z" fill="#ff6b8a"/><path d="M25 27.8 Q22.5 30 20.5 28.5 M25 27.8 Q27.5 30 29.5 28.5" fill="none" stroke="#9c3d3d" stroke-width="1" stroke-linecap="round"/>
+<g stroke="#fff" stroke-width=".8" opacity=".7"><path d="M12 25 L5 24 M12 27 L5 28 M38 25 L45 24 M38 27 L45 28"/></g>
+</svg>`;
+}
+
+export function birdSvg() {
+  return `<svg class="bird" viewBox="0 0 30 16" width="30" height="16" aria-hidden="true"><path class="wing" d="M2 12 Q8 0 15 9 Q22 0 28 12 Q22 6 15 13 Q8 6 2 12Z" fill="#fff" opacity=".9"/></svg>`;
 }

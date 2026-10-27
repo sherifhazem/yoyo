@@ -1,4 +1,4 @@
-import { person, chefHeadGroup } from './art.js';
+import { person, chefHeadGroup, birdSvg } from './art.js';
 import { AISLES, ITEMS, BILLS, EQUIPMENT, SUPPLIES, START_SUPPLIES, byId, makePlan, orderCost, recipeById, saleFor, paidPacks, saving } from './data.js';
 import { createRestaurant } from './restaurant.js';
 import { newRoom } from './room.js';
@@ -77,7 +77,8 @@ const pad = (val) => `
 function sceneHtml(withCar = true) {
   return `
 <div class="scene">
-  <div class="sun"></div>
+  <div class="sun"><i class="rays1"></i></div>
+  <span class="birdwrap bw1">${birdSvg()}</span><span class="birdwrap bw2">${birdSvg()}</span>
   <div class="cloud c1">☁️</div><div class="cloud c2">☁️</div><div class="cloud c3">☁️</div>
   <div class="layer hills"></div>
   <div class="layer town"></div>

@@ -457,3 +457,82 @@ button.bill:active { transform: translateY(4px); }
 .greward { color: #2b9a4a; }
 .gdone { font-size: 22px; }
 .banner { background: #fff6cc; border: 2px solid #ffd23f; border-radius: 14px; padding: 8px 12px; font-weight: 800; text-align: center; }
+
+/* ---------- life: idle motion (phase 1b) ---------- */
+/* characters */
+.eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.6s infinite; animation-delay: var(--bd, 0s); }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+.mouth.talk { transform-box: fill-box; transform-origin: center; animation: talk .36s ease-in-out infinite; }
+@keyframes talk { 50% { transform: scaleY(.45) scaleX(1.08); } }
+.sitter .ppl { transform-origin: 50% 100%; animation: sway2 3.6s ease-in-out infinite; animation-delay: var(--bd, 0s); }
+@keyframes sway2 { 0%, 100% { transform: rotate(-1.6deg) translateY(0); } 50% { transform: rotate(1.6deg) translateY(-1.5px); } }
+.chef.busy { animation: none; }
+.chef.busy .ppl { animation: chop .28s ease-in-out infinite; }
+@keyframes chop { 50% { transform: rotate(-5deg) translateY(-3px); } }
+.hearts { animation: none; position: absolute; top: -22px; left: 50%; margin-left: -28px; width: 56px; height: 38px; pointer-events: none; overflow: visible; }
+.ht { animation: heartup 1.3s ease-out infinite; transform-box: fill-box; opacity: 0; }
+@keyframes heartup { 0% { opacity: 0; transform: translate(0, 4px) scale(.5); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(0, -22px) scale(1.2); } }
+/* decor */
+.sway { transform-box: fill-box; transform-origin: 50% 100%; animation: swaybit 3.2s ease-in-out infinite; }
+@keyframes swaybit { 50% { transform: rotate(4deg); } 0%, 100% { transform: rotate(-4deg); } }
+.glow { animation: glowp 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes glowp { 50% { opacity: .55; transform: scale(1.15); } }
+.fish { animation: swim 6s ease-in-out infinite alternate; }
+.fish.f2 { animation-duration: 8s; animation-direction: alternate-reverse; }
+@keyframes swim { from { transform: translateX(-8px); } to { transform: translateX(10px); } }
+.bub { animation: bubup 2.8s ease-in infinite; }
+.bub.b2 { animation-delay: .9s; } .bub.b3 { animation-delay: 1.8s; }
+@keyframes bubup { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-16px); opacity: 0; } }
+/* café wall */
+.wcloud { animation: wdrift 22s linear infinite; }
+.wcloud.c2 { animation-duration: 34s; animation-delay: -12s; }
+@keyframes wdrift { from { transform: translateX(-30px); } to { transform: translateX(80px); } }
+.wsun { animation: pulse 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.rdisp { animation: blinkd 2s steps(1) infinite; }
+@keyframes blinkd { 50% { opacity: .35; } }
+.cbell.ring .bell { animation: ring .5s ease-in-out 3; transform-origin: 50% 100%; }
+@keyframes ring { 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+.rays { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; border-radius: 22px; }
+.rays i { position: absolute; top: 40px; left: 20px; width: 46px; height: 260px; background: linear-gradient(rgba(255,244,190,.55), rgba(255,244,190,0)); transform: skewX(-24deg); transform-origin: 0 0; animation: beam 5s ease-in-out infinite; }
+.rays i:nth-child(2) { left: 52px; width: 22px; animation-delay: -2.4s; }
+@keyframes beam { 50% { opacity: .45; } }
+.rays b { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.85); animation: mote 7s ease-in-out infinite; }
+.rays b:nth-of-type(1) { left: 44px; top: 110px; } .rays b:nth-of-type(2) { left: 70px; top: 150px; animation-delay: -2s; }
+.rays b:nth-of-type(3) { left: 96px; top: 190px; animation-delay: -4s; } .rays b:nth-of-type(4) { left: 30px; top: 170px; animation-delay: -5.5s; }
+@keyframes mote { 0%, 100% { transform: translate(0, 0); opacity: 0; } 30% { opacity: 1; } 60% { transform: translate(14px, -16px); opacity: .8; } }
+.trayrow .steam { position: absolute; left: 50%; margin-left: -30px; bottom: 28px; width: 60px; height: 40px; pointer-events: none; }
+.steam path { animation: steamup 2s ease-out infinite; transform-box: fill-box; }
+.steam .w2 { animation-delay: .6s; } .steam .w3 { animation-delay: 1.2s; }
+@keyframes steamup { 0% { opacity: 0; transform: translateY(8px); } 30% { opacity: .9; } 100% { opacity: 0; transform: translateY(-12px); } }
+/* kitchen */
+.kcloud { animation: kdriftc 24s linear infinite; }
+.kcloud.c2 { animation-duration: 38s; animation-delay: -14s; }
+@keyframes kdriftc { from { transform: translateX(-30px); } to { transform: translateX(90px); } }
+.ksun { animation: pulse 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.kcurt { transform-box: fill-box; animation: curt 5s ease-in-out infinite; }
+.kcurt.l { transform-origin: 0 0; } .kcurt.r { transform-origin: 100% 0; animation-delay: -2.5s; }
+@keyframes curt { 50% { transform: skewX(3deg); } }
+.ksec { animation: tick 20s linear infinite; }
+.kmin { animation: tick 240s linear infinite; }
+@keyframes tick { to { transform: rotate(360deg); } }
+.khood { animation: hoodl 3s ease-in-out infinite; }
+@keyframes hoodl { 50% { opacity: .65; } }
+.ksteam { animation: steamup 1.6s ease-out infinite; transform-box: fill-box; opacity: 0; }
+.kmist { animation: mistd 2.4s ease-in-out infinite; opacity: 0; transform-box: fill-box; }
+@keyframes mistd { 0% { opacity: 0; transform: translate(0, -6px); } 40% { opacity: .65; } 100% { opacity: 0; transform: translate(-10px, 16px); } }
+.kovenglow { animation: flick .5s ease-in-out infinite alternate; }
+@keyframes flick { from { opacity: .7; } to { opacity: 1; } }
+.kchef:not(.walking) .kface { animation: kbreath 2.6s ease-in-out infinite; }
+.kchef.working:not(.walking) .kface { animation: kwork .5s ease-in-out infinite; }
+@keyframes kbreath { 50% { transform: translateY(-1.5px) scaleY(1.02); } }
+.kcatwrap { position: absolute; left: 58%; top: 87%; line-height: 0; z-index: 2; pointer-events: none; }
+.kcat .tail { transform-box: fill-box; transform-origin: 0 100%; animation: tailsw 2.2s ease-in-out infinite; }
+@keyframes tailsw { 50% { transform: rotate(18deg); } }
+/* home */
+.sun { overflow: visible; }
+.sun .rays1 { position: absolute; inset: -34px; border-radius: 50%; background: repeating-conic-gradient(rgba(255,230,120,.5) 0 8deg, transparent 8deg 24deg); -webkit-mask: radial-gradient(circle, transparent 36px, #000 38px, transparent 66px); mask: radial-gradient(circle, transparent 36px, #000 38px, transparent 66px); animation: spin 24s linear infinite; }
+.birdwrap { position: absolute; top: 110px; left: -40px; animation: fly 16s linear infinite; z-index: 1; }
+.birdwrap.bw2 { top: 78px; animation-duration: 22s; animation-delay: -9s; transform: scale(.75); }
+.bird .wing { animation: flap .45s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes flap { 50% { transform: scaleY(.35); } }
+@keyframes fly { from { translate: 0 0; } 50% { translate: 240px -14px; } to { translate: 480px 0; } }

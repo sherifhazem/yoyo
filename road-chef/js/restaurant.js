@@ -4,7 +4,7 @@ import { createCooking } from './cooking.js';
 import { createKitchen } from './kitchen.js';
 import { createRoomDesigner, gridHtml, roomStats } from './room.js';
 import { record, levelCard } from './goals.js';
-import { person, randomLook, windowSvg, frameSvg, pendantSvg, registerSvg, bellSvg } from './art.js';
+import { person, randomLook, windowSvg, frameSvg, pendantSvg, registerSvg, bellSvg, steamSvg } from './art.js';
 import { billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 
 /**
@@ -52,13 +52,14 @@ export function createRestaurant(host) {
   };
 
   const scene = (bubble) => `
-<div class="rscene room">
+<div class="rscene room ${r.step}">
+  <div class="rays"><i></i><i></i><b></b><b></b><b></b><b></b></div>
   <div class="rtop">${windowSvg()}${pendantSvg()}<div class="rsign ${owned().includes('sign') ? 'neon' : ''}">Chef's Café</div>${pendantSvg('#3a8dff')}${frameSvg()}</div>
   <div class="rbwrap">${bubble ? `<div class="bubble rb">${bubble}</div>` : ''}</div>
-  <div class="rfloor">${gridHtml(S.room, { sitAt: r.cust ? r.seatKey : null, face: r.cust && r.cust.face, happy: r.step === 'paid' })}</div>
-  <div class="counter"><span class="creg">${registerSvg()}</span><span class="cbell">${bellSvg()}</span></div>
-  <div class="trayrow">${r.tray.map((e) => `<span>${e}</span>`).join('')}</div>
-  <div class="chef ${r.step === 'cook' && r.phase === 'make' ? 'busy' : ''}">${person({ role: 'chef', mood: r.step === 'paid' ? 'happy' : 'smile', size: 60 })}</div>
+  <div class="rfloor">${gridHtml(S.room, { sitAt: r.cust ? r.seatKey : null, face: r.cust && r.cust.face, happy: r.step === 'paid', talk: ['order', 'bill', 'change'].includes(r.step) })}</div>
+  <div class="counter"><span class="creg">${registerSvg()}</span><span class="cbell ${r.step === 'order' ? 'ring' : ''}">${bellSvg()}</span></div>
+  <div class="trayrow">${r.tray.length ? steamSvg() : ''}${r.tray.map((e) => `<span>${e}</span>`).join('')}</div>
+  <div class="chef ${r.step === 'cook' && r.phase === 'make' ? 'busy' : ''}">${person({ role: 'chef', mood: r.step === 'paid' || r.step === 'serve' ? 'happy' : 'smile', size: 60 })}</div>
 </div>`;
 
   const bill = (v) => `<i class="bill b${v}">${fmt(v)}</i>`;
