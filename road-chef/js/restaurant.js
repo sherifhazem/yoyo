@@ -1,4 +1,4 @@
-import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal, dishPrice, available, portionsLeft } from './data.js';
+import { RECIPES, CUSTOMER_BILLS, NEEDS_LABEL, SOUS_WAGE, stationFor, quickDish, byId, recipeById, makeCustomerOrder, dishTotal, dishPrice, available, portionsLeft } from './data.js';
 import { sfx } from './sound.js';
 import { createCooking } from './cooking.js';
 import { createKitchen } from './kitchen.js';
@@ -23,7 +23,7 @@ export function createRestaurant(host) {
   const level = () => Math.min(1 + Math.floor(S.served / 4), 6);
   const pantryTotal = () => Object.values(S.pantry).reduce((a, b) => a + b, 0);
   const owned = () => S.kitchen.owned;
-  const perShift = () => roomStats(S.room).customers;
+  const perShift = () => roomStats(S.room, S.kitchen.owned).customers;
   const platesOk = () => (S.supplies.plate || 0) > 0;
   const canCook = () => platesOk() && available(owned()).some((d) => portionsLeft(d, S.pantry) > 0);
   const lines = () => r.cust.order;
@@ -62,6 +62,13 @@ export function createRestaurant(host) {
   <div class="chef ${r.step === 'cook' && r.phase === 'make' ? 'busy' : ''}">${person({ role: 'chef', mood: r.step === 'paid' || r.step === 'serve' ? 'happy' : 'smile', size: 60 })}</div>
 </div>`;
 
+  // What the order needs, against the pantry (the child checks stock before sending it).
+  const needsHtml = () => {
+    const need = {};
+    for (const l of lines()) for (const [id, q] of Object.entries(recipeById[l.id].ing)) need[id] = (need[id] || 0) + q * l.qty;
+    return `<div class="card needs"><b>📦 Ingredients</b><div class="needrow">${Object.entries(need).map(([id, q]) => `<span class="pchip">${byId[id].emoji}<b>${q}</b><i>/ ${S.pantry[id] || 0}</i></span>`).join('')}</div></div>`;
+  };
+
   const bill = (v) => `<i class="bill b${v}">${fmt(v)}</i>`;
 
   /* ---------- steps ---------- */
@@ -77,22 +84,23 @@ export function createRestaurant(host) {
         body = `<div class="card center">${platesOk() ? "<h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p>" : '<h3>No clean plates! 🍽️</h3><p>Drive to the Supply Store and stock up on plates.</p>'}<button class="btn big" data-act="map">Go shopping 🚗</button></div><button class="btn alt" data-act="room-open">🏗️ Design your café</button>`;
       } else {
         body = `<button class="btn big" data-act="r-open">Open the door 🚪</button>
-        <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room).customers} customers/shift)</small></button>
-        <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${lock ? ` <small>🔒 needs ${d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned()))}</b></li>`; }).join('')}</ul></div>`;
+        <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room, S.kitchen.owned).customers} customers/shift)</small></button>
+        <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${lock ? ` <small>🔒 ${NEEDS_LABEL[d.needs] || d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned()))}</b></li>`; }).join('')}</ul></div>`;
       }
     } else if (r.step === 'order') {
       bubble = `Hello! I'd like<br>${lines().map((l) => `${recipeById[l.id].emoji} ${recipeById[l.id].name} × ${l.qty}`).join('<br>')}`;
-      body = `<button class="btn big" data-act="r-cook">Start cooking 👨‍🍳</button>`;
+      body = `${needsHtml()}<button class="btn big" data-act="r-send">Send to kitchen 👨‍🍳</button><button class="btn alt" data-act="r-cook">Cook it myself <small>(chop + cook, +$1 tip for a clean job)</small></button>`;
+    } else if (r.step === 'making') {
+      const m = r.making;
+      bubble = m.stages[m.i].msg;
+      kitchen = KT.scene({ at: m.stages[m.i].at, doing: true, making: true, owned: owned(), tray: r.tray });
+      body = `<div class="card center"><div class="gbar"><i style="width:${Math.round(((m.i + 1) / m.stages.length) * 100)}%"></i></div><small>The chef is on it — ${m.stages[m.i].label}</small></div>`;
     } else if (r.step === 'cook') {
       const make = r.phase === 'make';
-      const doing = make ? (K.entered() ? K.station() : null) : (r.gatherIn ? 'fridge' : null);
-      const focus = make ? (K.entered() ? null : K.station()) : (r.gatherIn ? null : 'fridge');
-      bubble = make ? K.bubble() : r.gatherIn ? 'Get the ingredients from the fridge! 🧊' : 'Next stop: the fridge! 👆';
-      kitchen = KT.scene({ focus, doing, stepType: make ? K.stepType() : null, bubble, owned: owned() });
+      bubble = make ? K.bubble() : 'Pick the ingredients for the chef 🧊';
+      kitchen = KT.scene({ at: make ? K.station() : 'fridge', doing: make ? K.entered() : true, stepType: make ? K.stepType() : null, bubble, owned: owned(), tray: r.tray });
       const ticket = ticketHtml();
-      if (make) body = `${ticket}${K.html()}`;
-      else if (r.gatherIn) body = `${ticket}${cookBody()}`;
-      else body = `${ticket}<div class="card mg center"><div class="gobig">🧊</div><h3>Go to the fridge</h3><small>Tap the glowing spot in the kitchen</small><button class="btn big" data-act="r-fridge">Go! 🏃</button></div>`;
+      body = make ? `${ticket}${K.html()}` : `${ticket}${cookBody()}`;
     } else if (r.step === 'serve') {
       bubble = 'Yum, that smells great! 😋';
       body = `<button class="btn big" data-act="r-serve">Serve & bill 🧾</button>`;
@@ -107,14 +115,14 @@ export function createRestaurant(host) {
       body = `<div class="card center"><h3>+${fmt(r.cust.earned)} 🎉</h3><div class="stars small">${[1, 2, 3].map((n) => `<span class="${n <= r.cust.stars ? 'on' : ''}">⭐</span>`).join('')}</div>${r.cust.cookTip ? '<p>👨‍🍳 Great cooking! +$1</p>' : ''}${r.cust.signTip ? '<p>✨ Neon sign tip! +$1</p>' : ''}${r.cust.ambTip ? `<p>🌿 Cozy café tip! +$${r.cust.ambTip}</p>` : ''}${r.cust.napkinTip ? '<p>🧻 Napkin service! +$1</p>' : ''}${r.cust.stars >= 2 ? '<p>🧮 Accurate bill! +$1</p>' : ''}</div>
       <button class="btn big" data-act="r-next">${r.served >= perShift() || !canCook() ? 'Close shop 🔒' : 'Next customer ➡️'}</button>`;
     }
-    $app.innerHTML = `<section class="screen rest">${topbar("Chef's Café")}${kitchen || scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
+    $app.innerHTML = `<section class="screen rest ${r.step === 'making' ? 'still' : ''}">${topbar("Chef's Café")}${kitchen || scene(bubble)}${r.step === 'cook' ? '' : pantryChips()}${body}</section>`;
     if (r.step === 'cook' && r.phase === 'make') K.afterRender();
   }
 
   function ticketHtml() {
     const d = recipeById[r.portions[r.pi]];
     const gather = { icon: '🧊', state: r.phase === 'gather' ? 'now' : 'done' };
-    const steps = r.phase === 'gather' ? d.steps.map((sp) => ({ icon: sp.t === 'chop' ? '🔪' : sp.t === 'tap' ? sp.emoji : sp.t === 'pour' ? sp.liquid : sp.t === 'heat' ? '🔥' : '🔄', state: '' })) : K.ticket();
+    const steps = r.phase === 'gather' ? quickDish(d).steps.map((sp) => ({ icon: sp.t === 'chop' ? '🔪' : sp.t === 'tap' ? sp.emoji : sp.t === 'pour' ? sp.liquid : sp.t === 'heat' ? '🔥' : '🔄', state: '' })) : K.ticket();
     return `<div class="ticket"><span class="tname">${d.emoji} <b>${d.name}</b> <small>${r.pi + 1}/${r.portions.length}</small></span><span class="tsteps">${[gather, ...steps].map((s) => `<i class="${s.state}">${s.icon}</i>`).join('')}</span></div>`;
   }
 
@@ -134,7 +142,14 @@ export function createRestaurant(host) {
   }
 
   function summary() {
-    const profit = r.sales - r.cost;
+    if (owned().includes('sous') && !r.wagePaid) {
+      r.wage = Math.min(SOUS_WAGE, S.money);
+      S.money -= r.wage;
+      r.wagePaid = true;
+      save();
+    }
+    const wage = r.wage || 0;
+    const profit = r.sales - r.cost - wage;
     $app.innerHTML = `
 <section class="screen done">
   <div class="trophy">🍽️</div>
@@ -143,9 +158,10 @@ export function createRestaurant(host) {
     <div class="rrow"><span>👥 Customers</span><b>${r.served}</b></div>
     <div class="rrow"><span>💵 Sales</span><b>${fmt(r.sales)}</b></div>
     <div class="rrow"><span>🥕 Ingredients used</span><b>− ${fmt(r.cost)}</b></div>
+    ${wage ? `<div class="rrow"><span>🧑‍🍳 Sous chef wage</span><b>− ${fmt(wage)}</b></div>` : ''}
     <hr><div class="rrow big"><span>Profit</span><b class="${profit < 0 ? 'neg' : ''}">${fmt(profit)}</b></div>
   </div>
-  <small class="cap">Profit = Sales − Ingredients</small>
+  <small class="cap">Profit = Sales − Ingredients${wage ? ' − Wages' : ''}</small>
   ${r.leveled.map((l) => `<div class="banner">${l.icon} Level up! You are now a <b>${l.name}</b>! +${fmt(l.bonus)}</div>`).join('')}
   ${levelCard(S)}
   ${canCook() ? '' : `<small class="cap">${platesOk() ? 'You ran out of ingredients — time to shop! 🛒' : 'You ran out of plates — visit the Supply Store! 🛒'}</small>`}
@@ -195,7 +211,7 @@ export function createRestaurant(host) {
 
   function pay() {
     const t = total();
-    r.cust.cookTip = r.cust.cookMistakes <= 1 ? 1 : 0;
+    r.cust.cookTip = !r.cust.auto && r.cust.cookMistakes <= 1 ? 1 : 0;
     r.cust.signTip = owned().includes('sign') ? 1 : 0;
     r.cust.ambTip = roomStats(S.room).tip;
     r.cust.napkinTip = r.cust.napkin ? 1 : 0;
@@ -224,7 +240,6 @@ export function createRestaurant(host) {
     r.pi += 1;
     r.added = {};
     r.phase = 'gather';
-    r.gatherIn = false;
     save();
     if (r.pi >= r.portions.length) r.step = 'serve';
     render();
@@ -235,14 +250,6 @@ export function createRestaurant(host) {
     ...RD.acts,
     'room-open': () => { getUi().screen = 'r-room'; RD.acts['room-open'](); },
     restaurant: open,
-    'r-fridge': () => { KT.walkTo('fridge'); r.gatherIn = true; render(); },
-    'k-station': (st) => {
-      if (r.step !== 'cook') return;
-      const need = r.phase === 'make' ? (K.entered() ? null : K.station()) : (r.gatherIn ? null : 'fridge');
-      if (!need || st !== need) { sfx.bad(); shake('.kitchen'); return; }
-      if (r.phase === 'make') K.enter();
-      else acts['r-fridge']();
-    },
     'r-new': () => { r = newShift(); render(); },
     'r-open': () => {
       const order = makeCustomerOrder(level(), S.pantry, owned(), S.supplies.plate || 0);
@@ -259,13 +266,48 @@ export function createRestaurant(host) {
       sfx.bell();
       render();
     },
+    // The chef cooks by himself: the pantry is used up and the dish goes to the tray.
+    'r-send': () => {
+      r.portions = lines().flatMap((l) => Array(l.qty).fill(l.id));
+      for (const p of r.portions) for (const [id, q] of Object.entries(recipeById[p].ing)) { S.pantry[id] -= q; r.cost += byId[id].price * q; }
+      save();
+      r.cust.auto = true;
+      const cook = { stove: { at: 'stove', msg: 'Cooking on the stove… 🔥', label: 'cooking' }, oven: { at: 'oven', msg: 'Baking in the oven… ♨️', label: 'baking' }, bakery: { at: 'bakery', msg: 'Baking in the bakery… 🥐', label: 'baking' }, drinks: { at: 'drinks', msg: 'Mixing drinks at the bar… 🧃', label: 'mixing drinks' } };
+      const used = ['stove', 'oven', 'bakery', 'drinks'].filter((st) => r.portions.some((p) => stationFor(recipeById[p]) === st));
+      r.making = { i: 0, stages: [
+        { at: 'fridge', msg: 'Chef is fetching the ingredients 🧊', label: 'fetching ingredients' },
+        { at: 'board', msg: 'Chopping and mixing… 🔪', label: 'chopping' },
+        ...used.map((st) => cook[st]),
+        { at: 'pass', msg: 'Plating up! 🍽️', label: 'plating' },
+      ] };
+      r.step = 'making';
+      KT.walkTo('fridge');
+      render();
+      const tick = () => {
+        timer = setTimeout(() => {
+          r.making.i += 1;
+          if (r.making.i >= r.making.stages.length) {
+            r.tray = r.portions.map((p) => recipeById[p].emoji);
+            r.step = 'serve';
+            sfx.bell();
+            render();
+            return;
+          }
+          sfx.pop();
+          KT.walkTo(r.making.stages[r.making.i].at);
+          render();
+          tick();
+        }, owned().includes('sous') ? 520 : 900);
+      };
+      tick();
+    },
     'r-cook': () => {
       r.portions = lines().flatMap((l) => Array(l.qty).fill(l.id));
       r.pi = 0;
       r.added = {};
       r.phase = 'gather';
-      r.gatherIn = false;
       r.step = 'cook';
+      KT.walkTo('fridge');
       render();
     },
     'r-add': (id) => {
@@ -284,7 +326,7 @@ export function createRestaurant(host) {
       if (!done) { render(); return; }
       save();
       r.phase = 'make';
-      K.begin(d, { rerender: render, onDone: portionDone, onEnter: (st) => KT.walkTo(st), owned: owned() });
+      K.begin(quickDish(d), { rerender: render, onDone: portionDone, onEnter: (st) => KT.walkTo(st), owned: owned(), auto: true });
     },
     'r-serve': () => {
       S.supplies.plate = Math.max(0, (S.supplies.plate || 0) - r.portions.length);

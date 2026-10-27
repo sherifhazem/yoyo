@@ -64,7 +64,30 @@ export const RECIPES = [
     steps: [tap('🥚', 'Crack the eggs!', 2), { t: 'pour', liquid: '🥛', name: 'milk', target: 2, color: '#fffdf5' }, tap('🥄', 'Mix the batter!', 10), OVEN(180, 5), PULL('🎂')] },
   { id: 'steak', name: 'Steak Dinner', emoji: '🍽️', ing: { steak: 1, broccoli: 1 }, price: 18,
     steps: [chop('broccoli', 3, 'pan'), { t: 'heat', what: 'grill', target: 220, secs: 3 }, { t: 'flip', food: '🥩' }, { t: 'flip', food: '🥩' }] },
+  // Drinks bar section
+  { id: 'oj', name: 'Orange Juice', emoji: '🧃', ing: { orange: 2 }, price: 9, needs: 'drinks',
+    steps: [chop('orange', 4, 'blender'), tap('🍊', 'Squeeze the juice!', 8), { t: 'pour', liquid: '🧃', name: 'juice', target: 2, color: '#ffb347' }] },
+  { id: 'cocoa', name: 'Hot Chocolate', emoji: '☕', ing: { milk: 1, sugar: 1 }, price: 9, needs: 'drinks',
+    steps: [{ t: 'pour', liquid: '🥛', name: 'milk', target: 3, color: '#fffdf5' }, tap('🥄', 'Stir in the cocoa!', 6), { t: 'heat', what: 'pot', target: 100, secs: 3 }] },
+  { id: 'smoothie', name: 'Fruit Smoothie', emoji: '🍹', ing: { apple: 1, banana: 1, milk: 1 }, price: 12, needs: 'drinks',
+    steps: [chop('banana', 3, 'blender'), chop('apple', 4, 'blender'), { t: 'pour', liquid: '🥛', name: 'milk', target: 2, color: '#fffdf5' }, { ...tap('🌀', 'Blend it!', 10), pro: 5 }] },
+  // Bakery section (needs the oven too)
+  { id: 'croissant', name: 'Croissant', emoji: '🥐', ing: { flour: 1, butter: 2 }, price: 14, needs: 'bakery',
+    steps: [tap('🌾', 'Knead the dough!', 8), chop('butter', 3, 'bowl'), OVEN(190, 4), PULL('🥐')] },
+  { id: 'muffin', name: 'Berry Muffin', emoji: '🧁', ing: { flour: 1, egg: 1, sugar: 1, berry: 1 }, price: 15, needs: 'bakery',
+    steps: [tap('🥚', 'Crack the egg!', 1), chop('berry', 3, 'bowl'), tap('🥄', 'Mix the batter!', 8), OVEN(180, 4), PULL('🧁')] },
+  { id: 'donut', name: 'Donut', emoji: '🍩', ing: { flour: 1, sugar: 1, egg: 1 }, price: 10, needs: 'bakery',
+    steps: [tap('🌾', 'Knead the dough!', 8), { t: 'heat', what: 'fryer', target: 180, secs: 3 }, { t: 'flip', food: '🍩' }] },
 ];
+// Hands-on mode keeps it short: one chopping step, then one cooking step.
+export function quickDish(r) {
+  const cook = r.steps.find((s) => s.t === 'heat') || r.steps.find((s) => s.t === 'flip') || r.steps[r.steps.length - 1];
+  const cut = r.steps.find((s) => s.t === 'chop') || r.steps.find((s) => s !== cook);
+  return { ...r, steps: [cut, cook].filter((s, i, a) => s && a.indexOf(s) === i) };
+}
+export const NEEDS_LABEL = { oven: 'Oven', bakery: 'Bakery section', drinks: 'Drinks bar' };
+// Which part of the kitchen a dish is made in.
+export const stationFor = (r) => (r.needs === 'bakery' || r.needs === 'drinks' || r.needs === 'oven' ? r.needs : 'stove');
 export const recipeById = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 export const recipeCost = (r) => Object.entries(r.ing).reduce((s, [id, q]) => s + q * byId[id].price, 0);
 
@@ -124,7 +147,11 @@ export const EQUIPMENT = [
   { id: 'blender', name: 'Pro blender', emoji: '🥤', price: 35, benefit: 'Shakes need half the blending and sell for $2 more.' },
   { id: 'sign', name: 'Neon sign', emoji: '✨', price: 40, benefit: 'Every customer leaves a $1 tip.' },
   { id: 'oven', name: 'Oven', emoji: '♨️', price: 60, benefit: 'Unlocks 4 baked dishes: pizza, bread, cookies and cake.' },
+  { id: 'drinks', name: 'Drinks bar', emoji: '🧃', price: 45, benefit: 'A new kitchen section: Orange Juice, Hot Chocolate and Fruit Smoothie.' },
+  { id: 'bakery', name: 'Bakery section', emoji: '🥐', price: 85, requires: 'oven', benefit: 'A new section (needs the oven): Croissant, Berry Muffin and Donut.' },
+  { id: 'sous', name: 'Sous chef', emoji: '🧑‍🍳', price: 40, benefit: 'A helper chef: orders are ready faster and you serve +2 customers per shift. Wage: $4 per shift.' },
 ];
+export const SOUS_WAGE = 4;
 export const BASE_EQUIPMENT = ['fridge', 'stove', 'board', 'counter', 'sink'];
 
 // Supplies the café uses up while serving: a plate per dish and a napkin per customer

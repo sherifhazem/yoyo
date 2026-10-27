@@ -536,3 +536,20 @@ button.bill:active { transform: translateY(4px); }
 .bird .wing { animation: flap .45s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
 @keyframes flap { 50% { transform: scaleY(.35); } }
 @keyframes fly { from { translate: 0 0; } 50% { translate: 240px -14px; } to { translate: 480px 0; } }
+
+/* ---------- top-down kitchen + owner mode ---------- */
+.kitchen.top { aspect-ratio: 390 / 230; }
+.kitchen.top .kchef .kface { filter: drop-shadow(0 3px 0 rgba(0,0,0,.12)); }
+.kitchen.top .kchef { transform: translate(-50%, -50%); }
+.kitchen.top .kchef.walking .ctop { animation: kstep .25s ease-in-out infinite; }
+.kitchen.top .kchef.working .carm.l { animation: stirL .35s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 0; }
+.kitchen.top .kchef.working .carm.r { animation: stirL .35s ease-in-out infinite reverse; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes stirL { 50% { transform: translateY(-4px) rotate(10deg); } }
+.kitchen.top .kbubble { top: auto; bottom: 8px; left: auto; right: 8px; transform: none; width: 60%; font-size: 14px; }
+.screen.still { animation: none; }
+.needs { display: flex; flex-direction: column; gap: 6px; align-items: center; padding: 8px 10px; }
+.needrow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.needrow .pchip i { font-style: normal; font-size: 13px; opacity: .6; font-weight: 700; }
+.kitchen.top .kchef.sous { z-index: 2; }
+.kitchen.top .kchef.sous .ctop { width: 36px; height: 36px; }
+.own small { display: block; }

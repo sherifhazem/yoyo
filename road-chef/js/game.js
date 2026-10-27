@@ -138,7 +138,7 @@ function map() {
     </svg>
     <button class="pin p1" data-act="go-grocery"><span class="pin-ico">🏪</span><b>Fresh Grocery</b><small>Fruit · Veggies · Meat</small></button>
     <button class="pin p2" data-act="go-supply"><span class="pin-ico">🛒</span><b>Supply Store</b><small>Plates · Napkins</small></button>
-    <button class="pin p3" data-act="go-appliance"><span class="pin-ico">🏬</span><b>Appliance Shop</b><small>Oven · Blender · Sign</small></button>
+    <button class="pin p3" data-act="go-appliance"><span class="pin-ico">🏬</span><b>Appliance Shop</b><small>Oven · Bakery · Drinks · Staff</small></button>
     <button class="restaurant" data-act="restaurant">🍽️ Your restaurant</button>
   </div>
 </section>`;
@@ -385,8 +385,11 @@ function applianceShop(msg) {
     .map((e) => {
       const own = S.kitchen.owned.includes(e.id);
       const pct = Math.min(100, Math.round((S.money / e.price) * 100));
+      const locked = e.requires && !S.kitchen.owned.includes(e.requires);
       const act = own
         ? '<span class="own">Owned ✔</span>'
+        : locked
+        ? `<b class="eprice">${fmt(e.price)}</b><span class="own">🔒 Needs ${EQUIPMENT.find((x) => x.id === e.requires).name} first</span>`
         : `<b class="eprice">${fmt(e.price)}</b><button class="btn sm ${S.money >= e.price ? '' : 'dim'}" data-act="equip-buy" data-v="${e.id}">${S.money >= e.price ? 'Buy' : `Need ${fmt(e.price - S.money)}`}</button><button class="goalbtn" data-act="equip-goal" data-v="${e.id}">${S.goal === e.id ? '🎯 Saving' : '🎯 Save for it'}</button>`;
       return `<div class="card equip ${own ? 'owned' : ''}"><div class="eico">${e.emoji}</div><div class="einfo"><b>${e.name}</b><small>${e.benefit}</small>${own ? '' : `<div class="gbar"><i style="width:${pct}%"></i></div>`}</div><div class="eact">${act}</div></div>`;
     })
@@ -502,7 +505,7 @@ const acts = {
   'equip-goal': (id) => { S.goal = id; save(); sfx.coin(); applianceShop(); },
   'equip-buy': (id) => {
     const e = EQUIPMENT.find((x) => x.id === id);
-    if (S.kitchen.owned.includes(id)) return;
+    if (S.kitchen.owned.includes(id) || (e.requires && !S.kitchen.owned.includes(e.requires))) return;
     if (S.money < e.price) { S.goal = id; save(); sfx.bad(); applianceShop(`Not enough yet! You need ${fmt(e.price - S.money)} more. Goal set 🎯`); return; }
     ui = { screen: 'pay', equip: e, paid: 0, paidBills: [], stars: 0, tries: 0, input: '', dest: 'appliance' };
     payStep();

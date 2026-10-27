@@ -75,5 +75,16 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - Kitchen chef walks with animated legs/arms; the cashier and the car driver use the same art.
 - Idle motion: blinking and breathing characters, talking mouths while ordering, hearts when paid, fish and bubbles in the tank, swaying plants/flowers, pulsing lamp, window clouds and sun, light beams with dust motes, steam over served dishes and hot pots, curtains, ticking clock, a kitchen cat, and birds plus sun rays on the home screen. `prefers-reduced-motion` turns it all off.
 
+## Owner mode (kitchen redesign)
+- The child is the owner, not the cook. After an order: **Send to kitchen** — the chef works by himself through fetch → chop → cook/bake → plate in a few seconds (pantry is used up, ingredients are logged as cost). The order card shows needed vs. stocked ingredients.
+- **Cook it myself** is optional and short: pick the ingredients, one chopping step, one cooking step (no walking, no station trips) for a $1 tip on a clean job. `quickDish()` in `data.js` builds the short recipe.
+- The kitchen is a top-down plan: fridge, prep counter, stove, oven, sink on the back row; serving counter and two empty slots (Bakery, Drinks bar — placeholders for future expansion) on the front row.
+
+## Sections, sous chef and cozy customers
+- Appliance Shop adds a **Drinks bar** ($45: orange juice, hot chocolate, smoothie), a **Bakery** ($85, needs the Oven: croissant, muffin, donut) and a **Sous chef** ($40). Owned sections replace the dashed placeholders in the kitchen plan; new dishes appear in orders only once their section is owned.
+- Sous chef: cooking runs faster (520ms vs 900ms per stage), +2 customers per shift, and a $4 wage per shift shown on the summary.
+- Cozy → customers: ambience score ≥3 gives +1 customer per shift, ≥6 gives +2 (`roomStats()` in `room.js`; cap 10 total). The designer shows the breakdown.
+- Not built yet: management screen (dish prices, per-dish profit).
+
 ## Next
 - Multiple restaurants, staff, and daily specials.
