@@ -80,5 +80,11 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - **Cook it myself** is optional and short: pick the ingredients, one chopping step, one cooking step (no walking, no station trips) for a $1 tip on a clean job. `quickDish()` in `data.js` builds the short recipe.
 - The kitchen is a top-down plan: fridge, prep counter, stove, oven, sink on the back row; serving counter and two empty slots (Bakery, Drinks bar — placeholders for future expansion) on the front row.
 
+## Sections, sous chef and cozy customers
+- Appliance Shop adds a **Drinks bar** ($45: orange juice, hot chocolate, smoothie), a **Bakery** ($85, needs the Oven: croissant, muffin, donut) and a **Sous chef** ($40). Owned sections replace the dashed placeholders in the kitchen plan; new dishes appear in orders only once their section is owned.
+- Sous chef: cooking runs faster (520ms vs 900ms per stage), +2 customers per shift, and a $4 wage per shift shown on the summary.
+- Cozy → customers: ambience score ≥3 gives +1 customer per shift, ≥6 gives +2 (`roomStats()` in `room.js`; cap 10 total). The designer shows the breakdown.
+- Not built yet: management screen (dish prices, per-dish profit).
+
 ## Next
 - Multiple restaurants, staff, and daily specials.

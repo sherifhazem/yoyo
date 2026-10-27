@@ -14,18 +14,20 @@ const ST = {
   oven: [256, 18, 66, 78],
   sink: [326, 18, 56, 78],
   pass: [8, 144, 142, 72],
+  bakery: [164, 152, 102, 64],
+  drinks: [278, 152, 104, 64],
 };
 // Where the chef stands (viewBox units, feet).
-const AT = { fridge: [42, 124], board: [126, 124], stove: [214, 124], oven: [289, 124], sink: [354, 124], pass: [79, 140], idle: [195, 150] };
+const AT = { fridge: [42, 124], board: [126, 124], stove: [214, 124], oven: [289, 124], sink: [354, 124], pass: [79, 140], bakery: [215, 142], drinks: [330, 142], idle: [195, 150] };
 const ALIAS = { counter: 'board' };
 const pct = ([x, y]) => ({ x: (x / W) * 100, y: (y / H) * 100 });
 export const SPOTS = Object.fromEntries(Object.entries(AT).map(([k, v]) => [k, pct(v)]));
 
-export const STATION_LABEL = { fridge: 'Fridge', board: 'Prep', stove: 'Stove', oven: 'Oven', sink: 'Sink', pass: 'Serving' };
+export const STATION_LABEL = { fridge: 'Fridge', board: 'Prep', stove: 'Stove', oven: 'Oven', sink: 'Sink', pass: 'Serving', bakery: 'Bakery', drinks: 'Drinks bar' };
 
 const lin = (id, a, b) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
 
-function svg({ at, fridgeOpen, hot, ovenHot, ovenOwned, proBlender, water, knife, tray }) {
+function svg({ at, fridgeOpen, hot, ovenHot, ovenOwned, proBlender, water, knife, tray, bakery, drinks, busy }) {
   const f = (id) => ST[id];
   const hl = at && ST[at] ? `<rect class="kfocus" x="${f(at)[0] - 3}" y="${f(at)[1] - 3}" width="${f(at)[2] + 6}" height="${f(at)[3] + 6}" rx="13"/>` : '';
   const burners = [[198, 40], [230, 40], [198, 72], [230, 72]];
@@ -100,11 +102,26 @@ ${drops}
 ${plates}
 </g>
 
-<!-- room for future sections -->
-<g fill="rgba(255,255,255,.35)" stroke="#c9a46a" stroke-width="2.5" stroke-dasharray="8 6">
-<rect x="164" y="152" width="102" height="64" rx="10"/><rect x="278" y="152" width="104" height="64" rx="10"/></g>
-<g font-weight="800" fill="#a8825a" text-anchor="middle"><text x="215" y="180" font-size="20">＋</text><text x="215" y="198" font-size="9">Bakery · soon</text>
-<text x="330" y="180" font-size="20">＋</text><text x="330" y="198" font-size="9">Drinks bar · soon</text></g>
+<!-- sections: built, or room reserved for them -->
+${bakery ? `<g>
+<rect x="164" y="152" width="102" height="64" rx="10" fill="url(#tWood)" stroke="#8d5620" stroke-width="2"/>
+<rect x="170" y="158" width="90" height="52" rx="7" fill="#fff6e6" stroke="#e3c28f" stroke-width="1.5"/>
+<rect x="174" y="162" width="82" height="22" rx="5" fill="rgba(190,230,255,.45)" stroke="#9fc4de" stroke-width="1.2"/>
+<g font-size="15" text-anchor="middle"><text x="188" y="178">🥐</text><text x="206" y="178">🍞</text><text x="224" y="178">🧁</text><text x="242" y="178">🍩</text></g>
+<rect x="174" y="188" width="82" height="16" rx="4" fill="#ffe2b8"/><text x="215" y="199.5" font-size="9" font-weight="900" fill="#a8742f" text-anchor="middle">BAKERY</text>
+${busy === 'bakery' ? '<ellipse class="kovenglow" cx="215" cy="173" rx="38" ry="12" fill="url(#tGlow)"/>' : ''}
+</g>` : `<g fill="rgba(255,255,255,.35)" stroke="#c9a46a" stroke-width="2.5" stroke-dasharray="8 6"><rect x="164" y="152" width="102" height="64" rx="10"/></g>
+<g font-weight="800" fill="#a8825a" text-anchor="middle"><text x="215" y="180" font-size="20">＋</text><text x="215" y="198" font-size="9">Bakery · Appliance Shop</text></g>`}
+${drinks ? `<g>
+<rect x="278" y="152" width="104" height="64" rx="10" fill="url(#tWood)" stroke="#8d5620" stroke-width="2"/>
+<rect x="284" y="158" width="92" height="52" rx="7" fill="url(#tStone)" stroke="#c8bfae" stroke-width="1.5"/>
+<rect x="288" y="162" width="30" height="22" rx="5" fill="#ffb347" stroke="#e08a1a" stroke-width="1.5"/><rect x="298" y="184" width="10" height="7" rx="2" fill="#9aa3b2"/>
+<circle cx="330" cy="173" r="9" fill="#fff" stroke="#d3d9e6" stroke-width="1.5"/><circle cx="330" cy="173" r="5.5" fill="#ffb347"/>
+<circle cx="352" cy="173" r="9" fill="#fff" stroke="#d3d9e6" stroke-width="1.5"/><circle cx="352" cy="173" r="5.5" fill="#8d5620"/>
+<rect x="288" y="194" width="82" height="12" rx="4" fill="#ffe2b8"/><text x="329" y="203.5" font-size="8.5" font-weight="900" fill="#a8742f" text-anchor="middle">DRINKS BAR</text>
+${busy === 'drinks' ? '<circle class="bub b1" cx="330" cy="170" r="2" fill="none" stroke="#fff" stroke-width="1"/><circle class="bub b2" cx="352" cy="170" r="2" fill="none" stroke="#fff" stroke-width="1"/>' : ''}
+</g>` : `<g fill="rgba(255,255,255,.35)" stroke="#c9a46a" stroke-width="2.5" stroke-dasharray="8 6"><rect x="278" y="152" width="104" height="64" rx="10"/></g>
+<g font-weight="800" fill="#a8825a" text-anchor="middle"><text x="330" y="180" font-size="20">＋</text><text x="330" y="198" font-size="9">Drinks bar · Appliance Shop</text></g>`}
 ${hl}
 </svg>`;
 }
@@ -112,22 +129,31 @@ ${hl}
 export function createKitchen() {
   let chef = 'idle';
   let anim = null;
+  let sous = 'idle';
+  let sousAnim = null;
 
   return {
     reset() {
       chef = 'idle';
       anim = null;
+      sous = 'idle';
+      sousAnim = null;
     },
     walkTo(station) {
       station = ALIAS[station] || station;
       if (!AT[station] || station === chef) return;
       anim = { from: chef, to: station };
+      // the helper takes over the spot the chef just left
+      sousAnim = { from: sous, to: chef };
+      sous = chef;
       chef = station;
     },
     /** state: { at, doing, stepType, bubble, owned, tray } */
     scene(state) {
       const a = anim;
       anim = null;
+      const sa = sousAnim;
+      sousAnim = null;
       const from = SPOTS[a ? a.from : chef];
       const to = SPOTS[chef];
       const style = `--fx:${from.x}%;--fy:${from.y}%;--tx:${to.x}%;--ty:${to.y}%`;
@@ -135,10 +161,15 @@ export function createKitchen() {
       const at = ALIAS[state.at] || state.at;
       const doing = state.doing;
       const owned = state.owned || [];
+      const sp = (k, dx) => { const o = SPOTS[k]; return { x: o.x + dx, y: o.y }; };
+      const sf = sp(sa ? sa.from : sous, 6);
+      const st = sp(sous, 6);
+      const sstyle = `--fx:${sf.x}%;--fy:${sf.y}%;--tx:${st.x}%;--ty:${st.y}%`;
       return `
 <div class="kitchen top">
-  ${svg({ at, fridgeOpen: at === 'fridge' && doing, hot: at === 'stove' && active, ovenHot: at === 'oven' && active, ovenOwned: owned.includes('oven'), proBlender: owned.includes('blender'), water: at === 'sink' && doing, knife: at === 'board' && doing, tray: state.tray || [] })}
+  ${svg({ at, fridgeOpen: at === 'fridge' && doing, hot: at === 'stove' && active, ovenHot: at === 'oven' && active, ovenOwned: owned.includes('oven'), proBlender: owned.includes('blender'), water: at === 'sink' && doing, knife: at === 'board' && doing, tray: state.tray || [], bakery: owned.includes('bakery'), drinks: owned.includes('drinks'), busy: doing ? at : null })}
   <div class="kchef ${a ? 'walking' : ''} ${doing ? 'working' : ''}" style="${style}"><span class="kface">${chefTop()}</span></div>
+  ${owned.includes('sous') ? `<div class="kchef sous ${sa ? 'walking' : ''} ${doing ? 'working' : ''}" style="${sstyle}"><span class="kface">${chefTop('#3a8dff')}</span></div>` : ''}
   ${state.bubble ? `<div class="bubble kbubble">${state.bubble}</div>` : ''}
 </div>`;
     },

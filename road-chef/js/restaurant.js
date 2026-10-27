@@ -1,4 +1,4 @@
-import { RECIPES, CUSTOMER_BILLS, quickDish, byId, recipeById, makeCustomerOrder, dishTotal, dishPrice, available, portionsLeft } from './data.js';
+import { RECIPES, CUSTOMER_BILLS, NEEDS_LABEL, SOUS_WAGE, stationFor, quickDish, byId, recipeById, makeCustomerOrder, dishTotal, dishPrice, available, portionsLeft } from './data.js';
 import { sfx } from './sound.js';
 import { createCooking } from './cooking.js';
 import { createKitchen } from './kitchen.js';
@@ -23,7 +23,7 @@ export function createRestaurant(host) {
   const level = () => Math.min(1 + Math.floor(S.served / 4), 6);
   const pantryTotal = () => Object.values(S.pantry).reduce((a, b) => a + b, 0);
   const owned = () => S.kitchen.owned;
-  const perShift = () => roomStats(S.room).customers;
+  const perShift = () => roomStats(S.room, S.kitchen.owned).customers;
   const platesOk = () => (S.supplies.plate || 0) > 0;
   const canCook = () => platesOk() && available(owned()).some((d) => portionsLeft(d, S.pantry) > 0);
   const lines = () => r.cust.order;
@@ -84,8 +84,8 @@ export function createRestaurant(host) {
         body = `<div class="card center">${platesOk() ? "<h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p>" : '<h3>No clean plates! 🍽️</h3><p>Drive to the Supply Store and stock up on plates.</p>'}<button class="btn big" data-act="map">Go shopping 🚗</button></div><button class="btn alt" data-act="room-open">🏗️ Design your café</button>`;
       } else {
         body = `<button class="btn big" data-act="r-open">Open the door 🚪</button>
-        <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room).customers} customers/shift)</small></button>
-        <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${lock ? ` <small>🔒 needs ${d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned()))}</b></li>`; }).join('')}</ul></div>`;
+        <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room, S.kitchen.owned).customers} customers/shift)</small></button>
+        <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${lock ? ` <small>🔒 ${NEEDS_LABEL[d.needs] || d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned()))}</b></li>`; }).join('')}</ul></div>`;
       }
     } else if (r.step === 'order') {
       bubble = `Hello! I'd like<br>${lines().map((l) => `${recipeById[l.id].emoji} ${recipeById[l.id].name} × ${l.qty}`).join('<br>')}`;
@@ -142,7 +142,14 @@ export function createRestaurant(host) {
   }
 
   function summary() {
-    const profit = r.sales - r.cost;
+    if (owned().includes('sous') && !r.wagePaid) {
+      r.wage = Math.min(SOUS_WAGE, S.money);
+      S.money -= r.wage;
+      r.wagePaid = true;
+      save();
+    }
+    const wage = r.wage || 0;
+    const profit = r.sales - r.cost - wage;
     $app.innerHTML = `
 <section class="screen done">
   <div class="trophy">🍽️</div>
@@ -151,9 +158,10 @@ export function createRestaurant(host) {
     <div class="rrow"><span>👥 Customers</span><b>${r.served}</b></div>
     <div class="rrow"><span>💵 Sales</span><b>${fmt(r.sales)}</b></div>
     <div class="rrow"><span>🥕 Ingredients used</span><b>− ${fmt(r.cost)}</b></div>
+    ${wage ? `<div class="rrow"><span>🧑‍🍳 Sous chef wage</span><b>− ${fmt(wage)}</b></div>` : ''}
     <hr><div class="rrow big"><span>Profit</span><b class="${profit < 0 ? 'neg' : ''}">${fmt(profit)}</b></div>
   </div>
-  <small class="cap">Profit = Sales − Ingredients</small>
+  <small class="cap">Profit = Sales − Ingredients${wage ? ' − Wages' : ''}</small>
   ${r.leveled.map((l) => `<div class="banner">${l.icon} Level up! You are now a <b>${l.name}</b>! +${fmt(l.bonus)}</div>`).join('')}
   ${levelCard(S)}
   ${canCook() ? '' : `<small class="cap">${platesOk() ? 'You ran out of ingredients — time to shop! 🛒' : 'You ran out of plates — visit the Supply Store! 🛒'}</small>`}
@@ -264,11 +272,12 @@ export function createRestaurant(host) {
       for (const p of r.portions) for (const [id, q] of Object.entries(recipeById[p].ing)) { S.pantry[id] -= q; r.cost += byId[id].price * q; }
       save();
       r.cust.auto = true;
-      const bake = r.portions.some((p) => recipeById[p].needs === 'oven');
+      const cook = { stove: { at: 'stove', msg: 'Cooking on the stove… 🔥', label: 'cooking' }, oven: { at: 'oven', msg: 'Baking in the oven… ♨️', label: 'baking' }, bakery: { at: 'bakery', msg: 'Baking in the bakery… 🥐', label: 'baking' }, drinks: { at: 'drinks', msg: 'Mixing drinks at the bar… 🧃', label: 'mixing drinks' } };
+      const used = ['stove', 'oven', 'bakery', 'drinks'].filter((st) => r.portions.some((p) => stationFor(recipeById[p]) === st));
       r.making = { i: 0, stages: [
         { at: 'fridge', msg: 'Chef is fetching the ingredients 🧊', label: 'fetching ingredients' },
         { at: 'board', msg: 'Chopping and mixing… 🔪', label: 'chopping' },
-        { at: bake ? 'oven' : 'stove', msg: bake ? 'Baking in the oven… ♨️' : 'Cooking on the stove… 🔥', label: 'cooking' },
+        ...used.map((st) => cook[st]),
         { at: 'pass', msg: 'Plating up! 🍽️', label: 'plating' },
       ] };
       r.step = 'making';
@@ -288,7 +297,7 @@ export function createRestaurant(host) {
           KT.walkTo(r.making.stages[r.making.i].at);
           render();
           tick();
-        }, 900);
+        }, owned().includes('sous') ? 520 : 900);
       };
       tick();
     },

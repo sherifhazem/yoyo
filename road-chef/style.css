@@ -550,3 +550,6 @@ button.bill:active { transform: translateY(4px); }
 .needs { display: flex; flex-direction: column; gap: 6px; align-items: center; padding: 8px 10px; }
 .needrow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .needrow .pchip i { font-style: normal; font-size: 13px; opacity: .6; font-weight: 700; }
+.kitchen.top .kchef.sous { z-index: 2; }
+.kitchen.top .kchef.sous .ctop { width: 36px; height: 36px; }
+.own small { display: block; }

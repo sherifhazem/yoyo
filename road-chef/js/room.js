@@ -7,6 +7,7 @@ export const MAX_COLS = 5;
 export const MAX_ROWS = 4;
 export const TILE_PRICE = 10;
 const MAX_CUSTOMERS = 8;
+const MAX_TOTAL = 10;
 
 export const ROOM_ITEMS = [
   { id: 'table2', name: 'Table for 2', seats: 2, price: 12, blurb: '2 seats' },
@@ -20,7 +21,7 @@ const byId = Object.fromEntries(ROOM_ITEMS.map((i) => [i.id, i]));
 
 export const newRoom = () => ({ cols: 3, rows: 2, cells: { '1,0': 'table2' }, stock: {} });
 
-export function roomStats(room) {
+export function roomStats(room, owned = []) {
   let seats = 0;
   let amb = 0;
   const tables = [];
@@ -33,7 +34,8 @@ export function roomStats(room) {
     seats,
     amb,
     tables,
-    customers: Math.min(MAX_CUSTOMERS, 2 + Math.floor(seats / 2)),
+    customers: Math.min(MAX_TOTAL, Math.min(MAX_CUSTOMERS, 2 + Math.floor(seats / 2)) + (amb >= 6 ? 2 : amb >= 3 ? 1 : 0) + (owned.includes('sous') ? 2 : 0)),
+    cozyBonus: amb >= 6 ? 2 : amb >= 3 ? 1 : 0,
     tip: Math.min(3, Math.floor(amb / 2)),
   };
 }
@@ -73,7 +75,7 @@ export function createRoomDesigner({ S, save, $app, topbar, fmt, shake, onClose 
 
   function render() {
     const room = S.room;
-    const st = roomStats(room);
+    const st = roomStats(room, S.kitchen.owned);
     const palette = ROOM_ITEMS.map((it) => {
       const icon = it.seats ? `<span class="pe">${tableSvg(it.seats, 46)}</span>` : `<span class="pe">${decorSvg(it.id, 42)}</span>`;
       return `<div class="pitem ${sel === it.id ? 'sel' : ''}" data-act="room-pick" data-v="${it.id}">${icon}<b>${it.name}</b><small>${it.blurb} · have ${stockOf(it.id)}</small><button class="btn sm ${S.money >= it.price ? '' : 'dim'}" data-act="room-buy" data-v="${it.id}">Buy ${fmt(it.price)}</button></div>`;
@@ -86,7 +88,7 @@ export function createRoomDesigner({ S, save, $app, topbar, fmt, shake, onClose 
 <section class="screen designer">
   ${topbar('Design your café')}
   <div class="rstats"><span>📐 ${room.cols} × ${room.rows} = <b>${room.cols * room.rows}</b> tiles</span><span>🪑 <b>${st.seats}</b> seats</span><span>✨ <b>${st.amb}</b> cozy</span></div>
-  <div class="rresult">👥 <b>${st.customers}</b> customers per shift · 💝 tip <b>+${fmt(st.tip)}</b></div>
+  <div class="rresult">👥 <b>${st.customers}</b> customers per shift <small>(seats ${Math.min(8, 2 + Math.floor(st.seats / 2))}${st.cozyBonus ? ` · cozy +${st.cozyBonus}` : ''}${S.kitchen.owned.includes('sous') ? ' · sous chef +2' : ''})</small> · 💝 tip <b>+${fmt(st.tip)}</b></div>
   <div class="card designgrid">${gridHtml(room, { editable: true, showLocked: true })}</div>
   ${msg ? `<div class="toast">${msg}</div>` : `<small class="cap">${sel ? `Placing: ${byId[sel].name} — tap an empty tile` : 'Pick an item, then tap a tile. Tap a placed item to pick it up.'}</small>`}
   <div class="expandrow">${colBtn}${rowBtn}</div>
@@ -146,7 +148,7 @@ export function createRoomDesigner({ S, save, $app, topbar, fmt, shake, onClose 
       render();
     },
     'room-close': () => {
-      if (roomStats(S.room).tables.length === 0) { sfx.bad(); msg = 'Place at least one table so customers can sit!'; render(); shake('.designgrid'); return; }
+      if (roomStats(S.room, S.kitchen.owned).tables.length === 0) { sfx.bad(); msg = 'Place at least one table so customers can sit!'; render(); shake('.designgrid'); return; }
       save();
       onClose();
     },

@@ -298,13 +298,13 @@ export function birdSvg() {
 }
 
 /** The chef seen from above (top-down kitchen). */
-export function chefTop() {
+export function chefTop(scarf = '#e8505b') {
   return `<svg class="ctop" viewBox="0 0 44 44" width="40" height="40" aria-hidden="true">
 <ellipse cx="22" cy="26" rx="19" ry="14" fill="rgba(0,0,0,.18)"/>
 <g class="carm l"><ellipse cx="7" cy="25" rx="4.4" ry="8.5" fill="#fff" stroke="#c4ccdb" stroke-width="1"/><circle cx="7" cy="33" r="3.2" fill="#f2b98a"/></g>
 <g class="carm r"><ellipse cx="37" cy="25" rx="4.4" ry="8.5" fill="#fff" stroke="#c4ccdb" stroke-width="1"/><circle cx="37" cy="33" r="3.2" fill="#f2b98a"/></g>
 <ellipse cx="22" cy="24" rx="15" ry="10" fill="#fff" stroke="#c4ccdb" stroke-width="1"/>
-<path d="M13 20 Q22 28 31 20" fill="none" stroke="#e8505b" stroke-width="3" stroke-linecap="round"/>
+<path d="M13 20 Q22 28 31 20" fill="none" stroke="${scarf}" stroke-width="3" stroke-linecap="round"/>
 <circle cx="22" cy="17" r="10.5" fill="#fff" stroke="#d3d9e6" stroke-width="1"/>
 <g fill="#fff" stroke="#d3d9e6" stroke-width="1"><circle cx="14.5" cy="12" r="4.6"/><circle cx="29.5" cy="12" r="4.6"/><circle cx="22" cy="8" r="5"/></g>
 <circle cx="22" cy="16" r="6.6" fill="#f4f6fb"/><circle cx="19.5" cy="14" r="2.6" fill="#fff"/>
