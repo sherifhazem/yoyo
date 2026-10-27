@@ -45,12 +45,13 @@ export function createCooking({ $app, shake }) {
     }
   }
 
-  function begin(base, { rerender, onDone, onEnter, owned = [] }) {
+  function begin(base, { rerender, onDone, onEnter, owned = [], auto = false }) {
     clearAll();
     // Equipment bonuses: the pro blender halves the blending taps.
     const dish = { ...base, steps: base.steps.map((sp) => (sp.pro && owned.includes('blender') ? { ...sp, n: sp.pro } : sp)) };
-    c = { dish, i: 0, mistakes: 0, rerender, onDone, onEnter, finished: false };
+    c = { dish, i: 0, mistakes: 0, rerender, onDone, onEnter, finished: false, auto };
     c.s = init(step());
+    arrive();
     c.rerender();
   }
 
@@ -67,7 +68,15 @@ export function createCooking({ $app, shake }) {
       return;
     }
     c.s = init(step());
+    arrive();
     c.rerender();
+  }
+
+  // Hands-on mode has no walking: the chef is at the right station as each step starts.
+  function arrive() {
+    if (!c.auto) return;
+    if (c.onEnter) c.onEnter(stationOf(step()));
+    c.s.entered = true;
   }
 
   /* ---------- text shown in the scene bubble ---------- */

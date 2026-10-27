@@ -65,6 +65,12 @@ export const RECIPES = [
   { id: 'steak', name: 'Steak Dinner', emoji: '🍽️', ing: { steak: 1, broccoli: 1 }, price: 18,
     steps: [chop('broccoli', 3, 'pan'), { t: 'heat', what: 'grill', target: 220, secs: 3 }, { t: 'flip', food: '🥩' }, { t: 'flip', food: '🥩' }] },
 ];
+// Hands-on mode keeps it short: one chopping step, then one cooking step.
+export function quickDish(r) {
+  const cut = r.steps.find((s) => s.t === 'chop');
+  const cook = r.steps.find((s) => s.t === 'heat') || r.steps.find((s) => s.t === 'flip') || r.steps[r.steps.length - 1];
+  return { ...r, steps: [cut, cook].filter((s, i, a) => s && a.indexOf(s) === i) };
+}
 export const recipeById = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 export const recipeCost = (r) => Object.entries(r.ing).reduce((s, [id, q]) => s + q * byId[id].price, 0);
 
