@@ -3,6 +3,7 @@ import { sfx } from './sound.js';
 import { createCooking } from './cooking.js';
 import { createKitchen } from './kitchen.js';
 import { createRoomDesigner, gridHtml, roomStats } from './room.js';
+import { record, levelCard } from './goals.js';
 import { billMode, recordBill, newBill, billSubmit, billBubble, billHtml } from './billing.js';
 
 const CUSTOMERS = ['👧', '👦', '👩', '👨', '🧓', '👵', '👩‍🦰', '👨‍🦱', '🧑‍🎤', '👩‍🔬'];
@@ -29,7 +30,7 @@ export function createRestaurant(host) {
   const lines = () => r.cust.order;
   const total = () => dishTotal(lines(), owned());
 
-  const newShift = () => ({ served: 0, sales: 0, cost: 0, stars: 0, cust: null, step: 'idle', tray: [] });
+  const newShift = () => ({ served: 0, sales: 0, cost: 0, stars: 0, cust: null, step: 'idle', tray: [], leveled: [] });
 
   function open() {
     clearTimeout(timer);
@@ -145,6 +146,8 @@ export function createRestaurant(host) {
     <hr><div class="rrow big"><span>Profit</span><b class="${profit < 0 ? 'neg' : ''}">${fmt(profit)}</b></div>
   </div>
   <small class="cap">Profit = Sales − Ingredients</small>
+  ${r.leveled.map((l) => `<div class="banner">${l.icon} Level up! You are now a <b>${l.name}</b>! +${fmt(l.bonus)}</div>`).join('')}
+  ${levelCard(S)}
   ${canCook() ? '' : `<small class="cap">${platesOk() ? 'You ran out of ingredients — time to shop! 🛒' : 'You ran out of plates — visit the Supply Store! 🛒'}</small>`}
   <div class="row"><button class="btn alt" data-act="map">Go shopping 🚗</button>${canCook() ? '<button class="btn" data-act="r-new">New shift</button>' : ''}</div>
 </section>`;
@@ -204,6 +207,8 @@ export function createRestaurant(host) {
     r.served += 1;
     r.sales += t + tip;
     r.stars += r.cust.stars;
+    const up = record(S, r.cust, r.bill.mistakes === 0, t + tip);
+    if (up) r.leveled.push(up);
     save();
     sfx.coin();
     sfx.bell();

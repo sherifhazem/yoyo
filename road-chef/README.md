@@ -63,5 +63,11 @@ While cooking, the restaurant switches to an illustrated kitchen (fridge, workto
 - Lines with qty 1 are filled in automatically; a single 1-item bill is just the total.
 - Auto mode merges both steps into one "total" question after 3 flawless bills in a row (any mistake resets); the home screen button cycles Auto / Guided / Combined for parents.
 
+## Long-term goals
+
+- **Restaurant level**: every star a customer gives (accurate bill, good cooking) adds to the restaurant's reputation. Levels: Street Cart → Cozy Café → Bistro → Restaurant → Grand Restaurant, each with a cash bonus. Shown on the home screen and the shift summary.
+- **🏆 Goals board**: nine milestones (serve customers, accurate bills, different dishes, earnings, buy the oven, reach a level). The child taps to claim each reward. The board is reachable from the home screen and the map; a red dot counts unclaimed goals.
+- Progress lives in `js/goals.js` (`rep`, `stats`, `claimed` in the save; older saves are filled in automatically). Thresholds and rewards are first estimates and need a playtest.
+
 ## Next
-- Higher-level goals: multiple restaurants, staff, and daily specials.
+- Multiple restaurants, staff, and daily specials.

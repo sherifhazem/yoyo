@@ -5,11 +5,12 @@ import { MODES, billMode, recordBill, newBill, billSubmit, billBubble, billHtml 
 import { sfx } from './sound.js';
 import { startDrive } from './drive.js';
 import { drawCar, CAR_COLORS } from './sprites.js';
+import { freshProgress, ensure, levelCard, goalsHtml, claim, claimable } from './goals.js';
 
 const KEY = 'roadChef.v1';
 const $app = document.getElementById('app');
 
-const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, room: newRoom(), supplies: { ...START_SUPPLIES }, billPref: 'auto', billStreak: 0 });
+const fresh = () => ({ money: 50, trips: 0, stars: 0, car: 'red', owned: ['red'], magnet: false, pantry: {}, served: 0, kitchen: { owned: ['fridge', 'stove', 'board', 'sink', 'counter'] }, room: newRoom(), supplies: { ...START_SUPPLIES }, billPref: 'auto', billStreak: 0, ...freshProgress() });
 const S = (() => {
   try {
     return { ...fresh(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
@@ -24,6 +25,8 @@ const save = () => {
     /* storage unavailable */
   }
 };
+
+ensure(S);
 
 // Old saves: the Appliance Shop's extra table became a table for the dining room.
 if (S.kitchen.owned.includes('table2')) {
@@ -93,7 +96,9 @@ function home() {
     <div class="chip">💵 ${fmt(S.money)}</div>
     <div class="chip">⭐ ${S.stars}</div>
     <div class="chip">🚗 ${S.trips}</div>
+    <button class="chip goalsbtn" data-act="goals">🏆${claimable(S).length ? ` <i class="dot">${claimable(S).length}</i>` : ''}</button>
   </div>
+  ${levelCard(S)}
   <button class="btn big" data-act="map">Let's Drive! 🚗</button>
   <button class="chip mathmode" data-act="mathmode">🧮 Math steps: ${{ auto: 'Auto', guided: 'Guided', combined: 'Combined' }[S.billPref]}</button>
   <button class="link" data-act="reset">Start over</button>
@@ -107,11 +112,22 @@ function goalChip() {
   return `<div class="goalchip"><span>🎯 ${e.emoji} ${e.name}</span><div class="gbar"><i style="width:${pct}%"></i></div><b>${fmt(Math.min(S.money, e.price))} / ${fmt(e.price)}</b></div>`;
 }
 
+function goalsScreen(msg = '') {
+  $app.innerHTML = `
+<section class="screen goals">
+  ${topbar('🏆 Goals')}
+  ${msg ? `<div class="banner">${msg}</div>` : ''}
+  ${goalsHtml(S, fmt)}
+  <button class="btn alt" data-act="${ui.from === 'home' ? 'home' : 'map'}">Back</button>
+</section>`;
+}
+
 function map() {
   $app.innerHTML = `
 <section class="screen map">
   ${topbar('Pick a shop')}
   <button class="chip garage-btn" data-act="garage">🔧 Garage</button>
+  <button class="chip goals-map" data-act="goals">🏆 Goals${claimable(S).length ? ` <i class="dot">${claimable(S).length}</i>` : ''}</button>
   ${goalChip()}
   <div class="mapboard">
     <svg viewBox="0 0 300 420" class="roadsvg" aria-hidden="true">
@@ -438,6 +454,13 @@ const acts = {
   ...R.acts,
   home: () => { ui.stop?.(); R.stop(); ui = { screen: 'home' }; home(); },
   'shop-start': () => (ui.dest === 'appliance' ? applianceShop() : ui.dest === 'supply' ? supplyShop() : startShop()),
+  goals: () => { ui = { ...ui, screen: 'goals', from: ui.screen === 'home' ? 'home' : 'map' }; goalsScreen(); },
+  'goal-claim': (id) => {
+    const got = claim(S, id);
+    if (!got) { sfx.bad(); return; }
+    save(); sfx.coin(); sfx.bell();
+    goalsScreen(`🎉 Goal complete! +${fmt(got)}`);
+  },
   garage: () => { ui = { screen: 'garage' }; garage(); },
   'car-pick': (v) => {
     const c = CAR_COLORS[v];
