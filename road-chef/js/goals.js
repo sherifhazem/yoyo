@@ -8,7 +8,7 @@ export const LEVELS = [
   { name: 'Grand Restaurant', icon: '🏰', at: 130, bonus: 50 },
 ];
 
-export const freshProgress = () => ({ rep: 0, stats: { earned: 0, perfect: 0, dishes: {} }, claimed: [] });
+export const freshProgress = () => ({ rep: 0, stats: { earned: 0, perfect: 0, specials: 0, dishes: {} }, claimed: [] });
 
 // Old saves lack these fields; top-level merge in game.js would otherwise leave them undefined.
 export function ensure(S) {
@@ -39,6 +39,7 @@ export function record(S, cust, perfect, earned) {
   S.rep += cust.stars;
   S.stats.earned += earned;
   if (perfect) S.stats.perfect += 1;
+  for (const l of cust.order) if (l.id === cust.special) S.stats.specials += l.qty;
   for (const l of cust.order) S.stats.dishes[l.id] = (S.stats.dishes[l.id] || 0) + l.qty;
   const after = levelIdx(S.rep);
   if (after > before) {
@@ -55,6 +56,7 @@ export const GOALS = [
   { id: 'serve10', icon: '👥', text: 'Serve 10 customers', target: 10, reward: 10, value: (S) => S.served },
   { id: 'perfect5', icon: '🧮', text: 'Get 5 bills exactly right', target: 5, reward: 10, value: (S) => S.stats.perfect },
   { id: 'dishes4', icon: '🍳', text: 'Cook 4 different dishes', target: 4, reward: 15, value: (S) => Object.keys(S.stats.dishes).length },
+  { id: 'special8', icon: '⭐', text: 'Sell 8 daily specials', target: 8, reward: 15, value: (S) => S.stats.specials },
   { id: 'earn200', icon: '💵', text: 'Earn $200 from customers', target: 200, reward: 20, value: (S) => S.stats.earned },
   { id: 'oven', icon: '♨️', text: 'Buy an oven', target: 1, reward: 15, value: (S) => (S.kitchen.owned.includes('oven') ? 1 : 0) },
   { id: 'lvl3', icon: '🥐', text: 'Become a Bistro', target: 2, reward: 20, value: (S) => levelIdx(S.rep), shown: (v) => (v >= 2 ? 'Done' : `Level ${v + 1} of 3`) },

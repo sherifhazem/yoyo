@@ -1,4 +1,4 @@
-import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal, dishPrice, available, portionsLeft } from './data.js';
+import { RECIPES, CUSTOMER_BILLS, byId, recipeById, makeCustomerOrder, dishTotal, dishPrice, available, portionsLeft, pickSpecial, SPECIAL_BONUS } from './data.js';
 import { sfx } from './sound.js';
 import { createCooking } from './cooking.js';
 import { createKitchen } from './kitchen.js';
@@ -28,9 +28,9 @@ export function createRestaurant(host) {
   const platesOk = () => (S.supplies.plate || 0) > 0;
   const canCook = () => platesOk() && available(owned()).some((d) => portionsLeft(d, S.pantry) > 0);
   const lines = () => r.cust.order;
-  const total = () => dishTotal(lines(), owned());
+  const total = () => dishTotal(lines(), owned(), r.cust.special);
 
-  const newShift = () => ({ served: 0, sales: 0, cost: 0, stars: 0, cust: null, step: 'idle', tray: [], leveled: [] });
+  const newShift = () => ({ special: pickSpecial(S.pantry, owned(), S.supplies.plate || 0), served: 0, sales: 0, cost: 0, stars: 0, cust: null, step: 'idle', tray: [], leveled: [] });
 
   function open() {
     clearTimeout(timer);
@@ -76,12 +76,12 @@ export function createRestaurant(host) {
       if (!canCook()) {
         body = `<div class="card center">${platesOk() ? "<h3>Your pantry can't make a dish 🥲</h3><p>Drive to the grocery and buy ingredients!</p>" : '<h3>No clean plates! 🍽️</h3><p>Drive to the Supply Store and stock up on plates.</p>'}<button class="btn big" data-act="map">Go shopping 🚗</button></div><button class="btn alt" data-act="room-open">🏗️ Design your café</button>`;
       } else {
-        body = `<button class="btn big" data-act="r-open">Open the door 🚪</button>
+        body = `${r.special ? `<div class="banner special">⭐ Today's special: ${recipeById[r.special].emoji} <b>${recipeById[r.special].name}</b><br><small>+${fmt(SPECIAL_BONUS)} on every one you sell!</small></div>` : ''}<button class="btn big" data-act="r-open">Open the door 🚪</button>
         <button class="btn alt" data-act="room-open">🏗️ Design your café <small>(${roomStats(S.room).customers} customers/shift)</small></button>
-        <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${lock ? ` <small>🔒 needs ${d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned()))}</b></li>`; }).join('')}</ul></div>`;
+        <div class="card"><h3>📋 Menu</h3><ul class="menu">${RECIPES.map((d) => { const lock = d.needs && !owned().includes(d.needs); return `<li class="${!lock && portionsLeft(d, S.pantry) > 0 ? '' : 'out'}"><span>${d.emoji} ${d.name}${d.id === r.special ? ' <small class="spec">⭐ special</small>' : ''}${lock ? ` <small>🔒 needs ${d.needs}</small>` : ''}</span><b>${fmt(dishPrice(d, owned(), r.special))}</b></li>`; }).join('')}</ul></div>`;
       }
     } else if (r.step === 'order') {
-      bubble = `Hello! I'd like<br>${lines().map((l) => `${recipeById[l.id].emoji} ${recipeById[l.id].name} × ${l.qty}`).join('<br>')}`;
+      bubble = `Hello! I'd like<br>${lines().map((l) => `${recipeById[l.id].emoji} ${recipeById[l.id].name}${l.id === r.cust.special ? ' ⭐' : ''} × ${l.qty}`).join('<br>')}`;
       body = `<button class="btn big" data-act="r-cook">Start cooking 👨‍🍳</button>`;
     } else if (r.step === 'cook') {
       const make = r.phase === 'make';
@@ -245,15 +245,15 @@ export function createRestaurant(host) {
     },
     'r-new': () => { r = newShift(); render(); },
     'r-open': () => {
-      const order = makeCustomerOrder(level(), S.pantry, owned(), S.supplies.plate || 0);
+      const order = makeCustomerOrder(level(), S.pantry, owned(), S.supplies.plate || 0, r.special);
       if (!order.length) { render(); return; }
-      const t = dishTotal(order, owned());
+      const t = dishTotal(order, owned(), r.special);
       let pay = CUSTOMER_BILLS.find((b) => b >= t);
       const next = CUSTOMER_BILLS[CUSTOMER_BILLS.indexOf(pay) + 1];
       if (level() >= 2 && next && Math.random() < 0.4) pay = next;
       const tables = roomStats(S.room).tables;
       r.seatKey = tables[Math.floor(Math.random() * tables.length)];
-      r.cust = { face: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)], order, pay, stars: 1, cookMistakes: 0 };
+      r.cust = { special: r.special, face: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)], order, pay, stars: 1, cookMistakes: 0 };
       r.tray = [];
       r.step = 'order';
       sfx.bell();
@@ -291,7 +291,7 @@ export function createRestaurant(host) {
       r.cust.napkin = (S.supplies.napkin || 0) > 0;
       if (r.cust.napkin) S.supplies.napkin -= 1;
       save();
-      r.bill = newBill(lines().map((l) => ({ emoji: recipeById[l.id].emoji, qty: l.qty, price: dishPrice(recipeById[l.id], owned()) })), billMode(S));
+      r.bill = newBill(lines().map((l) => ({ emoji: recipeById[l.id].emoji, qty: l.qty, price: dishPrice(recipeById[l.id], owned(), r.cust.special), tag: l.id === r.cust.special ? '⭐ special' : '' })), billMode(S));
       r.step = 'bill'; getUi().tries = 0; getUi().input = ''; render();
     },
     'r-next': () => { r.cust = null; r.tray = []; r.step = 'idle'; render(); },
