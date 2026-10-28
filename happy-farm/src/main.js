@@ -157,6 +157,9 @@ function renderToolsIfNeeded() {
 }
 
 // ---------- boot ----------
+// no top-level await: the single-file build orders Pixi's lazy modules after this file, so boot runs once they exist
+async function boot() {
+await new Promise((r) => setTimeout(r, 0));
 scene = await createScene(state, hooks);
 panels = createPanels({
   s: state, now, day, run, refreshAll: () => afterAction(),
@@ -183,3 +186,5 @@ else start();
 setInterval(() => { if (!panels.isOpen()) panels.info('<div class="big">🌙</div><h2>Time for a break?</h2><p class="center">You have been farming for a while. Stretch, drink some water, and come back later — your crops keep growing!</p>', 'OK'); }, 30 * 60 * 1000);
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+boot();
