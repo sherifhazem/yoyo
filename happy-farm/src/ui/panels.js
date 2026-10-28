@@ -352,13 +352,17 @@ export function createPanels(ctx) {
     }).join('');
     show(`<h2>👪 Parent area</h2><p><small>The game never quizzes. These bars show how often your child picked the better option in play (last 10 decisions per skill).</small></p>
       <h3>Level of challenge</h3><div class="btns" style="margin-top:0">${[[1, '9–10'], [2, '11–12'], [3, '13–14']].map(([t, l]) => `<button class="chip ${s.tier === t ? 'sel' : ''}" data-act="tier" data-t="${t}">${l}</button>`).join('')}</div>
-      <h3>Skills</h3>${rows}<div class="btns"><button class="btn sm" data-act="export">Export data</button><button class="btn sm red" data-act="reset">Reset game</button><button class="btn gray" data-act="back">Back</button></div><div class="msg" id="msg"></div>`);
+      <h3>Skills</h3>${rows}<div class="btns"><button class="btn sm" data-act="export">Copy save data</button><button class="btn sm red" data-act="reset">Reset game</button><button class="btn gray" data-act="back">Back</button></div><div class="msg" id="msg"></div>`);
     card.onclick = (e) => {
       const t = e.target.closest('[data-act]'); if (!t) return;
       const a = t.dataset.act;
       if (a === 'back') return menu();
       if (a === 'tier') { s.tier = Number(t.dataset.t); ctx.refreshAll(); return parent(); }
-      if (a === 'export') { const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(blob); const l = document.createElement('a'); l.href = u; l.download = 'happy-farm-save.json'; l.click(); return; }
+      if (a === 'export') {
+        const txt = JSON.stringify(s, null, 2);
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => { $('msg').textContent = 'Save data copied to the clipboard'; }, () => { $('msg').textContent = 'Could not copy'; });
+        return;
+      }
       if (a === 'reset') { if (t.dataset.sure) return ctx.reset(); t.dataset.sure = 1; t.textContent = 'Tap again to erase everything'; }
     };
   }

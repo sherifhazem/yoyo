@@ -9,6 +9,7 @@ const js = readFileSync(dir + files.find((f) => f.endsWith('.js')), 'utf8').repl
 const css = readFileSync(dir + files.find((f) => f.endsWith('.css')), 'utf8');
 const html = readFileSync('index.html', 'utf8');
 const body = html.slice(html.indexOf('<body>') + 6, html.indexOf('<script type="module"')).trim();
-const out = `<title>Happy Farm</title>\n<style>${css}</style>\n${body}\n<script type="module">${js}</script>\n`;
+const fonts = '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">';
+const out = `<title>Happy Farm</title>\n${fonts}\n<style>${css}</style>\n${body}\n<script type="module">${js}</script>\n`;
 writeFileSync(process.argv[2] || 'dist-single/happy-farm.html', out);
 console.log('wrote', (out.length / 1024).toFixed(0) + ' KB');

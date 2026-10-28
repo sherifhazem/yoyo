@@ -6,15 +6,15 @@ import { key, isRipe, progress } from '../sim/farm.js';
 import { ANIMALS } from '../data/items.js';
 import { phenotype } from '../sim/breeding.js';
 import { supply } from '../sim/power.js';
-import { TW, TH, toScreen, drawTile, drawCrop, drawChicken, drawCow, drawBarn, drawBoard, drawWell, drawMill, drawSolar, drawHive, drawBin, drawTruck } from './art.js';
+import { createWorld } from './world.js';
+import { SEASON_SKY, TW, TH, toScreen, drawTile, drawCrop, drawChicken, drawCow, drawBarn, drawBoard, drawWell, drawMill, drawSolar, drawHive, drawBin, drawTruck } from './art.js';
 
 export const PEN_X0 = MAX_COLS;           // pen tiles are gx 7..8
 export const PEN_COLS = 2;
-const BG = [0x9fd66b, 0x8fcf55, 0xd2c066, 0xe3eef3];
 
 export async function createScene(state, hooks) {
   const app = new Application();
-  await app.init({ resizeTo: window, background: BG[0], antialias: true, resolution: Math.min(devicePixelRatio || 1, 2), autoDensity: true });
+  await app.init({ resizeTo: window, background: SEASON_SKY[0], antialias: true, resolution: Math.min(devicePixelRatio || 1, 2), autoDensity: true });
   document.body.prepend(app.canvas);
 
   const world = new Container();
@@ -26,6 +26,7 @@ export async function createScene(state, hooks) {
   const sky = new Graphics();           // night tint (screen space)
   const rain = new Graphics();
   app.stage.addChild(sky, rain);
+  const wd = createWorld(world, field, app);
 
   // ---------- camera ----------
   const cam = { s: 0.7, x: 0, y: 0 };
@@ -89,22 +90,25 @@ export async function createScene(state, hooks) {
     field.addChild(c);
     tiles.set(key(gx, gy), { c, g, bars, kind: '' });
   }
+  const decos = [];
   const deco = (kind, gx, gy) => {
-    const g = new Graphics(); drawTile(g, kind);
+    const g = new Graphics(); drawTile(g, kind, gx + gy);
     const p = toScreen(gx + 0.5, gy + 0.5);
     g.position.set(p.x, p.y); g.zIndex = gx + gy - 0.5; field.addChild(g);
+    decos.push([g, kind, gx + gy]);
   };
   for (let gx = PEN_X0; gx < PEN_X0 + PEN_COLS; gx++) for (let gy = 0; gy < MAX_ROWS; gy++) deco('pen', gx, gy);
   for (let gx = 0; gx < PEN_X0 + PEN_COLS; gx++) deco('grass', gx, -1);
 
   let soilView = false;
   function refreshTiles() {
+    wd.setFence(state.land.cols, state.land.rows);
     for (const [k, t] of tiles) {
       const [gx, gy] = k.split(',').map(Number);
       const open = gx < state.land.cols && gy < state.land.rows;
       const so = state.soil[k];
       const kind = !open ? 'locked' : !so ? 'soil' : so.w < 25 ? 'dry' : so.w > 60 ? 'wet' : 'soil';
-      if (kind !== t.kind) { t.kind = kind; drawTile(t.g, kind); }
+      if (kind !== t.kind) { t.kind = kind; drawTile(t.g, kind, gx + gy); }
       t.bars.clear();
       if (open && soilView) {
         const w = so ? so.w : 30, n = so ? so.n : 60;
@@ -156,7 +160,8 @@ export async function createScene(state, hooks) {
     const c = new Container();
     const g = new Graphics();
     draw(g);
-    c.addChild(g);
+    const sh = new Graphics(); sh.ellipse(0, 8, 44, 14).fill({ color: 0x000000, alpha: 0.16 });
+    c.addChild(sh, g);
     const p = P(gx, gy);
     c.position.set(p.x, p.y + 4); c.zIndex = gx + gy + z + 1;
     if (onTap) { c.eventMode = 'static'; c.cursor = 'pointer'; c.hitArea = new Rectangle(-45, -85, 90, 100); c.on('pointertap', tap(onTap)); }
@@ -232,6 +237,7 @@ export async function createScene(state, hooks) {
 
   // ---------- per-frame ----------
   let acc = 0;
+  let seasonDrawn = -1;
   let night = 0;
   const drops = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), v: 0.6 + Math.random() * 0.6 }));
   app.ticker.add((tk) => {
@@ -240,6 +246,9 @@ export async function createScene(state, hooks) {
     const t = now / 1000;
     const wx = weatherOf(day);
     hooks.onFrame(tk.deltaMS);
+    const si = seasonIndex(day);
+    wd.update(tk.deltaMS, t, wx, si, daylight(hourOf(day)), app.screen, cam);
+    if (si !== seasonDrawn) { seasonDrawn = si; for (const [g, kind, alt] of decos) drawTile(g, kind, alt); for (const tl of tiles.values()) tl.kind = ''; refreshTiles(); }
     acc += tk.deltaMS;
     if (acc > 400) { acc = 0; refreshTiles(); syncPlots(); }
     for (const e of crops.values()) {
@@ -269,7 +278,7 @@ export async function createScene(state, hooks) {
     const tgt = (1 - daylight(h)) * 0.38;
     night += (tgt - night) * 0.05;
     sky.clear().rect(0, 0, app.screen.width, app.screen.height).fill({ color: 0x0b1d4d, alpha: night });
-    app.renderer.background.color = BG[seasonIndex(day)];
+    app.renderer.background.color = SEASON_SKY[si];
     rain.clear();
     if (wx.kind === 'rain') {
       for (const d of drops) { d.y += d.v * tk.deltaMS * 0.0014; if (d.y > 1) { d.y = 0; d.x = Math.random(); } rain.moveTo(d.x * app.screen.width, d.y * app.screen.height).lineTo(d.x * app.screen.width - 4, d.y * app.screen.height + 14); }
