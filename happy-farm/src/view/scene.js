@@ -154,7 +154,7 @@ export async function createScene(state, hooks) {
   // ---------- scenery ----------
   const scenery = new Map();
   const P = (gx, gy = -0.5) => toScreen(gx + 0.5, gy + 0.5);
-  function obj(id, draw, gx, gy, onTap, z = 0.3, hit = [-45, -92, 90, 108]) {
+  function obj(id, draw, gx, gy, onTap, z = 0.3, hit = [-45, -92, 90, 86]) {
     let e = scenery.get(id);
     if (e) return e;
     const c = new Container();
@@ -171,11 +171,11 @@ export async function createScene(state, hooks) {
     return e;
   }
   function syncScenery() {
-    obj('barn', drawBarn, 0, -1, () => hooks.onObject('market'), 0.3, [-62, -125, 124, 150]);
+    obj('barn', drawBarn, 0, -1, () => hooks.onObject('market'), 0.3, [-62, -125, 124, 118]);
     obj('board', drawBoard, 1.7, -1, () => hooks.onObject('orders'));
-    obj('well', drawWell, 3.0, -1, () => hooks.onObject('well'), 0.3, [-42, -85, 84, 100]);
+    obj('well', drawWell, 3.0, -1, () => hooks.onObject('well'), 0.3, [-42, -85, 84, 80]);
     obj('bin', drawBin, 7.9, -1, () => hooks.onObject('compost'));
-    for (let i = 0; i < state.owned.windmill; i++) obj('mill' + i, (g) => drawMill(g, 0), 4.3 + i * 0.9, -1, () => hooks.onObject('power'), 0.3, [-42, -112, 84, 124]);
+    for (let i = 0; i < state.owned.windmill; i++) obj('mill' + i, (g) => drawMill(g, 0), 4.3 + i * 0.9, -1, () => hooks.onObject('power'), 0.3, [-42, -112, 84, 106]);
     for (let i = 0; i < state.owned.solar; i++) obj('solar' + i, drawSolar, 6.2 + i * 0.8, -1, () => hooks.onObject('power'));
     for (let i = 0; i < state.owned.hive; i++) obj('hive' + i, drawHive, 8.8 + i * 0.7, -1, () => hooks.onObject('hive'));
     if (state.owned.truck) obj('truck', drawTruck, -1.2, 1.5, () => hooks.onObject('city'));

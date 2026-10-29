@@ -18,6 +18,7 @@ const { chromium } = require('playwright');
   await p.waitForTimeout(800);
   await tool('harvest');
   for (const [x, y] of [[0, 0], [1, 0], [2, 0]]) await tile(x, y);
+  await p.waitForTimeout(700);   // the level-up card appears on the next game tick
   if (await p.locator('[data-act="ok"]').count()) await p.click('[data-act="ok"]');
   await tool('market');
   await p.click('[data-act="sell"]');
