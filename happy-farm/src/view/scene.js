@@ -154,7 +154,7 @@ export async function createScene(state, hooks) {
   // ---------- scenery ----------
   const scenery = new Map();
   const P = (gx, gy = -0.5) => toScreen(gx + 0.5, gy + 0.5);
-  function obj(id, draw, gx, gy, onTap, z = 0.3) {
+  function obj(id, draw, gx, gy, onTap, z = 0.3, hit = [-45, -92, 90, 108]) {
     let e = scenery.get(id);
     if (e) return e;
     const c = new Container();
@@ -164,20 +164,20 @@ export async function createScene(state, hooks) {
     c.addChild(sh, g);
     const p = P(gx, gy);
     c.position.set(p.x, p.y + 4); c.zIndex = gx + gy + z + 1;
-    if (onTap) { c.eventMode = 'static'; c.cursor = 'pointer'; c.hitArea = new Rectangle(-45, -85, 90, 100); c.on('pointertap', tap(onTap)); }
+    if (onTap) { c.eventMode = 'static'; c.cursor = 'pointer'; c.hitArea = new Rectangle(...hit); c.on('pointertap', tap(onTap)); }
     field.addChild(c);
     e = { c, g };
     scenery.set(id, e);
     return e;
   }
   function syncScenery() {
-    obj('barn', drawBarn, 0, -1, () => hooks.onObject('market'));
-    obj('board', drawBoard, 1.2, -1, () => hooks.onObject('orders'));
-    obj('well', drawWell, 2.4, -1, () => hooks.onObject('well'));
-    obj('bin', drawBin, 6, -1, () => hooks.onObject('compost'));
-    for (let i = 0; i < state.owned.windmill; i++) obj('mill' + i, (g) => drawMill(g, 0), 3.5 + i * 0.9, -1, () => hooks.onObject('power'));
-    for (let i = 0; i < state.owned.solar; i++) obj('solar' + i, drawSolar, 4.8 + i * 0.7, -1, () => hooks.onObject('power'));
-    for (let i = 0; i < state.owned.hive; i++) obj('hive' + i, drawHive, 7.4 + i * 0.6, -1, () => hooks.onObject('hive'));
+    obj('barn', drawBarn, 0, -1, () => hooks.onObject('market'), 0.3, [-62, -125, 124, 150]);
+    obj('board', drawBoard, 1.7, -1, () => hooks.onObject('orders'));
+    obj('well', drawWell, 3.0, -1, () => hooks.onObject('well'), 0.3, [-42, -85, 84, 100]);
+    obj('bin', drawBin, 7.9, -1, () => hooks.onObject('compost'));
+    for (let i = 0; i < state.owned.windmill; i++) obj('mill' + i, (g) => drawMill(g, 0), 4.3 + i * 0.9, -1, () => hooks.onObject('power'), 0.3, [-42, -112, 84, 124]);
+    for (let i = 0; i < state.owned.solar; i++) obj('solar' + i, drawSolar, 6.2 + i * 0.8, -1, () => hooks.onObject('power'));
+    for (let i = 0; i < state.owned.hive; i++) obj('hive' + i, drawHive, 8.8 + i * 0.7, -1, () => hooks.onObject('hive'));
     if (state.owned.truck) obj('truck', drawTruck, -1.2, 1.5, () => hooks.onObject('city'));
     const t = scenery.get('truck');
     if (t) t.c.visible = !state.trip;
@@ -195,10 +195,10 @@ export async function createScene(state, hooks) {
         const bub = new Text({ text: '', style: { fontSize: 22 } }); bub.anchor.set(0.5); bub.position.set(0, -52);
         c.addChild(g, bub);
         c.eventMode = 'static'; c.cursor = 'pointer';
-        c.hitArea = new Rectangle(-30, -60, 70, 70);
+        c.hitArea = new Rectangle(-40, -80, 90, 90);
         c.on('pointertap', tap(() => hooks.onAnimal(a.id)));
         field.addChild(c);
-        v = { c, g, bub, id: a.id, gx: PEN_X0 + 0.3 + Math.random() * 1.4, gy: 0.5 + Math.random() * (MAX_ROWS - 1), tx: 0, ty: 0, wait: 0, look: '' };
+        v = { c, g, bub, id: a.id, gx: PEN_X0 + 0.3 + Math.random() * 1.4, gy: 0.5 + Math.random() * (MAX_ROWS - 1), tx: 0, ty: 0, wait: 0, look: '', dir: 1, size: 1 };
         v.tx = v.gx; v.ty = v.gy;
         animals.set(a.id, v);
       }
@@ -206,6 +206,7 @@ export async function createScene(state, hooks) {
       const look = `${a.type}${phenotype(a)}${baby}`;
       if (look !== v.look) {
         v.look = look;
+        v.size = a.type === 'cow' && baby ? 0.65 : 1;
         (a.type === 'cow' ? drawCow : drawChicken)(v.g, phenotype(a) === 'H', baby);
       }
     }
@@ -263,12 +264,13 @@ export async function createScene(state, hooks) {
       else {
         const dx = v.tx - v.gx, dy = v.ty - v.gy, d = Math.hypot(dx, dy);
         if (d < 0.05) { v.wait = 700 + Math.random() * 2500; v.tx = PEN_X0 + 0.3 + Math.random() * (PEN_COLS - 0.6); v.ty = 0.4 + Math.random() * (MAX_ROWS - 0.8); }
-        else { const sp = (a.type === 'cow' ? 0.0005 : 0.0009) * tk.deltaMS; v.gx += dx / d * sp; v.gy += dy / d * sp; v.g.scale.x = (dx - dy) < 0 ? -1 : 1; v.g.y = -Math.abs(Math.sin(t * 12)) * (a.type === 'cow' ? 1 : 2); }
+        else { const sp = (a.type === 'cow' ? 0.0005 : 0.0009) * tk.deltaMS; v.gx += dx / d * sp; v.gy += dy / d * sp; v.dir = (dx - dy) < 0 ? -1 : 1; v.g.y = -Math.abs(Math.sin(t * 12)) * (a.type === 'cow' ? 1 : 2); }
       }
+      v.g.scale.set(v.dir * v.size, v.size);
       const p = toScreen(v.gx, v.gy);
       v.c.position.set(p.x, p.y); v.c.zIndex = v.gx + v.gy + 0.6;
       v.bub.text = a.ready > 0 ? ANIMALS[a.type].product === 'egg' ? '🥚' : '🥛' : a.fed < 0.15 && a.age >= 1 ? '🌾' : '';
-      v.bub.y = -52 + Math.sin(t * 4) * 3;
+      v.bub.y = (a.type === 'cow' ? -(a.age < 1 ? 62 : 84) : -52) + Math.sin(t * 4) * 3;
     }
     // windmill blades follow the wind
     const sp = supply(state, day);
