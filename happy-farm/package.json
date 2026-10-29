@@ -1,0 +1,9 @@
+{
+  "name": "happy-farm",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": { "dev": "vite", "build": "vite build", "test": "node --test test/*.test.js", "preview": "vite preview" },
+  "dependencies": { "pixi.js": "^8.5.0" },
+  "devDependencies": { "vite": "^5.3.4" }
+}
